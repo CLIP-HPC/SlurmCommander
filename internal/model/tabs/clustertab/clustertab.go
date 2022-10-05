@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/table"
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/pja237/slurmcommander/internal/keybindings"
 	"github.com/pja237/slurmcommander/internal/slurm"
 )
@@ -13,6 +14,7 @@ type JobClusterTab struct {
 	CpuBar     progress.Model
 	MemBar     progress.Model
 	Sinfo      slurm.SinfoJSON
+	Filter     textinput.Model
 }
 
 type Keys map[*key.Binding]bool

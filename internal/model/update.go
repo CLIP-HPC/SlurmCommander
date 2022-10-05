@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textarea"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/pja237/slurmcommander/internal/command"
 	"github.com/pja237/slurmcommander/internal/keybindings"
@@ -22,26 +23,31 @@ type errMsg error
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var (
-		brk         bool = false
-		activeTable *table.Model
+		brk          bool = false
+		activeTable  *table.Model
+		activeFilter *textinput.Model
 	)
 
 	// This shortens the testing for table movement keys
 	switch m.ActiveTab {
 	case tabJobs:
 		activeTable = &m.SqueueTable
+		activeFilter = &m.JobTab.Filter
 	case tabJobHist:
 		activeTable = &m.SacctTable
 	case tabJobFromTemplate:
 		activeTable = &m.TemplatesTable
 	case tabCluster:
 		activeTable = &m.SinfoTable
+		activeFilter = &m.JobClusterTab.Filter
 	}
 
 	// Filter is turned on, take care of this first
 	// TODO: revisit this for filtering on multiple tabs
+	m.LogF.WriteString(fmt.Sprintf("U(): FS = %d\n", m.FilterSwitch))
 	switch {
-	case m.FilterOn:
+	case m.FilterSwitch != -1:
+		m.LogF.WriteString("U(): In filter\n")
 		switch msg := msg.(type) {
 
 		case tea.KeyMsg:
@@ -49,7 +55,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// TODO: when filter is set/cleared, trigger refresh with new filtered data
 			case tea.KeyEnter:
 				// finish entering filter
-				m.FilterOn = false
+				m.FilterSwitch = -1
 				m.lastKey = "ENTER"
 				brk = true
 				// TODO: this is a "fix" for crashing-after-filter when Cursor() goes beyond list end
@@ -57,8 +63,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.SqueueTable.SetCursor(0)
 			case tea.KeyEsc:
 				// abort entering filter
-				m.FilterOn = false
-				m.Filter.SetValue("")
+				m.FilterSwitch = -1
+				//m.Filter.SetValue("")
+				activeFilter.SetValue("")
 				m.lastKey = "ESC"
 				brk = true
 			}
@@ -77,8 +84,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.DebugMsg += "f"
-		tmp, cmd := m.Filter.Update(msg)
-		m.Filter = tmp
+		tmp, cmd := activeFilter.Update(msg)
+		*activeFilter = tmp
 		return m, cmd
 
 	case m.JobTab.MenuOn:
@@ -179,17 +186,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// DONE: if there is no filter set, there is no need for all the string searching
 			for _, v := range msg.Jobs {
 				app := false
-				if m.Filter.Value() != "" {
+				if m.JobTab.Filter.Value() != "" {
 					switch {
-					case strings.Contains(strconv.Itoa(*v.JobId), m.Filter.Value()):
+					case strings.Contains(strconv.Itoa(*v.JobId), m.JobTab.Filter.Value()):
 						app = true
-					case strings.Contains(*v.Name, m.Filter.Value()):
+					case strings.Contains(*v.Name, m.JobTab.Filter.Value()):
 						app = true
-					case strings.Contains(*v.Account, m.Filter.Value()):
+					case strings.Contains(*v.Account, m.JobTab.Filter.Value()):
 						app = true
-					case strings.Contains(*v.UserName, m.Filter.Value()):
+					case strings.Contains(*v.UserName, m.JobTab.Filter.Value()):
 						app = true
-					case strings.Contains(*v.JobState, m.Filter.Value()):
+					case strings.Contains(*v.JobState, m.JobTab.Filter.Value()):
 						app = true
 					}
 				} else {
@@ -313,7 +320,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// SLASH
 		case key.Matches(msg, keybindings.DefaultKeyMap.Slash):
-			m.FilterOn = true
+			m.FilterSwitch = FilterSwitch(m.ActiveTab)
 			m.DebugMsg += "/"
 			return m, nil
 

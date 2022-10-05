@@ -64,4 +64,9 @@ type Globals struct {
 	winH      int
 	LogF      *os.File
 	Help      help.Model
+	FilterSwitch
 }
+
+// FilterSwitch == -1 if filter is off.
+// == N where N == tabNumber
+type FilterSwitch int

@@ -69,9 +69,10 @@ func main() {
 
 	m := model.Model{
 		Globals: model.Globals{
-			Help:      help.New(),
-			ActiveTab: 0,
-			LogF:      logf,
+			Help:         help.New(),
+			ActiveTab:    0,
+			LogF:         logf,
+			FilterSwitch: -1,
 		},
 		JobTab: jobtab.JobTab{
 			SqueueTable: table.New(table.WithColumns(slurm.SqueueTabCols), table.WithRows(slurm.SqueueTabRows), table.WithStyles(s)),

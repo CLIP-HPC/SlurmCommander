@@ -245,10 +245,10 @@ func (m Model) View() string {
 		// TODO: Here to a an info window if InfoOn==true
 		// e.g. lipgloss.JoinHorizontal(...)
 		switch {
-		case m.JobTab.FilterOn:
+		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabJobs())
 			scr.WriteString("\n---\n")
-			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		case m.JobTab.MenuOn:
 			// TODO: Render menu here
 			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), focusedModelStyle.Render(m.JobTab.Menu.View())))
@@ -280,7 +280,8 @@ func (m Model) View() string {
 	scr.WriteString(baseStyle.Render(lipgloss.JoinHorizontal(lipgloss.Top, boxStyle.Render(fmt.Sprintf("Update count: %d\nHello world!", m.UpdateCnt)), boxStyle.Render(fmt.Sprintf("Job count: %d\n", len(m.Squeue.Jobs))))))
 	scr.WriteString(fmt.Sprintf("\nWindow Width: %d\tHeight:%d\n", m.winW, m.winH))
 	scr.WriteString(fmt.Sprintf("Last key pressed: %q\n", m.lastKey))
-	scr.WriteString(fmt.Sprintf("Active tab: %d\t Filter value: %q\t InfoOn: %v\n", m.ActiveTab, m.Filter.Value(), m.InfoOn))
+	//scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: %q\t InfoOn: %v\n", m.ActiveTab, m.Filter.Value(), m.InfoOn))
+	scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: TBD\t InfoOn: %v\n", m.ActiveTab, m.InfoOn))
 	scr.WriteString(fmt.Sprintf("Debug Msg: %q\n", m.DebugMsg))
 	scr.WriteString(fmt.Sprintf("Log: %#v\n", m.LogF))
 	scr.WriteString("\n\n")
