@@ -16,7 +16,7 @@ import (
 func GetSinfo(t time.Time) tea.Msg {
 	var siJson slurm.SinfoJSON
 
-	out, err := exec.Command(sinfoCmd).CombinedOutput()
+	out, err := exec.Command(sinfoCmd, sinfoCmdSwitches...).CombinedOutput()
 	if err != nil {
 		log.Fatalf("Error exec sinfo: %q\n", err)
 	}
@@ -45,7 +45,7 @@ func GetSqueue(t time.Time) tea.Msg {
 
 	var sqJson slurm.SqueueJSON
 
-	out, err := exec.Command(squeueCmd).CombinedOutput()
+	out, err := exec.Command(squeueCmd, squeueCmdSwitches...).CombinedOutput()
 	if err != nil {
 		log.Fatalf("Error exec squeue: %q\n", err)
 	}
@@ -82,7 +82,7 @@ func GetSacct(t time.Time) tea.Msg {
 	}
 
 	// run sacct to get list of last 7 days
-	out, err := exec.Command(sacctCmd).CombinedOutput()
+	out, err := exec.Command(sacctCmd, sacctCmdSwitches...).CombinedOutput()
 	if err != nil {
 		log.Fatalf("Error exec sacct: %q\n", err)
 	}
