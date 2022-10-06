@@ -295,7 +295,7 @@ func (m Model) View() string {
 	//scr.WriteString(fmt.Sprintf("\nUpdate count: %d\n", m.UpdateCnt))
 	//scr.WriteString(fmt.Sprintf("Job count: %d\n", len(m.squeue.Jobs)))
 	//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, fmt.Sprintf("Update count: %d\nHello world!", m.UpdateCnt), fmt.Sprintf("Job count: %d\n", len(m.squeue.Jobs))))
-	scr.WriteString(baseStyle.Render(lipgloss.JoinHorizontal(lipgloss.Top, boxStyle.Render(fmt.Sprintf("Update count: %d\nHello world!", m.UpdateCnt)), boxStyle.Render(fmt.Sprintf("Job count: %d\n", len(m.Squeue.Jobs))))))
+	scr.WriteString(baseStyle.Render(lipgloss.JoinHorizontal(lipgloss.Top, boxStyle.Render(fmt.Sprintf("Update count: %d\nHello world!", m.UpdateCnt)), boxStyle.Render(fmt.Sprintf("Job count: %d\n", len(m.JobTab.SqueueFiltered.Jobs))))))
 	scr.WriteString(fmt.Sprintf("\nWindow Width: %d\tHeight:%d\n", m.winW, m.winH))
 	scr.WriteString(fmt.Sprintf("Last key pressed: %q\n", m.lastKey))
 	//scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: %q\t InfoOn: %v\n", m.ActiveTab, m.Filter.Value(), m.InfoOn))

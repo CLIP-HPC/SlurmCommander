@@ -13,6 +13,7 @@ type JobTab struct {
 	InfoOn           bool
 	SqueueTable      table.Model
 	Squeue           slurm.SqueueJSON
+	SqueueFiltered   slurm.SqueueJSON
 	Filter           textinput.Model
 	SelectedJob      string
 	SelectedJobState string
