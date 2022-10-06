@@ -188,10 +188,10 @@ func (m Model) tabCluster() string {
 	// TODO: rework, doesn't work when table filtering is on
 	sel := m.SinfoTable.Cursor()
 	m.CpuBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
-	cpuPerc = float64(*m.Sinfo.Nodes[sel].AllocCpus) / float64(*m.Sinfo.Nodes[sel].Cpus)
+	cpuPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocCpus) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].Cpus)
 	//m.CpuBar.SetPercent(cpuPerc)
 	m.MemBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
-	memPerc = float64(*m.Sinfo.Nodes[sel].AllocMemory) / float64(*m.Sinfo.Nodes[sel].RealMemory)
+	memPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocMemory) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].RealMemory)
 
 	scr += "Cpu and memory utilization:\n"
 	scr += fmt.Sprintf("cpuPerc: %.2f ", cpuPerc)

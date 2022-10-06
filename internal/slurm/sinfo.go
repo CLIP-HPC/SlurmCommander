@@ -57,9 +57,10 @@ var SinfoTabCols = []table.Column{
 	},
 }
 
-func (siJson *SinfoJSON) FilterSinfoTable(f string) TableRows {
+func (siJson *SinfoJSON) FilterSinfoTable(f string) (TableRows, SinfoJSON) {
 	var (
-		siTabRows = TableRows{}
+		siTabRows      = TableRows{}
+		siJsonFiltered = SinfoJSON{}
 	)
 
 	for _, v := range siJson.Nodes {
@@ -78,10 +79,11 @@ func (siJson *SinfoJSON) FilterSinfoTable(f string) TableRows {
 		}
 		if app {
 			siTabRows = append(siTabRows, table.Row{*v.Name, *v.State, strconv.Itoa(*v.Cpus), strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.RealMemory), strconv.Itoa(*v.FreeMemory), strings.Join(*v.StateFlags, ",")})
+			siJsonFiltered.Nodes = append(siJsonFiltered.Nodes, v)
 		}
 	}
 
-	return siTabRows
+	return siTabRows, siJsonFiltered
 }
 
 // TODO: not sure what i was thinking, but this we really don't need, just inject in Update() directly to model!?

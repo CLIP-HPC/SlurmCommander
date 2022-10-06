@@ -10,11 +10,12 @@ import (
 )
 
 type JobClusterTab struct {
-	SinfoTable table.Model
-	CpuBar     progress.Model
-	MemBar     progress.Model
-	Sinfo      slurm.SinfoJSON
-	Filter     textinput.Model
+	SinfoTable    table.Model
+	CpuBar        progress.Model
+	MemBar        progress.Model
+	Sinfo         slurm.SinfoJSON
+	SinfoFiltered slurm.SinfoJSON
+	Filter        textinput.Model
 }
 
 type Keys map[*key.Binding]bool
