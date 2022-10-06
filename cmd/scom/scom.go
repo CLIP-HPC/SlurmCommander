@@ -79,7 +79,8 @@ func main() {
 			Filter:      ti,
 		},
 		JobHistTab: jobhisttab.JobHistTab{
-			SacctTable: table.New(table.WithColumns(slurm.SacctTabCols), table.WithRows(slurm.SacctTabRows), table.WithStyles(s)),
+			SacctTable: table.New(table.WithColumns(slurm.SacctTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),
+			Filter:     ti,
 		},
 		JobFromTemplateTab: jobfromtemplate.JobFromTemplateTab{
 			EditTemplate: false,

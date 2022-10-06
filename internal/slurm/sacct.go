@@ -1,6 +1,8 @@
 package slurm
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/pja237/slurmcommander/internal/openapidb"
 )
@@ -52,4 +54,32 @@ var SacctTabCols = []table.Column{
 	},
 }
 
-var SacctTabRows = []table.Row{}
+func (saList *SacctList) FilterSacctTable(f string) TableRows {
+	var (
+		saTabRows = TableRows{}
+	)
+
+	for _, v := range *saList {
+		app := false
+		if f != "" {
+			switch {
+			case strings.Contains(v[0], f):
+				// Id
+				app = true
+			case strings.Contains(v[1], f):
+				// Name
+				app = true
+			case strings.Contains(v[3], f):
+				// State
+				app = true
+			}
+		} else {
+			app = true
+		}
+		if app {
+			saTabRows = append(saTabRows, table.Row{v[0], v[1], v[2], v[3], v[4]})
+		}
+	}
+
+	return saTabRows
+}

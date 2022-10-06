@@ -262,7 +262,15 @@ func (m Model) View() string {
 		}
 		scr.WriteString("\n\n")
 	case tabJobHist:
-		scr.WriteString(m.tabJobHist())
+		switch {
+		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
+			scr.WriteString(m.tabJobHist())
+			scr.WriteString("\n---\n")
+			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobHistTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+		default:
+			scr.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n")
+			scr.WriteString(m.tabJobHist())
+		}
 	case tabJobDetails:
 		scr.WriteString(m.tabJobDetails())
 	case tabJobFromTemplate:

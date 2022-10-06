@@ -3,6 +3,7 @@ package jobhisttab
 import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/pja237/slurmcommander/internal/keybindings"
 	"github.com/pja237/slurmcommander/internal/slurm"
 )
@@ -13,6 +14,7 @@ type JobHistTab struct {
 	slurm.SacctList
 	SacctTable table.Model
 	Sacct      slurm.SacctJob
+	Filter     textinput.Model
 }
 
 type Keys map[*key.Binding]bool
@@ -22,7 +24,7 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.Down:     true,
 	&keybindings.DefaultKeyMap.PageUp:   true,
 	&keybindings.DefaultKeyMap.PageDown: true,
-	&keybindings.DefaultKeyMap.Slash:    false,
+	&keybindings.DefaultKeyMap.Slash:    true,
 	&keybindings.DefaultKeyMap.Info:     false,
 	&keybindings.DefaultKeyMap.Enter:    true,
 }

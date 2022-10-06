@@ -34,6 +34,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		activeFilter = &m.JobTab.Filter
 	case tabJobHist:
 		activeTable = &m.SacctTable
+		activeFilter = &m.JobHistTab.Filter
 	case tabJobFromTemplate:
 		activeTable = &m.TemplatesTable
 	case tabCluster:
@@ -71,8 +72,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				switch m.ActiveTab {
 				case tabJobs:
 					return m, command.QuickGetSqueue()
+				case tabJobHist:
+					return m, command.QuickGetSacct()
 				case tabCluster:
 					return m, command.QuickGetSinfo()
+				default:
+					return m, nil
 				}
 			}
 		}
@@ -221,11 +226,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// fill out model
 		m.DebugMsg += "H"
 		m.JobHistTab.SacctList = msg
-		// We do it only once on the start? or tick it?
-		for _, v := range m.JobHistTab.SacctList {
-			slurm.SacctTabRows = append(slurm.SacctTabRows, table.Row{v[0], v[1], v[2], v[3], v[4]})
-		}
-		m.JobHistTab.SacctTable.SetRows(slurm.SacctTabRows)
+		m.JobHistTab.SacctTable.SetRows(msg.FilterSacctTable(m.JobHistTab.Filter.Value()))
+		m.LogF.WriteString(fmt.Sprintf("U(): got Filtered rows %#v\n", msg.FilterSacctTable(m.JobHistTab.Filter.Value())))
 		return m, nil
 
 	// Job Details tab update
