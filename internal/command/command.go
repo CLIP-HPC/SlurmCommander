@@ -114,7 +114,8 @@ func SingleJobGetSacct(jobid string) tea.Cmd {
 	return func() tea.Msg {
 		var sacctJob slurm.SacctJob
 
-		out, err := exec.Command(sacctJobCmd).CombinedOutput()
+		switches := append(sacctJobCmdSwitches, jobid)
+		out, err := exec.Command(sacctJobCmd, switches...).CombinedOutput()
 		if err != nil {
 			log.Fatalf("Error exec sacct: %q\n", err)
 		}

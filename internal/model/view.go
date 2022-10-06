@@ -148,6 +148,8 @@ func (m Model) tabJobDetails() (scr string) {
 	waitT := time.Unix(int64(*m.SacctJob.Jobs[0].Time.Submission), 0).Sub(time.Unix(int64(*m.SacctJob.Jobs[0].Time.Submission), 0))
 	runT := time.Unix(int64(*m.SacctJob.Jobs[0].Time.End), 0).Sub(time.Unix(int64(*m.SacctJob.Jobs[0].Time.Start), 0))
 	fmtStr := "%-20s : %-40s\n"
+	scr += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*m.SacctJob.Jobs[0].JobId))
+	scr += fmt.Sprintf(fmtStr, "Job Name", *m.SacctJob.Jobs[0].Name)
 	scr += fmt.Sprintf(fmtStr, "Job Account", *m.SacctJob.Jobs[0].Account)
 	scr += fmt.Sprintf(fmtStr, "Job Submission", time.Unix(int64(*m.SacctJob.Jobs[0].Time.Submission), 0).String())
 	scr += fmt.Sprintf(fmtStr, "Job Start", time.Unix(int64(*m.SacctJob.Jobs[0].Time.Start), 0).String())
@@ -245,6 +247,7 @@ func (m Model) View() string {
 	case tabJobs:
 		// TODO: Here to a an info window if InfoOn==true
 		// e.g. lipgloss.JoinHorizontal(...)
+		scr.WriteString("Filter: " + m.JobTab.Filter.Value() + "\n\n")
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabJobs())
@@ -258,18 +261,17 @@ func (m Model) View() string {
 		case m.JobTab.InfoOn:
 			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), focusedModelStyle.Render(m.getJobInfo())))
 		default:
-			scr.WriteString("Filter: " + m.JobTab.Filter.Value() + "\n")
 			scr.WriteString(m.tabJobs())
 		}
 		scr.WriteString("\n\n")
 	case tabJobHist:
+		scr.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n\n")
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabJobHist())
 			scr.WriteString("\n---\n")
 			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobHistTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		default:
-			scr.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n")
 			scr.WriteString(m.tabJobHist())
 		}
 	case tabJobDetails:
@@ -277,13 +279,13 @@ func (m Model) View() string {
 	case tabJobFromTemplate:
 		scr.WriteString(m.tabJobFromTemplate())
 	case tabCluster:
+		scr.WriteString("Filter: " + m.JobClusterTab.Filter.Value() + "\n\n")
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabCluster())
 			scr.WriteString("\n---\n")
 			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobClusterTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		default:
-			scr.WriteString("Filter: " + m.JobClusterTab.Filter.Value() + "\n")
 			scr.WriteString(m.tabCluster())
 		}
 	case tabAbout:
