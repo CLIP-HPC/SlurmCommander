@@ -292,20 +292,19 @@ func (m Model) View() string {
 
 	// FOOTER
 	scr.WriteString("\n\n")
-	//scr.WriteString(fmt.Sprintf("\nUpdate count: %d\n", m.UpdateCnt))
-	//scr.WriteString(fmt.Sprintf("Job count: %d\n", len(m.squeue.Jobs)))
-	//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, fmt.Sprintf("Update count: %d\nHello world!", m.UpdateCnt), fmt.Sprintf("Job count: %d\n", len(m.squeue.Jobs))))
-	scr.WriteString(baseStyle.Render(lipgloss.JoinHorizontal(lipgloss.Top, boxStyle.Render(fmt.Sprintf("Update count: %d\nHello world!", m.UpdateCnt)), boxStyle.Render(fmt.Sprintf("Job count: %d\n", len(m.JobTab.SqueueFiltered.Jobs))))))
-	scr.WriteString(fmt.Sprintf("\nWindow Width: %d\tHeight:%d\n", m.winW, m.winH))
-	scr.WriteString(fmt.Sprintf("Last key pressed: %q\n", m.lastKey))
-	//scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: %q\t InfoOn: %v\n", m.ActiveTab, m.Filter.Value(), m.InfoOn))
-	scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: TBD\t InfoOn: %v\n", m.ActiveTab, m.InfoOn))
-	scr.WriteString(fmt.Sprintf("Debug Msg: %q\n", m.DebugMsg))
-	scr.WriteString(fmt.Sprintf("Log: %#v\n", m.LogF))
-	scr.WriteString("\n\n")
+	// Debug information:
+	if m.Globals.Debug {
+		scr.WriteString("\n----------\n")
+		scr.WriteString(fmt.Sprintf("Last key pressed: %q\n", m.lastKey))
+		scr.WriteString(fmt.Sprintf("\nWindow Width: %d\tHeight:%d\n", m.winW, m.winH))
+		scr.WriteString(fmt.Sprintf("LogFile: %#v\n", m.LogF.Name()))
+		scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: TBD\t InfoOn: %v\n", m.ActiveTab, m.InfoOn))
+		scr.WriteString(fmt.Sprintf("Debug Msg: %q\n", m.DebugMsg))
+		scr.WriteString("\n----------\n")
+	}
+
 	// TODO: Help doesn't split into multiple lines (e.g. when window too narrow)
 	scr.WriteString(m.Help.View(keybindings.DefaultKeyMap))
 
-	//return baseStyle.Render(scr.String())
 	return scr.String()
 }

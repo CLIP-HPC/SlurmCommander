@@ -58,6 +58,7 @@ type Model struct {
 type Globals struct {
 	ActiveTab uint
 	UpdateCnt uint64
+	Debug     bool
 	DebugMsg  string
 	lastKey   string
 	winW      int

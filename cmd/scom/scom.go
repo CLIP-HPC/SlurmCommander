@@ -22,8 +22,9 @@ import (
 func main() {
 
 	var (
-		logf *os.File
-		err  error
+		logf     *os.File
+		err      error
+		debugSet bool = false
 	)
 
 	fmt.Println("Welcome to Slurm Commander!")
@@ -63,6 +64,7 @@ func main() {
 			os.Exit(1)
 		}
 		logf.WriteString("Log to file set up.\n")
+		debugSet = true
 		//defer logf.Close()
 	} else {
 		os.OpenFile("/dev/null", os.O_WRONLY|os.O_APPEND, 0000)
@@ -74,6 +76,7 @@ func main() {
 			ActiveTab:    0,
 			LogF:         logf,
 			FilterSwitch: -1,
+			Debug:        debugSet,
 		},
 		JobTab: jobtab.JobTab{
 			SqueueTable: table.New(table.WithColumns(slurm.SqueueTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),
