@@ -75,7 +75,7 @@ func main() {
 			FilterSwitch: -1,
 		},
 		JobTab: jobtab.JobTab{
-			SqueueTable: table.New(table.WithColumns(slurm.SqueueTabCols), table.WithRows(slurm.SqueueTabRows), table.WithStyles(s)),
+			SqueueTable: table.New(table.WithColumns(slurm.SqueueTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),
 			Filter:      ti,
 		},
 		JobHistTab: jobhisttab.JobHistTab{
@@ -91,7 +91,8 @@ func main() {
 			),
 		},
 		JobClusterTab: clustertab.JobClusterTab{
-			SinfoTable: table.New(table.WithColumns(slurm.SinfoTabCols), table.WithRows(slurm.SinfoTabRows), table.WithStyles(s)),
+			SinfoTable: table.New(table.WithColumns(slurm.SinfoTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),
+			Filter:     ti,
 		},
 	}
 

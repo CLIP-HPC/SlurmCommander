@@ -3,7 +3,6 @@ package model
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -54,31 +53,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch msg.Type {
 			// TODO: when filter is set/cleared, trigger refresh with new filtered data
 			case tea.KeyEnter:
-				// finish entering filter
+				// finish & apply entering filter
 				m.FilterSwitch = -1
 				m.lastKey = "ENTER"
 				brk = true
-				// TODO: this is a "fix" for crashing-after-filter when Cursor() goes beyond list end
-				// TODO: don't feel good about this... what if list is empty? no good. revisit
-				m.SqueueTable.SetCursor(0)
 			case tea.KeyEsc:
 				// abort entering filter
 				m.FilterSwitch = -1
-				//m.Filter.SetValue("")
 				activeFilter.SetValue("")
 				m.lastKey = "ESC"
 				brk = true
 			}
 			if brk {
-				// TODO:
-				// for now slash is enabled only in Jobs tab, but later we might enable it for cluster and others as well
-				// so keep this part in...
+				// TODO: this is a "fix" for crashing-after-filter when Cursor() goes beyond list end
+				// TODO: don't feel good about this... what if list is empty? no good. revisit
+				activeTable.SetCursor(0)
 				switch m.ActiveTab {
 				case tabJobs:
-					//return m, command.TimedGetSqueue()
 					return m, command.QuickGetSqueue()
 				case tabCluster:
-					return m, command.TimedGetSinfo()
+					return m, command.QuickGetSinfo()
 				}
 			}
 		}
@@ -182,33 +176,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.LogF.WriteString("U(): got SqueueJSON\n")
 		if len(msg.Jobs) != 0 {
 			m.Squeue = msg
-			slurm.SqueueTabRows = nil
-			// DONE: if there is no filter set, there is no need for all the string searching
-			for _, v := range msg.Jobs {
-				app := false
-				if m.JobTab.Filter.Value() != "" {
-					switch {
-					case strings.Contains(strconv.Itoa(*v.JobId), m.JobTab.Filter.Value()):
-						app = true
-					case strings.Contains(*v.Name, m.JobTab.Filter.Value()):
-						app = true
-					case strings.Contains(*v.Account, m.JobTab.Filter.Value()):
-						app = true
-					case strings.Contains(*v.UserName, m.JobTab.Filter.Value()):
-						app = true
-					case strings.Contains(*v.JobState, m.JobTab.Filter.Value()):
-						app = true
-					}
-				} else {
-					app = true
-				}
-				if app {
-					slurm.SqueueTabRows = append(slurm.SqueueTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Account, *v.UserName, *v.JobState})
-				}
-			}
+
 			// TODO:
 			// fix: if after filtering m.table.Cursor|SelectedRow > lines in table, Info crashes trying to fetch nonexistent row
-			m.SqueueTable.SetRows(slurm.SqueueTabRows)
+			m.SqueueTable.SetRows(msg.FilterSqueueTable(m.JobTab.Filter.Value()))
 			//m.SqueueTable.UpdateViewport()
 		}
 		m.UpdateCnt++
@@ -227,11 +198,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.LogF.WriteString("U(): got SinfoJSON\n")
 		if len(msg.Nodes) != 0 {
 			m.Sinfo = msg
-			slurm.SinfoTabRows = nil
-			for _, v := range msg.Nodes {
-				slurm.SinfoTabRows = append(slurm.SinfoTabRows, table.Row{*v.Name, *v.State, strconv.Itoa(*v.Cpus), strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.RealMemory), strconv.Itoa(*v.FreeMemory), strings.Join(*v.StateFlags, ",")})
-			}
-			m.SinfoTable.SetRows(slurm.SinfoTabRows)
+			//slurm.SinfoTabRows = nil
+			//for _, v := range msg.Nodes {
+			//	slurm.SinfoTabRows = append(slurm.SinfoTabRows, table.Row{*v.Name, *v.State, strconv.Itoa(*v.Cpus), strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.RealMemory), strconv.Itoa(*v.FreeMemory), strings.Join(*v.StateFlags, ",")})
+			//}
+			m.SinfoTable.SetRows(msg.FilterSinfoTable(m.JobClusterTab.Filter.Value()))
 		}
 		m.UpdateCnt++
 		// if active window != this, don't trigger new refresh

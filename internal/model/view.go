@@ -257,6 +257,7 @@ func (m Model) View() string {
 		case m.JobTab.InfoOn:
 			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), focusedModelStyle.Render(m.getJobInfo())))
 		default:
+			scr.WriteString("Filter: " + m.JobTab.Filter.Value() + "\n")
 			scr.WriteString(m.tabJobs())
 		}
 		scr.WriteString("\n\n")
@@ -267,7 +268,15 @@ func (m Model) View() string {
 	case tabJobFromTemplate:
 		scr.WriteString(m.tabJobFromTemplate())
 	case tabCluster:
-		scr.WriteString(m.tabCluster())
+		switch {
+		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
+			scr.WriteString(m.tabCluster())
+			scr.WriteString("\n---\n")
+			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobClusterTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+		default:
+			scr.WriteString("Filter: " + m.JobClusterTab.Filter.Value() + "\n")
+			scr.WriteString(m.tabCluster())
+		}
 	case tabAbout:
 		scr.WriteString(m.tabAbout())
 	}

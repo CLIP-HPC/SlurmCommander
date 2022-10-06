@@ -1,6 +1,9 @@
 package slurm
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/pja237/slurmcommander/internal/openapi"
 )
@@ -53,4 +56,35 @@ var SqueueTabCols = []table.Column{
 	},
 }
 
-var SqueueTabRows = []table.Row{}
+type TableRows []table.Row
+
+func (sqJson *SqueueJSON) FilterSqueueTable(f string) TableRows {
+	var (
+		sqTabRows = TableRows{}
+	)
+
+	for _, v := range sqJson.Jobs {
+		app := false
+		if f != "" {
+			switch {
+			case strings.Contains(strconv.Itoa(*v.JobId), f):
+				app = true
+			case strings.Contains(*v.Name, f):
+				app = true
+			case strings.Contains(*v.Account, f):
+				app = true
+			case strings.Contains(*v.UserName, f):
+				app = true
+			case strings.Contains(*v.JobState, f):
+				app = true
+			}
+		} else {
+			app = true
+		}
+		if app {
+			sqTabRows = append(sqTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Account, *v.UserName, *v.JobState})
+		}
+	}
+
+	return sqTabRows
+}

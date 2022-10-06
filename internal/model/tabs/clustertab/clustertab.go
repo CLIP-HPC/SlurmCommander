@@ -24,7 +24,7 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.Down:     true,
 	&keybindings.DefaultKeyMap.PageUp:   true,
 	&keybindings.DefaultKeyMap.PageDown: true,
-	&keybindings.DefaultKeyMap.Slash:    false,
+	&keybindings.DefaultKeyMap.Slash:    true,
 	&keybindings.DefaultKeyMap.Info:     false,
 	&keybindings.DefaultKeyMap.Enter:    false,
 }
