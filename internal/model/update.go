@@ -133,6 +133,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				//} else {
 				//	m.EditTemplate = false
 				//}
+
+			case tea.KeyCtrlS:
+				// TODO:
+				// 1. Exit editor
+				// 2. Save content to file
+				// 3. Notify user about generated filename from 2.
+				// 4. Submit job
+				m.LogF.WriteString("Ctrl+s pressed\n")
+
 			case tea.KeyCtrlC:
 				return m, tea.Quit
 			default:

@@ -17,16 +17,6 @@ type JobFromTemplateTab struct {
 
 type Keys map[*key.Binding]bool
 
-var oKeyMap = Keys{
-	&keybindings.DefaultKeyMap.Up:       true,
-	&keybindings.DefaultKeyMap.Down:     true,
-	&keybindings.DefaultKeyMap.PageUp:   false,
-	&keybindings.DefaultKeyMap.PageDown: false,
-	&keybindings.DefaultKeyMap.Slash:    false,
-	&keybindings.DefaultKeyMap.Info:     false,
-	&keybindings.DefaultKeyMap.Enter:    true,
-}
-
 var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.TtabSel:       true,
 	&keybindings.DefaultKeyMap.Up:            true,
@@ -52,7 +42,7 @@ var EditorKeyMap = Keys{
 	&keybindings.DefaultKeyMap.Slash:         false,
 	&keybindings.DefaultKeyMap.Info:          false,
 	&keybindings.DefaultKeyMap.Enter:         false,
-	&keybindings.DefaultKeyMap.Quit:          true,
+	&keybindings.DefaultKeyMap.Quit:          false,
 	&keybindings.DefaultKeyMap.SaveSubmitJob: true,
 	&keybindings.DefaultKeyMap.Escape:        true,
 }
