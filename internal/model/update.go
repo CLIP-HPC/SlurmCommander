@@ -44,10 +44,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Filter is turned on, take care of this first
 	// TODO: revisit this for filtering on multiple tabs
-	m.LogF.WriteString(fmt.Sprintf("U(): FS = %d\n", m.FilterSwitch))
+	m.Log.Printf("U(): FS = %d\n", m.FilterSwitch)
 	switch {
 	case m.FilterSwitch != -1:
-		m.LogF.WriteString("U(): In filter\n")
+		m.Log.Printf("U(): In filter\n")
 		switch msg := msg.(type) {
 
 		case tea.KeyMsg:
@@ -101,10 +101,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "enter":
 				m.JobTab.MenuOn = false
+				// TODO: This is just temporarily here, instead of this, depending on the MenuChoice turn on Info if selected
 				m.JobTab.InfoOn = true
 				i, ok := m.JobTab.Menu.SelectedItem().(jobtab.MenuItem)
 				if ok {
 					m.JobTab.MenuChoice = jobtab.MenuItem(i)
+					// TODO: here, we should call a Cmd function that does something depending on the MenuChoice and returns a msg
+					// e.g. for "CANCEL", call scancelCmd and return msg type cancelSent on which queue refresh should be triggered
+					// Also, get and pass in the Selected() jobID
+					m.JobTab.MenuChoice.ExecMenuItem(m.JobTab.SelectedJob, m.Log)
 				}
 				//return m, tea.Quit
 				return m, nil
@@ -120,10 +125,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var cmds []tea.Cmd
 		var cmd tea.Cmd
 
-		m.LogF.WriteString("U(): m.EditTemplate\n")
+		m.Log.Printf("U(): m.EditTemplate\n")
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
-			m.LogF.WriteString("U(): m.EditTemplate case tea.KeyMsg\n")
+			m.Log.Printf("U(): m.EditTemplate case tea.KeyMsg\n")
 			switch msg.Type {
 			case tea.KeyEsc:
 				m.EditTemplate = false
@@ -140,7 +145,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// 2. Save content to file
 				// 3. Notify user about generated filename from 2.
 				// 4. Submit job
-				m.LogF.WriteString("Ctrl+s pressed\n")
+				m.Log.Printf("Ctrl+s pressed\n")
 
 			case tea.KeyCtrlC:
 				return m, tea.Quit
@@ -171,7 +176,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// getting initial template text
 	case jobfromtemplate.TemplateText:
-		m.LogF.WriteString("U(): msg TemplateText")
+		m.Log.Printf("U(): msg TemplateText")
 		m.TemplateEditor = textarea.New()
 		//m.TemplateEditor.Placeholder = string(msg)
 		m.TemplateEditor.SetValue(string(msg))
@@ -187,7 +192,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// JobTab update
 	case slurm.SqueueJSON:
-		m.LogF.WriteString("U(): got SqueueJSON\n")
+		m.Log.Printf("U(): got SqueueJSON\n")
 		if len(msg.Jobs) != 0 {
 			m.Squeue = msg
 
@@ -211,7 +216,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Cluster tab update
 	case slurm.SinfoJSON:
-		m.LogF.WriteString("U(): got SinfoJSON\n")
+		m.Log.Printf("U(): got SinfoJSON\n")
 		if len(msg.Nodes) != 0 {
 			m.Sinfo = msg
 			//slurm.SinfoTabRows = nil
@@ -235,7 +240,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Job History tab update
 	case slurm.SacctList:
-		m.LogF.WriteString("U(): got SacctList\n")
+		m.Log.Printf("U(): got SacctList\n")
 		// fill out model
 		m.DebugMsg += "H"
 		m.JobHistTab.SacctList = msg
@@ -245,7 +250,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Job Details tab update
 	case slurm.SacctJob:
-		m.LogF.WriteString("U(): got SacctJob\n")
+		m.Log.Printf("U(): got SacctJob\n")
 		m.DebugMsg += "D"
 		m.JobDetailsTab.SacctJob = msg
 		return m, nil
@@ -320,7 +325,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// TODO: fill out menu with job options
 				m.JobTab.SelectedJobState = m.JobTab.SqueueTable.SelectedRow()[4]
 				menu := jobtab.MenuList[m.JobTab.SelectedJobState]
-				m.LogF.WriteString(fmt.Sprintf("MENU %#v\n", jobtab.MenuList[m.JobTab.SelectedJobState]))
+				m.Log.Printf("MENU %#v\n", jobtab.MenuList[m.JobTab.SelectedJobState])
 				m.JobTab.Menu = list.New(menu, list.NewDefaultDelegate(), 10, 10)
 				//m.JobTab.Menu.Styles = list.DefaultStyles()
 				m.JobTab.Menu.Title = "Job actions"
@@ -334,14 +339,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				return m, nil
 			case tabJobHist:
-				m.LogF.WriteString("U(): ENTER @ jobhist list\n")
+				m.Log.Printf("U(): ENTER @ jobhist list\n")
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
 				m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
 				m.DebugMsg += "<-"
 				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID)
 			case tabJobFromTemplate:
-				m.LogF.WriteString("U(): ENTER @ jobfromtemplate list\n")
+				m.Log.Printf("U(): ENTER @ jobfromtemplate list\n")
 				m.EditTemplate = true
 				m.TemplateEditor = textarea.New()
 				//m.TemplateEditor.Placeholder = string(jobfromtemplate.TemplateSample)

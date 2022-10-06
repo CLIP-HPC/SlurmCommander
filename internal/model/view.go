@@ -137,7 +137,7 @@ func (m Model) tabJobDetails() (scr string) {
 
 	}
 
-	m.LogF.WriteString(fmt.Sprintf("Job Account: %#v\n", *m.SacctJob.Jobs[0].Account))
+	m.Log.Printf("Job Account: %#v\n", *m.SacctJob.Jobs[0].Account)
 	scr = fmt.Sprintf("Job count: %d\n\n", len(m.SacctJob.Jobs))
 	//for i, v := range m.SacctJob.Jobs {
 	//	scr += fmt.Sprintf("Job: %d\n\n%#v\n\nSelected job: %#v\n\n", i, v, m.JobDetailsTab.SelJobID)
@@ -257,7 +257,7 @@ func (m Model) View() string {
 			// TODO: Render menu here
 			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), focusedModelStyle.Render(m.JobTab.Menu.View())))
 			//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), m.JobTab.Menu.View()))
-			m.LogF.WriteString(fmt.Sprintf("\nITEMS LIST: %#v\n", m.JobTab.Menu.Items()))
+			m.Log.Printf("\nITEMS LIST: %#v\n", m.JobTab.Menu.Items())
 		case m.JobTab.InfoOn:
 			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), focusedModelStyle.Render(m.getJobInfo())))
 		default:
@@ -299,7 +299,6 @@ func (m Model) View() string {
 		scr.WriteString("\n----------\n")
 		scr.WriteString(fmt.Sprintf("Last key pressed: %q\n", m.lastKey))
 		scr.WriteString(fmt.Sprintf("\nWindow Width: %d\tHeight:%d\n", m.winW, m.winH))
-		scr.WriteString(fmt.Sprintf("LogFile: %#v\n", m.LogF.Name()))
 		scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: TBD\t InfoOn: %v\n", m.ActiveTab, m.InfoOn))
 		scr.WriteString(fmt.Sprintf("Debug Msg: %q\n", m.DebugMsg))
 		scr.WriteString("\n----------\n")

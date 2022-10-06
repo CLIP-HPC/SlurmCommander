@@ -1,7 +1,7 @@
 package model
 
 import (
-	"os"
+	"log"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/pja237/slurmcommander/internal/model/tabs/abouttab"
@@ -63,7 +63,7 @@ type Globals struct {
 	lastKey   string
 	winW      int
 	winH      int
-	LogF      *os.File
+	Log       *log.Logger
 	Help      help.Model
 	FilterSwitch
 }

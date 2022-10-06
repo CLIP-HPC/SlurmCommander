@@ -11,6 +11,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/pja237/slurmcommander/internal/command"
+	"github.com/pja237/slurmcommander/internal/logger"
 	"github.com/pja237/slurmcommander/internal/model"
 	"github.com/pja237/slurmcommander/internal/model/tabs/clustertab"
 	"github.com/pja237/slurmcommander/internal/model/tabs/jobfromtemplate"
@@ -23,7 +24,6 @@ func main() {
 
 	var (
 		logf     *os.File
-		err      error
 		debugSet bool = false
 	)
 
@@ -57,24 +57,13 @@ func main() {
 	ti.Width = 20
 
 	// logging
-	if len(os.Getenv("DEBUG")) > 0 {
-		logf, err = tea.LogToFile("debug.log", "debug")
-		if err != nil {
-			fmt.Println("fatal:", err)
-			os.Exit(1)
-		}
-		logf.WriteString("Log to file set up.\n")
-		debugSet = true
-		//defer logf.Close()
-	} else {
-		os.OpenFile("/dev/null", os.O_WRONLY|os.O_APPEND, 0000)
-	}
+	debugSet, l := logger.SetupLogger()
 
 	m := model.Model{
 		Globals: model.Globals{
 			Help:         help.New(),
 			ActiveTab:    0,
-			LogF:         logf,
+			Log:          l,
 			FilterSwitch: -1,
 			Debug:        debugSet,
 		},
