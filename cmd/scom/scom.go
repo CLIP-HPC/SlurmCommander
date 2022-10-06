@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/pja237/slurmcommander/internal/command"
 	"github.com/pja237/slurmcommander/internal/model"
 	"github.com/pja237/slurmcommander/internal/model/tabs/clustertab"
 	"github.com/pja237/slurmcommander/internal/model/tabs/jobfromtemplate"
@@ -98,6 +99,7 @@ func main() {
 	}
 
 	logf.WriteString("Starting program.\n")
+	logf.WriteString("Build tag: " + command.Tag + "\n")
 	//m.SqTable.SetStyles(s)
 	p := tea.NewProgram(tea.Model(m), tea.WithAltScreen())
 	if err := p.Start(); err != nil {

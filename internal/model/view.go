@@ -185,6 +185,7 @@ func (m Model) tabCluster() string {
 	)
 
 	// node info
+	// TODO: rework, doesn't work when table filtering is on
 	sel := m.SinfoTable.Cursor()
 	m.CpuBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
 	cpuPerc = float64(*m.Sinfo.Nodes[sel].AllocCpus) / float64(*m.Sinfo.Nodes[sel].Cpus)
