@@ -1,6 +1,9 @@
 package jobfromtemplate
 
 import (
+	"log"
+	"os"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -63,33 +66,53 @@ var TemplatesListCols = []table.Column{
 		Title: "Description",
 		Width: 30,
 	},
-}
-
-// TODO: this comes from template files
-var TemplatesListRowsDef = []table.Row{
-	{"Simple job", "Single node multiple threads"},
-	{"Array job", "Multiple simple jobs"},
-	{"Relion job v0.0.1", "Relion job with some parameters"},
-	{"Relion job v0.0.2", "Relion job with some other parameters"},
+	{
+		Title: "Path",
+		Width: 30,
+	},
 }
 
 type TemplateText string
 
-func GetTemplate(name string) tea.Cmd {
+func GetTemplate(name string, l *log.Logger) tea.Cmd {
+	l.Printf("GetTemplate: open file: %s\n", name)
 	return func() tea.Msg {
-		return TemplateSample
+
+		t, e := os.ReadFile(name)
+		if e != nil {
+			l.Printf("GetTemplate ERROR: open(%s): %s", name, e)
+
+		}
+		return TemplateText(t)
 	}
 }
 
-var TemplateSample = TemplateText(`
-#!/usr/bin/bash
+type TemplatesListRows []table.Row
 
-#SBATCH --job-name=SimpleMultithreadJob
-#SBATCH --ntasks=1 
-#SBATCH --cpus-per-task=4  # 4 threads per task
-#SBATCH --time=02:00:00    # two hours
-#SBATCH --mem=1G           # 1 GB RAM per node
-#SBATCH --output=.out
+var (
+	DefaultTemplatePaths = []string{
+		"/etc/slurmcommander/templates",
+	}
+)
 
-hostname
-`)
+func GetTemplateList(paths []string, l *log.Logger) tea.Cmd {
+
+	return func() tea.Msg {
+		var tlr TemplatesListRows
+		for _, p := range paths {
+			files, err := os.ReadDir(p)
+			if err != nil {
+				l.Printf("GetTemplateList ERROR: %s\n", err)
+			}
+			for _, f := range files {
+				l.Printf("GetTemplateList INFO files: %s %s\n", p, f.Name())
+				// TODO: check suffix, if .sbatch, append to tlr
+				// if suffix=".descr" then read content and use as description
+				tlr = append(tlr, table.Row{f.Name(), "Description", p + "/" + f.Name()})
+			}
+
+		}
+		return tlr
+	}
+
+}

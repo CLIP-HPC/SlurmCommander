@@ -80,7 +80,7 @@ func main() {
 			NewJobScript: "",
 			TemplatesTable: table.New(
 				table.WithColumns(jobfromtemplate.TemplatesListCols),
-				table.WithRows(jobfromtemplate.TemplatesListRowsDef),
+				table.WithRows(jobfromtemplate.TemplatesListRows{}),
 				table.WithStyles(s),
 			),
 		},

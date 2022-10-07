@@ -97,7 +97,8 @@ func (m Model) genTabs() string {
 	//gap := tabGap.Render(strings.Repeat(" ", max(0, width-lipgloss.Width(row)-2)))
 	gap := tabGap.Render(strings.Repeat(" ", max(0, m.winW-lipgloss.Width(row)-2)))
 	row = lipgloss.JoinHorizontal(lipgloss.Bottom, row, gap)
-	doc.WriteString(row + "\n\n")
+	//doc.WriteString(row + "\n\n")
+	doc.WriteString(row + "\n")
 
 	return doc.String()
 }
@@ -239,6 +240,7 @@ func (m Model) View() string {
 
 	// HEADER / TABS
 	scr.WriteString(m.genTabs())
+	scr.WriteString("One line help about each tab\n\n")
 	//scr.WriteString("\n\n")
 
 	// PICK and RENDER ACTIVE TAB

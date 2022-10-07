@@ -174,13 +174,28 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// ToDo:
 	// prevent updates for non-selected tabs
 
+	// Get initial job template list
+	case jobfromtemplate.TemplatesListRows:
+		m.Log.Printf("Update: Got TemplatesListRows msg: %#v\n", msg)
+		if msg != nil {
+			// if it's not empty, append to table
+			m.JobFromTemplateTab.TemplatesTable.SetRows(msg)
+		}
+		return m, nil
+
 	// getting initial template text
 	case jobfromtemplate.TemplateText:
-		m.Log.Printf("U(): msg TemplateText")
+		m.Log.Printf("Update: Got TemplateText msg: %#v\n", msg)
+		// HERE: we initialize the new textarea editor and flip the EditTemplate switch to ON
+		jobfromtemplate.EditorKeyMap.SetupKeys()
+		m.EditTemplate = true
 		m.TemplateEditor = textarea.New()
-		//m.TemplateEditor.Placeholder = string(msg)
+		m.TemplateEditor.Focus()
+		m.TemplateEditor.SetWidth(m.winW - 30)
+		m.TemplateEditor.SetHeight(m.winH - 30)
 		m.TemplateEditor.SetValue(string(msg))
 		//m.TemplateEditor.Focus()
+		return m, nil
 
 	// Windows resize
 	case tea.WindowSizeMsg:
@@ -318,8 +333,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// ENTER
 		case key.Matches(msg, keybindings.DefaultKeyMap.Enter):
 			switch m.ActiveTab {
+
+			// Job Queue tab: Open Job menu
 			case tabJobs:
 				// Job Queue menu on
+				m.Log.Printf("Update ENTER key @ jobqueue table\n")
 				m.JobTab.MenuOn = true
 				m.JobTab.SelectedJob = m.JobTab.SqueueTable.SelectedRow()[0]
 				// TODO: fill out menu with job options
@@ -338,25 +356,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.JobTab.Menu.SetSize(30, 30)
 
 				return m, nil
+
+			// Job History tab: Select Job from history and open its Details tab
 			case tabJobHist:
-				m.Log.Printf("U(): ENTER @ jobhist list\n")
+				m.Log.Printf("Update ENTER key @ jobhist table\n")
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
 				m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
 				m.DebugMsg += "<-"
 				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID)
+
+			// Job from Template tab: Open template for editing
 			case tabJobFromTemplate:
-				m.Log.Printf("U(): ENTER @ jobfromtemplate list\n")
-				m.EditTemplate = true
-				m.TemplateEditor = textarea.New()
-				//m.TemplateEditor.Placeholder = string(jobfromtemplate.TemplateSample)
-				m.TemplateEditor.Focus()
-				m.TemplateEditor.SetValue(string(jobfromtemplate.TemplateSample))
-				m.TemplateEditor.SetWidth(m.winW - 30)
-				m.TemplateEditor.SetHeight(m.winH - 30)
-				jobfromtemplate.EditorKeyMap.SetupKeys()
+				m.Log.Printf("Update ENTER key @ jobfromtemplate table\n")
 				// return & handle editing there
-				return m, jobfromtemplate.GetTemplate("blabla")
+				return m, jobfromtemplate.GetTemplate(m.JobFromTemplateTab.TemplatesTable.SelectedRow()[2], m.Log)
 			}
 
 		// Info - toggle on/off
