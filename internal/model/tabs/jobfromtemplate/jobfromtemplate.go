@@ -3,6 +3,9 @@ package jobfromtemplate
 import (
 	"log"
 	"os"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
@@ -14,8 +17,16 @@ import (
 type JobFromTemplateTab struct {
 	TemplatesTable table.Model
 	TemplateEditor textarea.Model
-	EditTemplate   bool
 	NewJobScript   string
+	EditTemplate   bool
+}
+
+type EditTemplate bool
+
+func EditorOn() tea.Cmd {
+	return func() tea.Msg {
+		return EditTemplate(true)
+	}
 }
 
 type Keys map[*key.Binding]bool
@@ -115,4 +126,19 @@ func GetTemplateList(paths []string, l *log.Logger) tea.Cmd {
 		return tlr
 	}
 
+}
+
+func SaveToFile(name string, content string, l *log.Logger) error {
+	var (
+		ofName string
+	)
+	ofName = strings.TrimSuffix(name, ".sbatch")
+	ofName += "-" + strconv.FormatInt(time.Now().Unix(), 10)
+	ofName += ".sbatch"
+	l.Printf("SaveToFile INFO: OutputFileName %s\n", ofName)
+	if err := os.WriteFile(ofName, []byte(content), 0644); err != nil {
+		l.Printf("SaveToFile ERROR: File %s: %s\n", ofName, err)
+		return err
+	}
+	return nil
 }

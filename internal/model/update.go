@@ -44,10 +44,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Filter is turned on, take care of this first
 	// TODO: revisit this for filtering on multiple tabs
-	m.Log.Printf("U(): FS = %d\n", m.FilterSwitch)
 	switch {
 	case m.FilterSwitch != -1:
-		m.Log.Printf("U(): In filter\n")
+		m.Log.Printf("Update: In filter %d\n", m.FilterSwitch)
 		switch msg := msg.(type) {
 
 		case tea.KeyMsg:
@@ -88,6 +87,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 
 	case m.JobTab.MenuOn:
+		m.Log.Printf("Update: In Menu\n")
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
 			m.JobTab.Menu.SetWidth(msg.Width)
@@ -125,10 +125,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var cmds []tea.Cmd
 		var cmd tea.Cmd
 
-		m.Log.Printf("U(): m.EditTemplate\n")
+		m.Log.Printf("Update: In EditTemplate: %#v\n", msg)
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
-			m.Log.Printf("U(): m.EditTemplate case tea.KeyMsg\n")
+			m.Log.Printf("Update: m.EditTemplate case tea.KeyMsg\n")
 			switch msg.Type {
 			case tea.KeyEsc:
 				m.EditTemplate = false
@@ -145,7 +145,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// 2. Save content to file
 				// 3. Notify user about generated filename from 2.
 				// 4. Submit job
-				m.Log.Printf("Ctrl+s pressed\n")
+				m.Log.Printf("EditTemplate: Ctrl+s pressed\n")
+				m.EditTemplate = false
+				tabKeys[m.ActiveTab].SetupKeys()
+				jobfromtemplate.SaveToFile(m.JobFromTemplateTab.TemplatesTable.SelectedRow()[0], m.JobFromTemplateTab.TemplateEditor.Value(), m.Log)
+				return m, nil
 
 			case tea.KeyCtrlC:
 				return m, tea.Quit
@@ -190,12 +194,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		jobfromtemplate.EditorKeyMap.SetupKeys()
 		m.EditTemplate = true
 		m.TemplateEditor = textarea.New()
-		m.TemplateEditor.Focus()
 		m.TemplateEditor.SetWidth(m.winW - 30)
 		m.TemplateEditor.SetHeight(m.winH - 30)
 		m.TemplateEditor.SetValue(string(msg))
-		//m.TemplateEditor.Focus()
-		return m, nil
+		m.TemplateEditor.Focus()
+		return m, jobfromtemplate.EditorOn()
 
 	// Windows resize
 	case tea.WindowSizeMsg:
@@ -354,7 +357,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.JobTab.Menu.SetHeight(30)
 				m.JobTab.Menu.SetWidth(30)
 				m.JobTab.Menu.SetSize(30, 30)
-
 				return m, nil
 
 			// Job History tab: Select Job from history and open its Details tab
