@@ -9,66 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/pja237/slurmcommander/internal/keybindings"
-)
-
-//var baseStyle = lipgloss.NewStyle().
-//	BorderStyle(lipgloss.NormalBorder()).
-//	BorderForeground(lipgloss.Color("240"))
-
-// TODO: define styles used in the View()
-
-var (
-	baseStyle = lipgloss.NewStyle().Border(lipgloss.NormalBorder())
-	boxStyle  = baseStyle.Copy()
-
-	//modelStyle        = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.HiddenBorder())
-	// TODO:
-	// - used in "info-box"
-	//focusedModelStyle = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("69"))
-	//
-	focusedModelStyle = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(lipgloss.Color("#FFB200"))
-
-	//highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
-	//highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#277BC0"}
-	highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#0057B8"}
-
-	// Tabs.
-	//activeTabBorder = lipgloss.DoubleBorder()
-	activeTabBorder = lipgloss.ThickBorder()
-	//activeTabBorder = lipgloss.Border{
-	//	//Top:         "─",
-	//	Top:         "/",
-	//	Bottom:      " ",
-	//	Left:        "│",
-	//	Right:       "│",
-	//	TopLeft:     "╭",
-	//	TopRight:    "╮",
-	//	BottomLeft:  "┘",
-	//	BottomRight: "└",
-	//}
-
-	tabBorder = lipgloss.Border{
-		Top:         "─",
-		Bottom:      "─",
-		Left:        "│",
-		Right:       "│",
-		TopLeft:     "╭",
-		TopRight:    "╮",
-		BottomLeft:  "┴",
-		BottomRight: "┴",
-	}
-
-	tab = lipgloss.NewStyle().
-		Border(tabBorder, true).
-		BorderForeground(highlight).
-		Padding(0, 1)
-
-	activeTab = tab.Copy().Border(activeTabBorder, true)
-
-	tabGap = tab.Copy().
-		BorderTop(false).
-		BorderLeft(false).
-		BorderRight(false)
+	"github.com/pja237/slurmcommander/internal/styles"
 )
 
 // genTabs() generates top tabs
@@ -79,9 +20,9 @@ func (m Model) genTabs() string {
 	tlist := make([]string, len(tabs))
 	for i, v := range tabs {
 		if i == int(m.ActiveTab) {
-			tlist = append(tlist, activeTab.Render(v))
+			tlist = append(tlist, styles.TabActiveTab.Render(v))
 		} else {
-			tlist = append(tlist, tab.Render(v))
+			tlist = append(tlist, styles.Tab.Render(v))
 		}
 	}
 	row := lipgloss.JoinHorizontal(lipgloss.Top, tlist...)
@@ -95,7 +36,7 @@ func (m Model) genTabs() string {
 	//)
 
 	//gap := tabGap.Render(strings.Repeat(" ", max(0, width-lipgloss.Width(row)-2)))
-	gap := tabGap.Render(strings.Repeat(" ", max(0, m.winW-lipgloss.Width(row)-2)))
+	gap := styles.TabGap.Render(strings.Repeat(" ", max(0, m.winW-lipgloss.Width(row)-2)))
 	row = lipgloss.JoinHorizontal(lipgloss.Bottom, row, gap)
 	//doc.WriteString(row + "\n\n")
 	doc.WriteString(row + "\n")
@@ -116,7 +57,7 @@ func (m Model) tabJobs() string {
 	// e.g. Show selected job info in:
 	// a) separate toggle-able window on the side OR
 	// b) header/footer (above/below) of the table, like `top` does
-	return m.SqueueTable.View()
+	return m.SqueueTable.View() + "\n"
 }
 
 func (m Model) tabJobHist() string {
@@ -124,7 +65,7 @@ func (m Model) tabJobHist() string {
 	// TODO: do some statistics on job history
 	// e.g. avg waiting times, jobs successfull/failed count, etc...
 
-	return m.JobHistTab.SacctTable.View()
+	return m.JobHistTab.SacctTable.View() + "\n"
 }
 
 func (m Model) tabJobDetails() (scr string) {
@@ -190,11 +131,18 @@ func (m Model) tabCluster() string {
 	// node info
 	// TODO: rework, doesn't work when table filtering is on
 	sel := m.SinfoTable.Cursor()
-	m.CpuBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
-	cpuPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocCpus) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].Cpus)
-	//m.CpuBar.SetPercent(cpuPerc)
-	m.MemBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
-	memPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocMemory) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].RealMemory)
+	m.Log.Printf("ClusterTab Selected: %d\n", sel)
+	m.Log.Printf("ClusterTab len results: %d\n", len(m.JobClusterTab.SinfoFiltered.Nodes))
+	if len(m.JobClusterTab.SinfoFiltered.Nodes) > 0 && sel != -1 {
+		m.CpuBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
+		cpuPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocCpus) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].Cpus)
+		//m.CpuBar.SetPercent(cpuPerc)
+		m.MemBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
+		memPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocMemory) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].RealMemory)
+	} else {
+		cpuPerc = 0
+		memPerc = 0
+	}
 
 	scr += "Cpu and memory utilization:\n"
 	scr += fmt.Sprintf("cpuPerc: %.2f ", cpuPerc)
@@ -205,7 +153,7 @@ func (m Model) tabCluster() string {
 	scr += "\n\n"
 
 	// table
-	scr += m.SinfoTable.View()
+	scr += m.SinfoTable.View() + "\n"
 
 	return scr
 	//return m.SinfoTable.View()
@@ -231,7 +179,30 @@ CLIP-HPC Team @ VBC
 func (m Model) getJobInfo() string {
 	// TODO:
 	// fix: if after filtering m.table.Cursor|SelectedRow > lines in table, Info crashes trying to fetch nonexistent row
-	return strconv.Itoa(m.SqueueTable.Cursor()) + "\n" + m.JobTab.SelectedJob + "\n" + m.JobTab.MenuChoice.Title()
+	//return strconv.Itoa(m.SqueueTable.Cursor()) + "\n" + m.JobTab.SelectedJob + "\n" + m.JobTab.MenuChoice.Title()
+	n := m.JobTab.SqueueTable.Cursor()
+	ibFmt := "Job Name: %s\nJob Command: %s\nOutput: %s\nError: %s\n"
+	infoBox := fmt.Sprintf(ibFmt, *m.JobTab.SqueueFiltered.Jobs[n].Name,
+		*m.JobTab.SqueueFiltered.Jobs[n].Command,
+		*m.JobTab.SqueueFiltered.Jobs[n].StandardOutput,
+		*m.JobTab.SqueueFiltered.Jobs[n].StandardError)
+	//infoBox := strconv.Itoa(m.SqueueTable.Cursor()) + "\n" +
+	//	m.JobTab.SelectedJob + "\n" +
+	//	m.JobTab.MenuChoice.Title() + "\n" +
+	//	m.JobTab.SqueueTable.SelectedRow()[0] + "\n" +
+	//	*m.JobTab.SqueueFiltered.Jobs[n].Name
+	return infoBox
+}
+
+func genTabHelp(t int) string {
+	var th string
+	switch t {
+	case tabJobs:
+		th = "Job queue list"
+	default:
+		th = "default tab help"
+	}
+	return th + "\n"
 }
 
 func (m Model) View() string {
@@ -240,38 +211,36 @@ func (m Model) View() string {
 
 	// HEADER / TABS
 	scr.WriteString(m.genTabs())
-	scr.WriteString("One line help about each tab\n\n")
-	//scr.WriteString("\n\n")
+	scr.WriteString(genTabHelp(int(m.ActiveTab)))
 
 	// PICK and RENDER ACTIVE TAB
 
 	switch m.ActiveTab {
 	case tabJobs:
-		// TODO: Here to a an info window if InfoOn==true
-		// e.g. lipgloss.JoinHorizontal(...)
-		scr.WriteString("Filter: " + m.JobTab.Filter.Value() + "\n\n")
+		//scr.WriteString("Filter: " + m.JobTab.Filter.Value() + "\n\n")
+		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabJobs())
-			scr.WriteString("\n---\n")
 			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		case m.JobTab.MenuOn:
 			// TODO: Render menu here
-			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), focusedModelStyle.Render(m.JobTab.Menu.View())))
+			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.JobInfoBox.Render(m.JobTab.Menu.View())))
 			//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), m.JobTab.Menu.View()))
 			m.Log.Printf("\nITEMS LIST: %#v\n", m.JobTab.Menu.Items())
 		case m.JobTab.InfoOn:
-			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), focusedModelStyle.Render(m.getJobInfo())))
+			//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), focusedModelStyle.Render(m.getJobInfo())))
+			scr.WriteString(m.tabJobs() + "\n")
+			scr.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
 		default:
 			scr.WriteString(m.tabJobs())
 		}
-		scr.WriteString("\n\n")
 	case tabJobHist:
-		scr.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n\n")
+		//scr.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n\n")
+		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctListFiltered)))
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabJobHist())
-			scr.WriteString("\n---\n")
 			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobHistTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		default:
 			scr.WriteString(m.tabJobHist())
@@ -281,11 +250,11 @@ func (m Model) View() string {
 	case tabJobFromTemplate:
 		scr.WriteString(m.tabJobFromTemplate())
 	case tabCluster:
-		scr.WriteString("Filter: " + m.JobClusterTab.Filter.Value() + "\n\n")
+		//scr.WriteString("Filter: " + m.JobClusterTab.Filter.Value() + "\n\n")
+		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobClusterTab.Filter.Value(), len(m.JobClusterTab.SinfoFiltered.Nodes)))
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabCluster())
-			scr.WriteString("\n---\n")
 			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobClusterTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		default:
 			scr.WriteString(m.tabCluster())
@@ -295,15 +264,14 @@ func (m Model) View() string {
 	}
 
 	// FOOTER
-	scr.WriteString("\n\n")
+	scr.WriteString("\n")
 	// Debug information:
 	if m.Globals.Debug {
-		scr.WriteString("\n----------\n")
+		scr.WriteString("DEBUG:\n")
 		scr.WriteString(fmt.Sprintf("Last key pressed: %q\n", m.lastKey))
-		scr.WriteString(fmt.Sprintf("\nWindow Width: %d\tHeight:%d\n", m.winW, m.winH))
+		scr.WriteString(fmt.Sprintf("Window Width: %d\tHeight:%d\n", m.winW, m.winH))
 		scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: TBD\t InfoOn: %v\n", m.ActiveTab, m.InfoOn))
 		scr.WriteString(fmt.Sprintf("Debug Msg: %q\n", m.DebugMsg))
-		scr.WriteString("\n----------\n")
 	}
 
 	// TODO: Help doesn't split into multiple lines (e.g. when window too narrow)

@@ -54,6 +54,10 @@ var SqueueTabCols = []table.Column{
 		Title: "Job State",
 		Width: 10,
 	},
+	{
+		Title: "Priority",
+		Width: 10,
+	},
 }
 
 type TableRows []table.Row
@@ -83,7 +87,7 @@ func (sqJson *SqueueJSON) FilterSqueueTable(f string) (TableRows, SqueueJSON) {
 			app = true
 		}
 		if app {
-			sqTabRows = append(sqTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Account, *v.UserName, *v.JobState})
+			sqTabRows = append(sqTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Account, *v.UserName, *v.JobState, strconv.Itoa(*v.Priority)})
 			sqJsonFiltered.Jobs = append(sqJsonFiltered.Jobs, v)
 		}
 	}

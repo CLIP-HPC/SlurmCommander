@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/pja237/slurmcommander/internal/command"
 	"github.com/pja237/slurmcommander/internal/keybindings"
 	"github.com/pja237/slurmcommander/internal/model/tabs/jobfromtemplate"
@@ -67,7 +68,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if brk {
 				// TODO: this is a "fix" for crashing-after-filter when Cursor() goes beyond list end
 				// TODO: don't feel good about this... what if list is empty? no good. revisit
+				// NOTE: This doesn't do what i image it should, cursor remains -1 when table is empty situation?
+				// Explanation in clamp function: https://github.com/charmbracelet/bubbles/blob/13f52d678d315676568a656b5211b8a24a54a885/table/table.go#L296
 				activeTable.SetCursor(0)
+				//m.Log.Printf("ActiveTable = %v\n", activeTable)
+				m.Log.Printf("Update: Filter set, setcursor(0), activetable.Cursor==%d\n", activeTable.Cursor())
 				switch m.ActiveTab {
 				case tabJobs:
 					return m, command.QuickGetSqueue()
@@ -204,6 +209,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.winW = msg.Width
 		m.winH = msg.Height
+		m.Log.Printf("Update: got WindowSizeMsg: %d %d\n", msg.Width, msg.Height)
+		// Tabs :  3
+		// Header  3
+		// TABLE:  X
+		// Debug:  5
+		// Filter: 3
+		// Help :  1
+		// ---
+		// TOTAL:  15
 		m.SqueueTable.SetHeight(m.winH - 30)
 		m.SacctTable.SetHeight(m.winH - 30)
 		m.SinfoTable.SetHeight(m.winH - 30)
@@ -262,7 +276,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// fill out model
 		m.DebugMsg += "H"
 		m.JobHistTab.SacctList = msg
-		m.JobHistTab.SacctTable.SetRows(msg.FilterSacctTable(m.JobHistTab.Filter.Value()))
+		//m.JobHistTab.SacctTable.SetRows(msg.FilterSacctTable(m.JobHistTab.Filter.Value()))
+		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value())
+		m.JobHistTab.SacctTable.SetRows(rows)
+		m.JobHistTab.SacctListFiltered = saf
 		//m.LogF.WriteString(fmt.Sprintf("U(): got Filtered rows %#v\n", msg.FilterSacctTable(m.JobHistTab.Filter.Value())))
 		return m, nil
 
@@ -357,6 +374,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.JobTab.Menu.SetHeight(30)
 				m.JobTab.Menu.SetWidth(30)
 				m.JobTab.Menu.SetSize(30, 30)
+				m.JobTab.Menu.Styles.Title = lipgloss.NewStyle().Background(lipgloss.Color("#0057b7")).Foreground(lipgloss.Color("#ffd700"))
 				return m, nil
 
 			// Job History tab: Select Job from history and open its Details tab
