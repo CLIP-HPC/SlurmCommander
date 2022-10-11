@@ -128,19 +128,3 @@ func SingleJobGetSacct(jobid string) tea.Cmd {
 		return sacctJob
 	}
 }
-
-//func GetJobSacct(jobid string) tea.Msg {
-//	var sacctJob slurm.SacctJob
-//
-//	out, err := exec.Command(sacctJobCmd).CombinedOutput()
-//	if err != nil {
-//		log.Fatalf("Error exec sacct: %q\n", err)
-//	}
-//
-//	err = json.Unmarshal(out, &sacctJob)
-//	if err != nil {
-//		log.Fatalf("Error unmarshall: %q\n", err)
-//	}
-//
-//	return sacctJob
-//}

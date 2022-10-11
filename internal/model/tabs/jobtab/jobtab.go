@@ -1,10 +1,13 @@
 package jobtab
 
 import (
+	"log"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/pja237/slurmcommander/internal/keybindings"
 	"github.com/pja237/slurmcommander/internal/slurm"
 )
@@ -28,6 +31,25 @@ type MenuOptions []list.Item
 type MenuItem struct {
 	action      string
 	description string
+}
+
+type jobCancelMsg struct{}
+type jobHoldMsg struct{}
+
+// TODO: we don't need to return messages, we're called from update, just error and let update continue...
+func (m *MenuItem) ExecMenuItem(jobID string, l *log.Logger) tea.Msg {
+	//var msg tea.Msg
+
+	l.Printf("ExecMenuItem() jobID=%s m.action=%s\n", jobID, m.action)
+
+	switch m.action {
+	case "CANCEL":
+		// TODO: here call cancel method, return jobCancelMsg
+	case "HOLD":
+	case "REQUEUE":
+	}
+
+	return nil
 }
 
 var MenuList = JobMenuOptions{

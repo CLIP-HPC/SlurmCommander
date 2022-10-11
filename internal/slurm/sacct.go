@@ -54,9 +54,10 @@ var SacctTabCols = []table.Column{
 	},
 }
 
-func (saList *SacctList) FilterSacctTable(f string) TableRows {
+func (saList *SacctList) FilterSacctTable(f string) (TableRows, SacctList) {
 	var (
-		saTabRows = TableRows{}
+		saTabRows      = TableRows{}
+		saListFiltered = SacctList{}
 	)
 
 	for _, v := range *saList {
@@ -78,8 +79,9 @@ func (saList *SacctList) FilterSacctTable(f string) TableRows {
 		}
 		if app {
 			saTabRows = append(saTabRows, table.Row{v[0], v[1], v[2], v[3], v[4]})
+			saListFiltered = append(saListFiltered, v)
 		}
 	}
 
-	return saTabRows
+	return saTabRows, saListFiltered
 }
