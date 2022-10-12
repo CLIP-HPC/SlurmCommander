@@ -98,9 +98,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case tea.KeyMsg:
 			switch keypress := msg.String(); keypress {
+			case "esc":
+				m.JobTab.MenuOn = false
+				return m, nil
 			case "ctrl+c":
 				//m.quitting = true
-				return m, tea.Quit
+				m.JobTab.MenuOn = false
+				//return m, tea.Quit
+				return m, nil
 
 			case "enter":
 				m.JobTab.MenuOn = false

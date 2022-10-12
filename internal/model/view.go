@@ -175,11 +175,15 @@ func (m Model) getJobInfo() string {
 		return "Select a job"
 	}
 
-	ibFmt := "Job Name: %s\nJob Command: %s\nOutput: %s\nError: %s\n"
-	infoBox := fmt.Sprintf(ibFmt, *m.JobTab.SqueueFiltered.Jobs[n].Name,
-		*m.JobTab.SqueueFiltered.Jobs[n].Command,
-		*m.JobTab.SqueueFiltered.Jobs[n].StandardOutput,
-		*m.JobTab.SqueueFiltered.Jobs[n].StandardError)
+	fmtStr := "%-20s : %-40s\n"
+	//ibFmt := "Job Name: %s\nJob Command: %s\nOutput: %s\nError: %s\n"
+	infoBox := fmt.Sprintf(fmtStr, "Job Name", *m.JobTab.SqueueFiltered.Jobs[n].Name)
+	infoBox += fmt.Sprintf(fmtStr, "Partition", *m.JobTab.SqueueFiltered.Jobs[n].Partition)
+	infoBox += fmt.Sprintf(fmtStr, "TRES", *m.JobTab.SqueueFiltered.Jobs[n].TresReqStr)
+	infoBox += fmt.Sprintf(fmtStr, "wckey", *m.JobTab.SqueueFiltered.Jobs[n].Wckey)
+	infoBox += fmt.Sprintf(fmtStr, "Command", *m.JobTab.SqueueFiltered.Jobs[n].Command)
+	infoBox += fmt.Sprintf(fmtStr, "StdOut", *m.JobTab.SqueueFiltered.Jobs[n].StandardOutput)
+	infoBox += fmt.Sprintf(fmtStr, "StdErr", *m.JobTab.SqueueFiltered.Jobs[n].StandardError)
 
 	return infoBox
 }
