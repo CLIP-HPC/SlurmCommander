@@ -80,16 +80,14 @@ func (m Model) tabJobDetails() (scr string) {
 	}
 
 	m.Log.Printf("Job Account: %#v\n", *m.SacctJob.Jobs[0].Account)
-	scr = fmt.Sprintf("Job count: %d\n\n", len(m.SacctJob.Jobs))
-	//for i, v := range m.SacctJob.Jobs {
-	//	scr += fmt.Sprintf("Job: %d\n\n%#v\n\nSelected job: %#v\n\n", i, v, m.JobDetailsTab.SelJobID)
-	//}
+	//scr = fmt.Sprintf("Job count: %d\n\n", len(m.SacctJob.Jobs))
 
 	// TODO: consider moving this to a table...
 
 	waitT := time.Unix(int64(*m.SacctJob.Jobs[0].Time.Submission), 0).Sub(time.Unix(int64(*m.SacctJob.Jobs[0].Time.Submission), 0))
 	runT := time.Unix(int64(*m.SacctJob.Jobs[0].Time.End), 0).Sub(time.Unix(int64(*m.SacctJob.Jobs[0].Time.Start), 0))
 	fmtStr := "%-20s : %-40s\n"
+	scr += "---\n"
 	scr += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*m.SacctJob.Jobs[0].JobId))
 	scr += fmt.Sprintf(fmtStr, "Job Name", *m.SacctJob.Jobs[0].Name)
 	scr += fmt.Sprintf(fmtStr, "Job Account", *m.SacctJob.Jobs[0].Account)
@@ -102,7 +100,7 @@ func (m Model) tabJobDetails() (scr string) {
 	scr += fmt.Sprintf(fmtStr, "Priority", strconv.Itoa(*m.SacctJob.Jobs[0].Priority))
 	scr += fmt.Sprintf(fmtStr, "QoS", *m.SacctJob.Jobs[0].Qos)
 	scr += "---\n"
-	scr += fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID)
+	//scr += fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID)
 	//m.LogF.WriteString(fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID))
 
 	return scr
@@ -112,12 +110,10 @@ func (m Model) tabJobDetails() (scr string) {
 func (m Model) tabJobFromTemplate() string {
 
 	if m.EditTemplate {
-		//return fmt.Sprintf("%s\n\n", m.TemplateEditor.Placeholder) + m.TemplateEditor.View()
 		return m.TemplateEditor.View()
 	} else {
 		return m.TemplatesTable.View()
 	}
-	//return "Jobs from Template tab active"
 }
 
 func (m Model) tabCluster() string {
@@ -177,24 +173,18 @@ CLIP-HPC Team @ VBC
 }
 
 func (m Model) getJobInfo() string {
-	// TODO:
-	// fix: if after filtering m.table.Cursor|SelectedRow > lines in table, Info crashes trying to fetch nonexistent row
-	//return strconv.Itoa(m.SqueueTable.Cursor()) + "\n" + m.JobTab.SelectedJob + "\n" + m.JobTab.MenuChoice.Title()
 	n := m.JobTab.SqueueTable.Cursor()
 	m.Log.Printf("getJobInfo: cursor at %d table rows: %d\n", n, len(m.JobTab.SqueueFiltered.Jobs))
 	if len(m.JobTab.SqueueFiltered.Jobs) == 0 || n == -1 {
 		return "Select a job"
 	}
+
 	ibFmt := "Job Name: %s\nJob Command: %s\nOutput: %s\nError: %s\n"
 	infoBox := fmt.Sprintf(ibFmt, *m.JobTab.SqueueFiltered.Jobs[n].Name,
 		*m.JobTab.SqueueFiltered.Jobs[n].Command,
 		*m.JobTab.SqueueFiltered.Jobs[n].StandardOutput,
 		*m.JobTab.SqueueFiltered.Jobs[n].StandardError)
-	//infoBox := strconv.Itoa(m.SqueueTable.Cursor()) + "\n" +
-	//	m.JobTab.SelectedJob + "\n" +
-	//	m.JobTab.MenuChoice.Title() + "\n" +
-	//	m.JobTab.SqueueTable.SelectedRow()[0] + "\n" +
-	//	*m.JobTab.SqueueFiltered.Jobs[n].Name
+
 	return infoBox
 }
 

@@ -356,8 +356,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Job Queue tab: Open Job menu
 			case tabJobs:
-				// Job Queue menu on
+				n := m.JobTab.SqueueTable.Cursor()
 				m.Log.Printf("Update ENTER key @ jobqueue table\n")
+				// Job Queue menu on
+				if n == -1 || len(m.JobTab.SqueueFiltered.Jobs) == 0 {
+					m.Log.Printf("Update ENTER key @ jobqueue table, no jobs selected/empty table\n")
+					return m, nil
+				}
 				m.JobTab.MenuOn = true
 				m.JobTab.SelectedJob = m.JobTab.SqueueTable.SelectedRow()[0]
 				// TODO: fill out menu with job options
@@ -382,6 +387,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				n := m.JobHistTab.SacctTable.Cursor()
 				m.Log.Printf("Update ENTER key @ jobhist table, cursor=%d, len=%d\n", n, len(m.JobHistTab.SacctListFiltered))
 				if n == -1 || len(m.JobHistTab.SacctListFiltered) == 0 {
+					m.Log.Printf("Update ENTER key @ jobhist table, no jobs selected/empty table\n")
 					return m, nil
 				}
 				m.ActiveTab = tabJobDetails
