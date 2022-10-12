@@ -181,6 +181,10 @@ func (m Model) getJobInfo() string {
 	// fix: if after filtering m.table.Cursor|SelectedRow > lines in table, Info crashes trying to fetch nonexistent row
 	//return strconv.Itoa(m.SqueueTable.Cursor()) + "\n" + m.JobTab.SelectedJob + "\n" + m.JobTab.MenuChoice.Title()
 	n := m.JobTab.SqueueTable.Cursor()
+	m.Log.Printf("getJobInfo: cursor at %d table rows: %d\n", n, len(m.JobTab.SqueueFiltered.Jobs))
+	if len(m.JobTab.SqueueFiltered.Jobs) == 0 || n == -1 {
+		return "Select a job"
+	}
 	ibFmt := "Job Name: %s\nJob Command: %s\nOutput: %s\nError: %s\n"
 	infoBox := fmt.Sprintf(ibFmt, *m.JobTab.SqueueFiltered.Jobs[n].Name,
 		*m.JobTab.SqueueFiltered.Jobs[n].Command,
