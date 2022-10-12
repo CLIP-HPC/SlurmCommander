@@ -187,6 +187,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg != nil {
 			// if it's not empty, append to table
 			m.JobFromTemplateTab.TemplatesTable.SetRows(msg)
+			m.JobFromTemplateTab.TemplatesList = msg
 		}
 		return m, nil
 
@@ -387,7 +388,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case tabJobFromTemplate:
 				m.Log.Printf("Update ENTER key @ jobfromtemplate table\n")
 				// return & handle editing there
-				return m, jobfromtemplate.GetTemplate(m.JobFromTemplateTab.TemplatesTable.SelectedRow()[2], m.Log)
+				if len(m.JobFromTemplateTab.TemplatesList) != 0 {
+					return m, jobfromtemplate.GetTemplate(m.JobFromTemplateTab.TemplatesTable.SelectedRow()[2], m.Log)
+				} else {
+					return m, nil
+				}
 			}
 
 		// Info - toggle on/off

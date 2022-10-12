@@ -27,18 +27,9 @@ func (m Model) genTabs() string {
 	}
 	row := lipgloss.JoinHorizontal(lipgloss.Top, tlist...)
 
-	//row := lipgloss.JoinHorizontal(
-	//	lipgloss.Top,
-	//	activeTab.Render("Jobs"),
-	//	tab.Render("Job History"),
-	//	tab.Render("Cluster"),
-	//	tab.Render("About"),
-	//)
-
 	//gap := tabGap.Render(strings.Repeat(" ", max(0, width-lipgloss.Width(row)-2)))
 	gap := styles.TabGap.Render(strings.Repeat(" ", max(0, m.winW-lipgloss.Width(row)-2)))
 	row = lipgloss.JoinHorizontal(lipgloss.Bottom, row, gap)
-	//doc.WriteString(row + "\n\n")
 	doc.WriteString(row + "\n")
 
 	return doc.String()
@@ -112,7 +103,12 @@ func (m Model) tabJobFromTemplate() string {
 	if m.EditTemplate {
 		return m.TemplateEditor.View()
 	} else {
-		return m.TemplatesTable.View()
+		// TODO: if len(table)==0 return "no templates found"
+		if len(m.JobFromTemplateTab.TemplatesList) == 0 {
+			return styles.NotFound.Render("\nNo templates found!\n")
+		} else {
+			return m.TemplatesTable.View()
+		}
 	}
 }
 
@@ -192,11 +188,19 @@ func genTabHelp(t int) string {
 	var th string
 	switch t {
 	case tabJobs:
-		th = "Job queue list"
+		th = "List of jobs in the queue"
+	case tabJobHist:
+		th = "Last 7 days job history"
+	case tabJobDetails:
+		th = "Job details, select a job from Job History tab"
+	case tabJobFromTemplate:
+		th = "Edit and submit one of the job templates"
+	case tabCluster:
+		th = "List and status of cluster nodes"
 	default:
-		th = "default tab help"
+		th = "SlurmCommander"
 	}
-	return th + "\n"
+	return th + "\n\n"
 }
 
 func (m Model) View() string {

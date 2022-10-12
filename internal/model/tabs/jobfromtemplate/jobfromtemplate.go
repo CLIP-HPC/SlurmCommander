@@ -16,6 +16,7 @@ import (
 
 type JobFromTemplateTab struct {
 	TemplatesTable table.Model
+	TemplatesList  TemplatesListRows
 	TemplateEditor textarea.Model
 	NewJobScript   string
 	EditTemplate   bool

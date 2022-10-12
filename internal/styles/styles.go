@@ -9,6 +9,8 @@ var (
 	blue = lipgloss.Color("#0057b7")
 	// Yellow
 	yellow = lipgloss.Color("#ffd700")
+	// Red
+	red = lipgloss.Color("#ff0000")
 
 	JobInfoBox = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
 
@@ -56,4 +58,6 @@ var (
 	MenuSelectedTitle = lipgloss.NewStyle().Foreground(yellow).Background(blue)
 	MenuNormalDesc    = lipgloss.NewStyle().Foreground(yellow).Background(blue)
 	MenuSelectedDesc  = lipgloss.NewStyle().Foreground(yellow)
+
+	NotFound = lipgloss.NewStyle().Foreground(red)
 )

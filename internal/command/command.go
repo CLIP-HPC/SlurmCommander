@@ -128,3 +128,8 @@ func SingleJobGetSacct(jobid string) tea.Cmd {
 		return sacctJob
 	}
 }
+
+func CallScancel(jobid string) tea.Cmd {
+
+	return nil
+}
