@@ -379,7 +379,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Job History tab: Select Job from history and open its Details tab
 			case tabJobHist:
-				m.Log.Printf("Update ENTER key @ jobhist table\n")
+				n := m.JobHistTab.SacctTable.Cursor()
+				m.Log.Printf("Update ENTER key @ jobhist table, cursor=%d, len=%d\n", n, len(m.JobHistTab.SacctListFiltered))
+				if n == -1 || len(m.JobHistTab.SacctListFiltered) == 0 {
+					return m, nil
+				}
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
 				m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
