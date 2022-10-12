@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/pja237/slurmcommander/internal/command"
 	"github.com/pja237/slurmcommander/internal/keybindings"
 	"github.com/pja237/slurmcommander/internal/slurm"
 	"github.com/pja237/slurmcommander/internal/styles"
@@ -34,11 +35,8 @@ type MenuItem struct {
 	description string
 }
 
-type jobCancelMsg struct{}
-type jobHoldMsg struct{}
-
 // TODO: we don't need to return messages, we're called from update, just error and let update continue...
-func (m *MenuItem) ExecMenuItem(jobID string, l *log.Logger) tea.Msg {
+func (m *MenuItem) ExecMenuItem(jobID string, l *log.Logger) tea.Cmd {
 	//var msg tea.Msg
 
 	l.Printf("ExecMenuItem() jobID=%s m.action=%s\n", jobID, m.action)
@@ -46,7 +44,9 @@ func (m *MenuItem) ExecMenuItem(jobID string, l *log.Logger) tea.Msg {
 	switch m.action {
 	case "CANCEL":
 		// TODO: here call cancel method, return jobCancelMsg
+		return command.CallScancel(jobID, l)
 	case "HOLD":
+		return command.CallScontrolHold(jobID, l)
 	case "REQUEUE":
 	}
 
@@ -61,11 +61,11 @@ var MenuList = JobMenuOptions{
 		},
 		MenuItem{
 			action:      "CANCEL",
-			description: "Cancels the selected job",
+			description: "Cancel the selected job",
 		},
 		MenuItem{
 			action:      "HOLD",
-			description: "Lower job priority to 0.",
+			description: "Prevent a job from starting",
 		},
 	},
 	"RUNNING": MenuOptions{
@@ -75,7 +75,7 @@ var MenuList = JobMenuOptions{
 		},
 		MenuItem{
 			action:      "CANCEL",
-			description: "Cancels the selected job",
+			description: "Cancel the selected job",
 		},
 		MenuItem{
 			action:      "REQUEUE",

@@ -129,7 +129,44 @@ func SingleJobGetSacct(jobid string) tea.Cmd {
 	}
 }
 
-func CallScancel(jobid string) tea.Cmd {
+type ScancelSent struct {
+	Jobid string
+}
 
-	return nil
+func CallScancel(jobid string, l *log.Logger) tea.Cmd {
+	return func() tea.Msg {
+		var scret ScancelSent = ScancelSent{
+			Jobid: jobid,
+		}
+		switches := append(scancelJobCmdSwitches, jobid)
+
+		l.Printf("EXEC: %q %q\n", scancelJobCmd, switches)
+		//out, err := exec.Command(sacctJobCmd, switches...).CombinedOutput()
+		//if err != nil {
+		//	log.Fatalf("Error exec sacct: %q\n", err)
+		//}
+
+		return scret
+	}
+}
+
+type SHoldSent struct {
+	Jobid string
+}
+
+func CallScontrolHold(jobid string, l *log.Logger) tea.Cmd {
+	return func() tea.Msg {
+		var scret SHoldSent = SHoldSent{
+			Jobid: jobid,
+		}
+		switches := append(sholdJobCmdSwitches, jobid)
+
+		l.Printf("EXEC: %q %q\n", sholdJobCmd, switches)
+		//out, err := exec.Command(sacctJobCmd, switches...).CombinedOutput()
+		//if err != nil {
+		//	log.Fatalf("Error exec sacct: %q\n", err)
+		//}
+
+		return scret
+	}
 }

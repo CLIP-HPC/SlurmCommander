@@ -109,10 +109,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				i, ok := m.JobTab.Menu.SelectedItem().(jobtab.MenuItem)
 				if ok {
 					m.JobTab.MenuChoice = jobtab.MenuItem(i)
-					// TODO: here, we should call a Cmd function that does something depending on the MenuChoice and returns a msg
-					// e.g. for "CANCEL", call scancelCmd and return msg type cancelSent on which queue refresh should be triggered
-					// Also, get and pass in the Selected() jobID
-					m.JobTab.MenuChoice.ExecMenuItem(m.JobTab.SelectedJob, m.Log)
+					retCmd := m.JobTab.MenuChoice.ExecMenuItem(m.JobTab.SelectedJob, m.Log)
+					return m, retCmd
 				}
 				//return m, tea.Quit
 				return m, nil
@@ -180,6 +178,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// TODO: https://pkg.go.dev/github.com/charmbracelet/bubbletea#WindowSizeMsg
 	// ToDo:
 	// prevent updates for non-selected tabs
+
+	// Shold executed
+	case command.SHoldSent:
+		m.Log.Printf("Got SHoldSent msg on job %q\n", msg.Jobid)
+		return m, nil
+
+	// Scancel executed
+	case command.ScancelSent:
+		m.Log.Printf("Got ScancelSent msg on job %q\n", msg.Jobid)
+		return m, nil
 
 	// Get initial job template list
 	case jobfromtemplate.TemplatesListRows:
