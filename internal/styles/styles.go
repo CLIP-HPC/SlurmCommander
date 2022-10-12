@@ -1,9 +1,16 @@
 package styles
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/lipgloss"
+)
 
 var (
-	JobInfoBox = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(lipgloss.Color("#ffd700"))
+	// Blue
+	blue = lipgloss.Color("#0057b7")
+	// Yellow
+	yellow = lipgloss.Color("#ffd700")
+
+	JobInfoBox = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
 
 	Tab = lipgloss.NewStyle().
 		Border(TabTabBorder, true).
@@ -41,4 +48,12 @@ var (
 		BorderTop(false).
 		BorderLeft(false).
 		BorderRight(false)
+
+	//MenuTitleStyle    = lipgloss.NewStyle().Background(blue).Foreground(yellow)
+	MenuBoxStyle      = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
+	MenuTitleStyle    = lipgloss.NewStyle().Foreground(yellow)
+	MenuNormalTitle   = lipgloss.NewStyle().Foreground(blue)
+	MenuSelectedTitle = lipgloss.NewStyle().Foreground(yellow).Background(blue)
+	MenuNormalDesc    = lipgloss.NewStyle().Foreground(yellow).Background(blue)
+	MenuSelectedDesc  = lipgloss.NewStyle().Foreground(yellow)
 )

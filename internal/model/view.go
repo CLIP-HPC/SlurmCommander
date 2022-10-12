@@ -219,7 +219,7 @@ func (m Model) View() string {
 			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		case m.JobTab.MenuOn:
 			// TODO: Render menu here
-			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.JobInfoBox.Render(m.JobTab.Menu.View())))
+			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.MenuBoxStyle.Render(m.JobTab.Menu.View())))
 			//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), m.JobTab.Menu.View()))
 			m.Log.Printf("\nITEMS LIST: %#v\n", m.JobTab.Menu.Items())
 		case m.JobTab.InfoOn:

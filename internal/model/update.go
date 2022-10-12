@@ -5,12 +5,10 @@ import (
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/pja237/slurmcommander/internal/command"
 	"github.com/pja237/slurmcommander/internal/keybindings"
 	"github.com/pja237/slurmcommander/internal/model/tabs/jobfromtemplate"
@@ -356,30 +354,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Job Queue tab: Open Job menu
 			case tabJobs:
+				// Check if there is anything in the filtered table and if cursor is on a valid item
 				n := m.JobTab.SqueueTable.Cursor()
 				m.Log.Printf("Update ENTER key @ jobqueue table\n")
-				// Job Queue menu on
 				if n == -1 || len(m.JobTab.SqueueFiltered.Jobs) == 0 {
 					m.Log.Printf("Update ENTER key @ jobqueue table, no jobs selected/empty table\n")
 					return m, nil
 				}
+				// If yes, turn on menu
 				m.JobTab.MenuOn = true
 				m.JobTab.SelectedJob = m.JobTab.SqueueTable.SelectedRow()[0]
-				// TODO: fill out menu with job options
 				m.JobTab.SelectedJobState = m.JobTab.SqueueTable.SelectedRow()[4]
-				menu := jobtab.MenuList[m.JobTab.SelectedJobState]
-				m.Log.Printf("MENU %#v\n", jobtab.MenuList[m.JobTab.SelectedJobState])
-				m.JobTab.Menu = list.New(menu, list.NewDefaultDelegate(), 10, 10)
-				//m.JobTab.Menu.Styles = list.DefaultStyles()
-				m.JobTab.Menu.Title = "Job actions"
-				m.JobTab.Menu.SetShowStatusBar(true)
-				m.JobTab.Menu.SetFilteringEnabled(false)
-				m.JobTab.Menu.SetShowHelp(false)
-				m.JobTab.Menu.SetShowPagination(false)
-				m.JobTab.Menu.SetHeight(30)
-				m.JobTab.Menu.SetWidth(30)
-				m.JobTab.Menu.SetSize(30, 30)
-				m.JobTab.Menu.Styles.Title = lipgloss.NewStyle().Background(lipgloss.Color("#0057b7")).Foreground(lipgloss.Color("#ffd700"))
+				// Create new menu
+				m.JobTab.Menu = jobtab.NewMenu(m.JobTab.SelectedJobState, m.Log)
 				return m, nil
 
 			// Job History tab: Select Job from history and open its Details tab

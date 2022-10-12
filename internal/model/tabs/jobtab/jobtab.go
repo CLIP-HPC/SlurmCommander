@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/pja237/slurmcommander/internal/keybindings"
 	"github.com/pja237/slurmcommander/internal/slurm"
+	"github.com/pja237/slurmcommander/internal/styles"
 )
 
 type JobTab struct {
@@ -109,4 +110,31 @@ func (k *Keys) SetupKeys() {
 	for k, v := range KeyMap {
 		k.SetEnabled(v)
 	}
+}
+
+func NewMenu(selJobState string, l *log.Logger) list.Model {
+	var lm list.Model = list.Model{}
+
+	menuOpts := MenuList[selJobState]
+	l.Printf("MENU Options%#v\n", MenuList[selJobState])
+
+	defDel := list.NewDefaultDelegate()
+	defStyles := list.NewDefaultItemStyles()
+	defStyles.NormalTitle = styles.MenuNormalTitle
+	defStyles.SelectedTitle = styles.MenuSelectedTitle
+	//defStyles.NormalDesc = styles.MenuNormalDesc
+	defStyles.SelectedDesc = styles.MenuSelectedDesc
+	defDel.Styles = defStyles
+	lm = list.New(menuOpts, defDel, 10, 10)
+	lm.Title = "Job actions"
+	lm.SetShowStatusBar(true)
+	lm.SetFilteringEnabled(false)
+	lm.SetShowHelp(false)
+	lm.SetShowPagination(false)
+	lm.SetHeight(30)
+	lm.SetWidth(30)
+	lm.SetSize(30, 30)
+	lm.Styles.Title = styles.MenuTitleStyle
+
+	return lm
 }
