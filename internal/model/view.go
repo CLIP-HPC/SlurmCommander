@@ -179,11 +179,13 @@ func (m Model) getJobInfo() string {
 	//ibFmt := "Job Name: %s\nJob Command: %s\nOutput: %s\nError: %s\n"
 	infoBox := fmt.Sprintf(fmtStr, "Job Name", *m.JobTab.SqueueFiltered.Jobs[n].Name)
 	infoBox += fmt.Sprintf(fmtStr, "Partition", *m.JobTab.SqueueFiltered.Jobs[n].Partition)
+	infoBox += fmt.Sprintf(fmtStr, "QoS", *m.JobTab.SqueueFiltered.Jobs[n].Qos)
 	infoBox += fmt.Sprintf(fmtStr, "TRES", *m.JobTab.SqueueFiltered.Jobs[n].TresReqStr)
 	infoBox += fmt.Sprintf(fmtStr, "wckey", *m.JobTab.SqueueFiltered.Jobs[n].Wckey)
 	infoBox += fmt.Sprintf(fmtStr, "Command", *m.JobTab.SqueueFiltered.Jobs[n].Command)
 	infoBox += fmt.Sprintf(fmtStr, "StdOut", *m.JobTab.SqueueFiltered.Jobs[n].StandardOutput)
 	infoBox += fmt.Sprintf(fmtStr, "StdErr", *m.JobTab.SqueueFiltered.Jobs[n].StandardError)
+	infoBox += fmt.Sprintf(fmtStr, "Working Dir", *m.JobTab.SqueueFiltered.Jobs[n].CurrentWorkingDirectory)
 
 	return infoBox
 }
@@ -231,7 +233,7 @@ func (m Model) View() string {
 			//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), m.JobTab.Menu.View()))
 			m.Log.Printf("\nITEMS LIST: %#v\n", m.JobTab.Menu.Items())
 		case m.JobTab.InfoOn:
-			//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), focusedModelStyle.Render(m.getJobInfo())))
+			//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.JobInfoBox.Render(m.getJobInfo())))
 			scr.WriteString(m.tabJobs() + "\n")
 			scr.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
 		default:

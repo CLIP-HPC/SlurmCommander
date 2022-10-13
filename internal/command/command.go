@@ -141,10 +141,11 @@ func CallScancel(jobid string, l *log.Logger) tea.Cmd {
 		switches := append(scancelJobCmdSwitches, jobid)
 
 		l.Printf("EXEC: %q %q\n", scancelJobCmd, switches)
-		//out, err := exec.Command(sacctJobCmd, switches...).CombinedOutput()
-		//if err != nil {
-		//	log.Fatalf("Error exec sacct: %q\n", err)
-		//}
+		out, err := exec.Command(scancelJobCmd, switches...).CombinedOutput()
+		if err != nil {
+			l.Fatalf("Error exec scancel: %q\n", err)
+		}
+		l.Printf("EXEC output: %q\n", out)
 
 		return scret
 	}
@@ -162,10 +163,34 @@ func CallScontrolHold(jobid string, l *log.Logger) tea.Cmd {
 		switches := append(sholdJobCmdSwitches, jobid)
 
 		l.Printf("EXEC: %q %q\n", sholdJobCmd, switches)
-		//out, err := exec.Command(sacctJobCmd, switches...).CombinedOutput()
-		//if err != nil {
-		//	log.Fatalf("Error exec sacct: %q\n", err)
-		//}
+		out, err := exec.Command(sholdJobCmd, switches...).CombinedOutput()
+		if err != nil {
+			l.Fatalf("Error exec hold: %q\n", err)
+		}
+		l.Printf("EXEC output: %q\n", out)
+
+		return scret
+	}
+}
+
+type SRequeueSent struct {
+	Jobid string
+}
+
+// TODO: unify this to a single function
+func CallScontrolRequeue(jobid string, l *log.Logger) tea.Cmd {
+	return func() tea.Msg {
+		var scret SRequeueSent = SRequeueSent{
+			Jobid: jobid,
+		}
+		switches := append(srequeueJobCmdSwitches, jobid)
+
+		l.Printf("EXEC: %q %q\n", srequeueJobCmd, switches)
+		out, err := exec.Command(srequeueJobCmd, switches...).CombinedOutput()
+		if err != nil {
+			l.Fatalf("Error exec requeue: %q\n", err)
+		}
+		l.Printf("EXEC output: %q\n", out)
 
 		return scret
 	}

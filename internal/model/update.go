@@ -187,12 +187,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Shold executed
 	case command.SHoldSent:
 		m.Log.Printf("Got SHoldSent msg on job %q\n", msg.Jobid)
-		return m, nil
+		return m, command.TimedGetSqueue()
 
 	// Scancel executed
 	case command.ScancelSent:
 		m.Log.Printf("Got ScancelSent msg on job %q\n", msg.Jobid)
-		return m, nil
+		return m, command.TimedGetSqueue()
+
+	// Srequeue executed
+	case command.SRequeueSent:
+		m.Log.Printf("Got SRequeueSent msg on job %q\n", msg.Jobid)
+		return m, command.TimedGetSqueue()
 
 	// Get initial job template list
 	case jobfromtemplate.TemplatesListRows:

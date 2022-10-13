@@ -48,6 +48,7 @@ func (m *MenuItem) ExecMenuItem(jobID string, l *log.Logger) tea.Cmd {
 	case "HOLD":
 		return command.CallScontrolHold(jobID, l)
 	case "REQUEUE":
+		return command.CallScontrolRequeue(jobID, l)
 	}
 
 	return nil
