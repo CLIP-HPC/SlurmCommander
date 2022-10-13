@@ -129,7 +129,7 @@ func GetTemplateList(paths []string, l *log.Logger) tea.Cmd {
 
 }
 
-func SaveToFile(name string, content string, l *log.Logger) error {
+func SaveToFile(name string, content string, l *log.Logger) (string, error) {
 	var (
 		ofName string
 	)
@@ -139,7 +139,7 @@ func SaveToFile(name string, content string, l *log.Logger) error {
 	l.Printf("SaveToFile INFO: OutputFileName %s\n", ofName)
 	if err := os.WriteFile(ofName, []byte(content), 0644); err != nil {
 		l.Printf("SaveToFile ERROR: File %s: %s\n", ofName, err)
-		return err
+		return "", err
 	}
-	return nil
+	return ofName, nil
 }

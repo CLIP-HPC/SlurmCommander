@@ -11,6 +11,7 @@ const (
 	scancelJobCmd  = "/bin/scancel"
 	sholdJobCmd    = "/bin/scontrol"
 	srequeueJobCmd = "/bin/scontrol"
+	sbatchCmd      = "/bin/sbatch"
 	Tag            = "local"
 )
 
@@ -22,4 +23,5 @@ var (
 	scancelJobCmdSwitches  = []string{}
 	sholdJobCmdSwitches    = []string{"hold"}
 	srequeueJobCmdSwitches = []string{"requeue"}
+	sbatchCmdSwitches      = []string{}
 )

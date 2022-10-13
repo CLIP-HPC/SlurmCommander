@@ -195,3 +195,26 @@ func CallScontrolRequeue(jobid string, l *log.Logger) tea.Cmd {
 		return scret
 	}
 }
+
+type SBatchSent struct {
+	JobFile string
+}
+
+// TODO: unify this to a single function
+func CallSbatch(jobfile string, l *log.Logger) tea.Cmd {
+	return func() tea.Msg {
+		var scret SBatchSent = SBatchSent{
+			JobFile: jobfile,
+		}
+		switches := append(sbatchCmdSwitches, jobfile)
+
+		l.Printf("EXEC: %q %q\n", sbatchCmd, switches)
+		out, err := exec.Command(sbatchCmd, switches...).CombinedOutput()
+		if err != nil {
+			l.Fatalf("Error exec sbatch: %q\n", err)
+		}
+		l.Printf("EXEC output: %q\n", out)
+
+		return scret
+	}
+}

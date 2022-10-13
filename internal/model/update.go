@@ -154,8 +154,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Log.Printf("EditTemplate: Ctrl+s pressed\n")
 				m.EditTemplate = false
 				tabKeys[m.ActiveTab].SetupKeys()
-				jobfromtemplate.SaveToFile(m.JobFromTemplateTab.TemplatesTable.SelectedRow()[0], m.JobFromTemplateTab.TemplateEditor.Value(), m.Log)
-				return m, nil
+				name, err := jobfromtemplate.SaveToFile(m.JobFromTemplateTab.TemplatesTable.SelectedRow()[0], m.JobFromTemplateTab.TemplateEditor.Value(), m.Log)
+				if err != nil {
+					m.Log.Printf("ERROR saving to file!\n")
+					return m, nil
+				}
+				return m, command.CallSbatch(name, m.Log)
 
 			case tea.KeyCtrlC:
 				return m, tea.Quit
@@ -183,6 +187,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// TODO: https://pkg.go.dev/github.com/charmbracelet/bubbletea#WindowSizeMsg
 	// ToDo:
 	// prevent updates for non-selected tabs
+
+	// Shold executed
+	case command.SBatchSent:
+		m.Log.Printf("Got SBatchSent msg on file %q\n", msg.JobFile)
+		return m, nil
 
 	// Shold executed
 	case command.SHoldSent:
