@@ -3059,8 +3059,9 @@
                 }
               },
               "id": {
-                "type": "string",
+                "AnyValue": {
                 "description": "Step id"
+                }
               },
               "name": {
                 "type": "string",

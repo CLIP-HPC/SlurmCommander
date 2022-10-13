@@ -645,9 +645,7 @@ type Dbv0037JobStep struct {
 			// Parent HetJob component id
 			Component *int `json:"component,omitempty"`
 		} `json:"het,omitempty"`
-
-		// Step id
-		Id *string `json:"id,omitempty"`
+		Id *interface{} `json:"id,omitempty"`
 
 		// Parent job id
 		JobId *int `json:"job_id,omitempty"`
