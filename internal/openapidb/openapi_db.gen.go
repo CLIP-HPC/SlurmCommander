@@ -9,12 +9,12 @@ const (
 )
 
 // Account description
-type Dbv0039Account struct {
+type Dbv0037Account struct {
 	// List of assigned associations
-	Associations *[]Dbv0039AssociationShortInfo `json:"associations,omitempty"`
+	Associations *[]Dbv0037AssociationShortInfo `json:"associations,omitempty"`
 
 	// List of assigned coordinators
-	Coordinators *[]Dbv0039CoordinatorInfo `json:"coordinators,omitempty"`
+	Coordinators *[]Dbv0037CoordinatorInfo `json:"coordinators,omitempty"`
 
 	// Description of account
 	Description *string `json:"description,omitempty"`
@@ -29,25 +29,23 @@ type Dbv0039Account struct {
 	Organization *string `json:"organization,omitempty"`
 }
 
-// Dbv0039AccountInfo defines model for dbv0.0.39_account_info.
-type Dbv0039AccountInfo struct {
+// Dbv0037AccountInfo defines model for dbv0.0.37_account_info.
+type Dbv0037AccountInfo struct {
 	// List of accounts
-	Accounts *[]Dbv0039Account `json:"accounts,omitempty"`
+	Accounts *[]Dbv0037Account `json:"accounts,omitempty"`
 
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039AccountResponse defines model for dbv0.0.39_account_response.
-type Dbv0039AccountResponse struct {
+// Dbv0037AccountResponse defines model for dbv0.0.37_account_response.
+type Dbv0037AccountResponse struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
 // Association description
-type Dbv0039Association struct {
+type Dbv0037Association struct {
 	// Assigned account
 	Account *string `json:"account,omitempty"`
 
@@ -63,15 +61,27 @@ type Dbv0039Association struct {
 	// List of properties of association
 	Flags *[]string `json:"flags,omitempty"`
 
+	// is default association
+	IsDefault *int `json:"is_default,omitempty"`
+
 	// Max settings
 	Max *struct {
 		// Max jobs settings
 		Jobs *struct {
+			// Max TRES for job accruing priority
+			Accruing *int `json:"accruing,omitempty"`
+
+			// Max TRES for active total jobs
+			Active *int `json:"active,omitempty"`
+
 			// Max jobs per settings
 			Per *struct {
 				// Max wallclock per job
 				WallClock *int `json:"wall_clock,omitempty"`
 			} `json:"per,omitempty"`
+
+			// Max TRES for job total submitted
+			Total *int `json:"total,omitempty"`
 		} `json:"jobs,omitempty"`
 
 		// Max per settings
@@ -85,29 +95,38 @@ type Dbv0039Association struct {
 
 		// Max TRES settings
 		Tres *struct {
+			// Max TRES per group
+			Group *struct {
+				// TRES list of attributes
+				Active *Dbv0037TresList `json:"active,omitempty"`
+
+				// TRES list of attributes
+				Minutes *Dbv0037TresList `json:"minutes,omitempty"`
+			} `json:"group,omitempty"`
+
 			// Max TRES minutes settings
 			Minutes *struct {
 				// Max TRES minutes per settings
 				Per *struct {
 					// TRES list of attributes
-					Job *Dbv0039TresList `json:"job,omitempty"`
+					Job *Dbv0037TresList `json:"job,omitempty"`
 				} `json:"per,omitempty"`
 
 				// TRES list of attributes
-				Total *Dbv0039TresList `json:"total,omitempty"`
+				Total *Dbv0037TresList `json:"total,omitempty"`
 			} `json:"minutes,omitempty"`
 
 			// Max TRES per settings
 			Per *struct {
 				// TRES list of attributes
-				Job *Dbv0039TresList `json:"job,omitempty"`
+				Job *Dbv0037TresList `json:"job,omitempty"`
 
 				// TRES list of attributes
-				Node *Dbv0039TresList `json:"node,omitempty"`
+				Node *Dbv0037TresList `json:"node,omitempty"`
 			} `json:"per,omitempty"`
 
 			// TRES list of attributes
-			Total *Dbv0039TresList `json:"total,omitempty"`
+			Total *Dbv0037TresList `json:"total,omitempty"`
 		} `json:"tres,omitempty"`
 	} `json:"max,omitempty"`
 
@@ -169,8 +188,8 @@ type Dbv0039Association struct {
 	User *string `json:"user,omitempty"`
 }
 
-// Dbv0039AssociationShortInfo defines model for dbv0.0.39_association_short_info.
-type Dbv0039AssociationShortInfo struct {
+// Dbv0037AssociationShortInfo defines model for dbv0.0.37_association_short_info.
+type Dbv0037AssociationShortInfo struct {
 	// Account name
 	Account *string `json:"account,omitempty"`
 
@@ -184,21 +203,20 @@ type Dbv0039AssociationShortInfo struct {
 	User *string `json:"user,omitempty"`
 }
 
-// Dbv0039AssociationsInfo defines model for dbv0.0.39_associations_info.
-type Dbv0039AssociationsInfo struct {
+// Dbv0037AssociationsInfo defines model for dbv0.0.37_associations_info.
+type Dbv0037AssociationsInfo struct {
 	// Array of associations
-	Associations *[]Dbv0039Association `json:"associations,omitempty"`
+	Associations *[]Dbv0037Association `json:"associations,omitempty"`
 
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ClusterInfo defines model for dbv0.0.39_cluster_info.
-type Dbv0039ClusterInfo struct {
+// Dbv0037ClusterInfo defines model for dbv0.0.37_cluster_info.
+type Dbv0037ClusterInfo struct {
 	// Information about associations
 	Associations *struct {
-		Root *Dbv0039AssociationShortInfo `json:"root,omitempty"`
+		Root *Dbv0037AssociationShortInfo `json:"root,omitempty"`
 	} `json:"associations,omitempty"`
 
 	// Information about controller
@@ -226,48 +244,41 @@ type Dbv0039ClusterInfo struct {
 	SelectPlugin *string `json:"select_plugin,omitempty"`
 
 	// List of TRES in cluster
-	Tres *[]Dbv0039ResponseTres `json:"tres,omitempty"`
+	Tres *[]Dbv0037ResponseTres `json:"tres,omitempty"`
 }
 
-// Dbv0039ClustersProperties defines model for dbv0.0.39_clusters_properties.
-type Dbv0039ClustersProperties struct {
-	Clusters *Dbv0039ClusterInfo `json:"clusters,omitempty"`
-}
-
-// Dbv0039ConfigInfo defines model for dbv0.0.39_config_info.
-type Dbv0039ConfigInfo struct {
+// Dbv0037ConfigInfo defines model for dbv0.0.37_config_info.
+type Dbv0037ConfigInfo struct {
 	// Array of accounts
-	Accounts *[]Dbv0039Account `json:"accounts,omitempty"`
+	Accounts *[]Dbv0037Account `json:"accounts,omitempty"`
 
 	// Array of associations
-	Associations *[]Dbv0039Association `json:"associations,omitempty"`
+	Associations *[]Dbv0037Association `json:"associations,omitempty"`
 
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 
 	// Array of qos
-	Qos *[]Dbv0039Qos `json:"qos,omitempty"`
+	Qos *[]Dbv0037Qos `json:"qos,omitempty"`
 
 	// Array of TRES
-	Tres *[]Dbv0039TresList `json:"tres,omitempty"`
+	Tres *[]Dbv0037TresList `json:"tres,omitempty"`
 
 	// Array of users
-	Users *[]Dbv0039User `json:"users,omitempty"`
+	Users *[]Dbv0037User `json:"users,omitempty"`
 
 	// Array of wckeys
-	Wckeys *[]Dbv0039Wckey `json:"wckeys,omitempty"`
+	Wckeys *[]Dbv0037Wckey `json:"wckeys,omitempty"`
 }
 
-// Dbv0039ConfigResponse defines model for dbv0.0.39_config_response.
-type Dbv0039ConfigResponse struct {
+// Dbv0037ConfigResponse defines model for dbv0.0.37_config_response.
+type Dbv0037ConfigResponse struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039CoordinatorInfo defines model for dbv0.0.39_coordinator_info.
-type Dbv0039CoordinatorInfo struct {
+// Dbv0037CoordinatorInfo defines model for dbv0.0.37_coordinator_info.
+type Dbv0037CoordinatorInfo struct {
 	// If user is coordinator of this account directly or coordinator status was inheirted from a higher account in the tree
 	Direct *int `json:"direct,omitempty"`
 
@@ -275,11 +286,12 @@ type Dbv0039CoordinatorInfo struct {
 	Name *string `json:"name,omitempty"`
 }
 
-// Dbv0039Diag defines model for dbv0.0.39_diag.
-type Dbv0039Diag struct {
+// Dbv0037Diag defines model for dbv0.0.37_diag.
+type Dbv0037Diag struct {
 	// Slurm errors
-	Errors     *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta       *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
+
+	// dictionary of Slurmdb statistics
 	Statistics *struct {
 		RPCs *[]struct {
 			// Number of RPCs
@@ -338,31 +350,22 @@ type Dbv0039Diag struct {
 	} `json:"statistics,omitempty"`
 }
 
-// Dbv0039Error defines model for dbv0.0.39_error.
-type Dbv0039Error struct {
-	// Explaination of cause of error
-	Description *string `json:"description,omitempty"`
+// Dbv0037Error defines model for dbv0.0.37_error.
+type Dbv0037Error struct {
+	// Error number
+	Errno *int `json:"errno,omitempty"`
 
 	// Error message
 	Error *string `json:"error,omitempty"`
-
-	// Slurm internal error number
-	ErrorNumber *int `json:"error_number,omitempty"`
-
-	// Where error occured in the source
-	Source *string `json:"source,omitempty"`
 }
 
-// Slurm errors
-type Dbv0039Errors = []Dbv0039Error
-
 // Single job description
-type Dbv0039Job struct {
+type Dbv0037Job struct {
 	// Account charged by job
 	Account *string `json:"account,omitempty"`
 
 	// Nodes allocated to job
-	//AllocationNodes *string `json:"allocation_nodes,omitempty"`
+	AllocationNodes *int `json:"allocation_nodes,omitempty"`
 
 	// Array properties (optional)
 	Array *struct {
@@ -387,7 +390,7 @@ type Dbv0039Job struct {
 		// Array task id
 		TaskId *int `json:"task_id,omitempty"`
 	} `json:"array,omitempty"`
-	Association *Dbv0039AssociationShortInfo `json:"association,omitempty"`
+	Association *Dbv0037AssociationShortInfo `json:"association,omitempty"`
 
 	// Assigned cluster
 	Cluster *string `json:"cluster,omitempty"`
@@ -405,12 +408,9 @@ type Dbv0039Job struct {
 	} `json:"comment,omitempty"`
 
 	// Constraints on job
-	Constraints *string `json:"constraints,omitempty"`
-
-	// absolute path to OCI container bundle
-	Container       *string             `json:"container,omitempty"`
-	DerivedExitCode *Dbv0039JobExitCode `json:"derived_exit_code,omitempty"`
-	ExitCode        *Dbv0039JobExitCode `json:"exit_code,omitempty"`
+	Constraints     *string             `json:"constraints,omitempty"`
+	DerivedExitCode *Dbv0037JobExitCode `json:"derived_exit_code,omitempty"`
+	ExitCode        *Dbv0037JobExitCode `json:"exit_code,omitempty"`
 
 	// List of properties of job
 	Flags *[]string `json:"flags,omitempty"`
@@ -424,7 +424,7 @@ type Dbv0039Job struct {
 		JobId *int `json:"job_id,omitempty"`
 
 		// Offset of this job to parent
-		JobOffset *int `json:"job_offset,omitempty"`
+		JobOffset *map[string]interface{} `json:"job_offset,omitempty"`
 	} `json:"het,omitempty"`
 
 	// Job id
@@ -482,7 +482,7 @@ type Dbv0039Job struct {
 	} `json:"state,omitempty"`
 
 	// Job step description
-	Steps *[]Dbv0039JobStep `json:"steps,omitempty"`
+	Steps *[]Dbv0037JobStep `json:"steps,omitempty"`
 
 	// Time properties
 	Time *struct {
@@ -538,10 +538,10 @@ type Dbv0039Job struct {
 	// TRES settings
 	Tres *struct {
 		// TRES list of attributes
-		Allocated *Dbv0039TresList `json:"allocated,omitempty"`
+		Allocated *Dbv0037TresList `json:"allocated,omitempty"`
 
 		// TRES list of attributes
-		Requested *Dbv0039TresList `json:"requested,omitempty"`
+		Requested *Dbv0037TresList `json:"requested,omitempty"`
 	} `json:"tres,omitempty"`
 
 	// Job user
@@ -560,8 +560,8 @@ type Dbv0039Job struct {
 	WorkingDirectory *string `json:"working_directory,omitempty"`
 }
 
-// Dbv0039JobExitCode defines model for dbv0.0.39_job_exit_code.
-type Dbv0039JobExitCode struct {
+// Dbv0037JobExitCode defines model for dbv0.0.37_job_exit_code.
+type Dbv0037JobExitCode struct {
 	// Return code from parent process
 	ReturnCode *int `json:"return_code,omitempty"`
 
@@ -578,18 +578,17 @@ type Dbv0039JobExitCode struct {
 	Status *string `json:"status,omitempty"`
 }
 
-// Dbv0039JobInfo defines model for dbv0.0.39_job_info.
-type Dbv0039JobInfo struct {
+// Dbv0037JobInfo defines model for dbv0.0.37_job_info.
+type Dbv0037JobInfo struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 
 	// Array of jobs
-	Jobs *[]Dbv0039Job `json:"jobs,omitempty"`
-	Meta *Dbv0039Meta  `json:"meta,omitempty"`
+	Jobs *[]Dbv0037Job `json:"jobs,omitempty"`
 }
 
-// Dbv0039JobStep defines model for dbv0.0.39_job_step.
-type Dbv0039JobStep struct {
+// Dbv0037JobStep defines model for dbv0.0.37_job_step.
+type Dbv0037JobStep struct {
 	// CPU properties
 	CPU *struct {
 		// CPU governor
@@ -604,7 +603,7 @@ type Dbv0039JobStep struct {
 			Min *int `json:"min,omitempty"`
 		} `json:"requested_frequency,omitempty"`
 	} `json:"CPU,omitempty"`
-	ExitCode *Dbv0039JobExitCode `json:"exit_code,omitempty"`
+	ExitCode *Dbv0037JobExitCode `json:"exit_code,omitempty"`
 
 	// User who requested job killed
 	KillRequestUser *string `json:"kill_request_user,omitempty"`
@@ -657,8 +656,11 @@ type Dbv0039JobStep struct {
 		Name *string `json:"name,omitempty"`
 	} `json:"step,omitempty"`
 
-	// Task distribution properties
-	//Task *string `json:"task,omitempty"`
+	// Task properties
+	Task *struct {
+		// Task distribution type
+		Distribution *string `json:"distribution,omitempty"`
+	} `json:"task,omitempty"`
 
 	// Task properties
 	Tasks *struct {
@@ -711,60 +713,42 @@ type Dbv0039JobStep struct {
 	// TRES usage
 	Tres *struct {
 		// TRES list of attributes
-		Allocated *Dbv0039TresList `json:"allocated,omitempty"`
+		Allocated *Dbv0037TresList `json:"allocated,omitempty"`
 
 		// TRES requested for job
 		Consumed *struct {
 			// TRES list of attributes
-			Average *Dbv0039TresList `json:"average,omitempty"`
+			Average *Dbv0037TresList `json:"average,omitempty"`
 
 			// TRES list of attributes
-			Max *Dbv0039TresList `json:"max,omitempty"`
+			Max *Dbv0037TresList `json:"max,omitempty"`
 
 			// TRES list of attributes
-			Min *Dbv0039TresList `json:"min,omitempty"`
+			Min *Dbv0037TresList `json:"min,omitempty"`
 
 			// TRES list of attributes
-			Total *Dbv0039TresList `json:"total,omitempty"`
+			Total *Dbv0037TresList `json:"total,omitempty"`
 		} `json:"consumed,omitempty"`
 
 		// TRES requested for job
 		Requested *struct {
 			// TRES list of attributes
-			Average *Dbv0039TresList `json:"average,omitempty"`
+			Average *Dbv0037TresList `json:"average,omitempty"`
 
 			// TRES list of attributes
-			Max *Dbv0039TresList `json:"max,omitempty"`
+			Max *Dbv0037TresList `json:"max,omitempty"`
 
 			// TRES list of attributes
-			Min *Dbv0039TresList `json:"min,omitempty"`
+			Min *Dbv0037TresList `json:"min,omitempty"`
 
 			// TRES list of attributes
-			Total *Dbv0039TresList `json:"total,omitempty"`
+			Total *Dbv0037TresList `json:"total,omitempty"`
 		} `json:"requested,omitempty"`
 	} `json:"tres,omitempty"`
 }
 
-// Dbv0039Meta defines model for dbv0.0.39_meta.
-type Dbv0039Meta struct {
-	// Slurm information
-	Slurm *struct {
-		// version specifier
-		Release *string `json:"release,omitempty"`
-		Version *struct {
-			Major *string `json:"major,omitempty"`
-			Micro *string `json:"micro,omitempty"`
-			Minor *string `json:"minor,omitempty"`
-		} `json:"version,omitempty"`
-	} `json:"Slurm,omitempty"`
-	Plugin *struct {
-		Name *string `json:"name,omitempty"`
-		Type *string `json:"type,omitempty"`
-	} `json:"plugin,omitempty"`
-}
-
 // QOS description
-type Dbv0039Qos struct {
+type Dbv0037Qos struct {
 	// QOS description
 	Description *string `json:"description,omitempty"`
 
@@ -815,32 +799,29 @@ type Dbv0039Qos struct {
 					// Max TRES minutes per settings
 					Per *struct {
 						// TRES list of attributes
-						Account *Dbv0039TresList `json:"account,omitempty"`
+						Account *Dbv0037TresList `json:"account,omitempty"`
 
 						// TRES list of attributes
-						Job *Dbv0039TresList `json:"job,omitempty"`
+						Job *Dbv0037TresList `json:"job,omitempty"`
 
 						// TRES list of attributes
-						Qos *Dbv0039TresList `json:"qos,omitempty"`
-
-						// TRES list of attributes
-						User *Dbv0039TresList `json:"user,omitempty"`
+						User *Dbv0037TresList `json:"user,omitempty"`
 					} `json:"per,omitempty"`
 				} `json:"minutes,omitempty"`
 
 				// Max TRES per settings
 				Per *struct {
 					// TRES list of attributes
-					Account *Dbv0039TresList `json:"account,omitempty"`
+					Account *Dbv0037TresList `json:"account,omitempty"`
 
 					// TRES list of attributes
-					Job *Dbv0039TresList `json:"job,omitempty"`
+					Job *Dbv0037TresList `json:"job,omitempty"`
 
 					// TRES list of attributes
-					Node *Dbv0039TresList `json:"node,omitempty"`
+					Node *Dbv0037TresList `json:"node,omitempty"`
 
 					// TRES list of attributes
-					User *Dbv0039TresList `json:"user,omitempty"`
+					User *Dbv0037TresList `json:"user,omitempty"`
 				} `json:"per,omitempty"`
 			} `json:"tres,omitempty"`
 
@@ -867,14 +848,11 @@ type Dbv0039Qos struct {
 				// Min tres per settings
 				Per *struct {
 					// TRES list of attributes
-					Job *Dbv0039TresList `json:"job,omitempty"`
+					Job *Dbv0037TresList `json:"job,omitempty"`
 				} `json:"per,omitempty"`
 			} `json:"tres,omitempty"`
 		} `json:"min,omitempty"`
 	} `json:"limits,omitempty"`
-
-	// Assigned name of QOS
-	Name *string `json:"name,omitempty"`
 
 	// Preemption settings
 	Preempt *struct {
@@ -898,115 +876,92 @@ type Dbv0039Qos struct {
 	UsageThreshold *float32 `json:"usage_threshold,omitempty"`
 }
 
-// Dbv0039QosInfo defines model for dbv0.0.39_qos_info.
-type Dbv0039QosInfo struct {
+// Dbv0037QosInfo defines model for dbv0.0.37_qos_info.
+type Dbv0037QosInfo struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 
 	// Array of QOS
-	Qos *[]Dbv0039Qos `json:"qos,omitempty"`
+	Qos *[]Dbv0037Qos `json:"qos,omitempty"`
 }
 
-// Dbv0039ResponseAccountDelete defines model for dbv0.0.39_response_account_delete.
-type Dbv0039ResponseAccountDelete struct {
+// Dbv0037ResponseAccountDelete defines model for dbv0.0.37_response_account_delete.
+type Dbv0037ResponseAccountDelete struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseAssociations defines model for dbv0.0.39_response_associations.
-type Dbv0039ResponseAssociations struct {
+// Dbv0037ResponseAssociationDelete defines model for dbv0.0.37_response_association_delete.
+type Dbv0037ResponseAssociationDelete struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseAssociationsDelete defines model for dbv0.0.39_response_associations_delete.
-type Dbv0039ResponseAssociationsDelete struct {
+// Dbv0037ResponseAssociations defines model for dbv0.0.37_response_associations.
+type Dbv0037ResponseAssociations struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
-
-	// the associations
-	RemovedAssociations *[]string `json:"removed_associations,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseClusterAdd defines model for dbv0.0.39_response_cluster_add.
-type Dbv0039ResponseClusterAdd struct {
+// Dbv0037ResponseClusterAdd defines model for dbv0.0.37_response_cluster_add.
+type Dbv0037ResponseClusterAdd struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseClusterDelete defines model for dbv0.0.39_response_cluster_delete.
-type Dbv0039ResponseClusterDelete struct {
+// Dbv0037ResponseClusterDelete defines model for dbv0.0.37_response_cluster_delete.
+type Dbv0037ResponseClusterDelete struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseQos defines model for dbv0.0.39_response_qos.
-type Dbv0039ResponseQos struct {
+// Dbv0037ResponseQosDelete defines model for dbv0.0.37_response_qos_delete.
+type Dbv0037ResponseQosDelete struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseQosDelete defines model for dbv0.0.39_response_qos_delete.
-type Dbv0039ResponseQosDelete struct {
+// Dbv0037ResponseTres defines model for dbv0.0.37_response_tres.
+type Dbv0037ResponseTres struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseTres defines model for dbv0.0.39_response_tres.
-type Dbv0039ResponseTres struct {
+// Dbv0037ResponseUserDelete defines model for dbv0.0.37_response_user_delete.
+type Dbv0037ResponseUserDelete struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseUserDelete defines model for dbv0.0.39_response_user_delete.
-type Dbv0039ResponseUserDelete struct {
+// Dbv0037ResponseUserUpdate defines model for dbv0.0.37_response_user_update.
+type Dbv0037ResponseUserUpdate struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseUserUpdate defines model for dbv0.0.39_response_user_update.
-type Dbv0039ResponseUserUpdate struct {
+// Dbv0037ResponseWckeyAdd defines model for dbv0.0.37_response_wckey_add.
+type Dbv0037ResponseWckeyAdd struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseWckeyAdd defines model for dbv0.0.39_response_wckey_add.
-type Dbv0039ResponseWckeyAdd struct {
+// Dbv0037ResponseWckeyDelete defines model for dbv0.0.37_response_wckey_delete.
+type Dbv0037ResponseWckeyDelete struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 }
 
-// Dbv0039ResponseWckeyDelete defines model for dbv0.0.39_response_wckey_delete.
-type Dbv0039ResponseWckeyDelete struct {
+// Dbv0037TresInfo defines model for dbv0.0.37_tres_info.
+type Dbv0037TresInfo struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
-}
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 
-// Dbv0039TresInfo defines model for dbv0.0.39_tres_info.
-type Dbv0039TresInfo struct {
-	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
-
-	// TRES list of attributes
-	Tres *Dbv0039TresList `json:"tres,omitempty"`
+	// Array of tres
+	Tres *[]Dbv0037TresList `json:"tres,omitempty"`
 }
 
 // TRES list of attributes
-type Dbv0039TresList = []struct {
+type Dbv0037TresList = []struct {
 	// count of TRES
 	Count *int `json:"count,omitempty"`
 
@@ -1020,31 +975,18 @@ type Dbv0039TresList = []struct {
 	Type *string `json:"type,omitempty"`
 }
 
-// Dbv0039UpdateAccount defines model for dbv0.0.39_update_account.
-type Dbv0039UpdateAccount struct {
-	Accounts *[]Dbv0039Account `json:"accounts,omitempty"`
-}
-
-// Dbv0039UpdateQos defines model for dbv0.0.39_update_qos.
-type Dbv0039UpdateQos struct {
-	Qos *[]Dbv0039Qos `json:"qos,omitempty"`
-}
-
-// Dbv0039UpdateUsers defines model for dbv0.0.39_update_users.
-type Dbv0039UpdateUsers struct {
-	Users *[]Dbv0039User `json:"users,omitempty"`
-}
-
 // User description
-type Dbv0039User struct {
+type Dbv0037User struct {
 	// Description of administrator level
 	AdministratorLevel *string `json:"administrator_level,omitempty"`
 
 	// Assigned associations
-	Associations *[]Dbv0039AssociationShortInfo `json:"associations,omitempty"`
+	Associations *struct {
+		Root *Dbv0037AssociationShortInfo `json:"root,omitempty"`
+	} `json:"associations,omitempty"`
 
 	// List of assigned coordinators
-	Coordinators *[]Dbv0039CoordinatorInfo `json:"coordinators,omitempty"`
+	Coordinators *[]Dbv0037CoordinatorInfo `json:"coordinators,omitempty"`
 
 	// Default settings
 	Default *struct {
@@ -1055,25 +997,21 @@ type Dbv0039User struct {
 		Wckey *string `json:"wckey,omitempty"`
 	} `json:"default,omitempty"`
 
-	// List of properties of user
-	Flags *[]string `json:"flags,omitempty"`
-
 	// User name
 	Name *string `json:"name,omitempty"`
 }
 
-// Dbv0039UserInfo defines model for dbv0.0.39_user_info.
-type Dbv0039UserInfo struct {
+// Dbv0037UserInfo defines model for dbv0.0.37_user_info.
+type Dbv0037UserInfo struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 
 	// Array of users
-	Users *[]Dbv0039User `json:"users,omitempty"`
+	Users *[]Dbv0037User `json:"users,omitempty"`
 }
 
-// Dbv0039Wckey defines model for dbv0.0.39_wckey.
-type Dbv0039Wckey struct {
+// Dbv0037Wckey defines model for dbv0.0.37_wckey.
+type Dbv0037Wckey struct {
 	// List of assigned accounts
 	Accounts *[]string `json:"accounts,omitempty"`
 
@@ -1093,33 +1031,32 @@ type Dbv0039Wckey struct {
 	User *string `json:"user,omitempty"`
 }
 
-// Dbv0039WckeyInfo defines model for dbv0.0.39_wckey_info.
-type Dbv0039WckeyInfo struct {
+// Dbv0037WckeyInfo defines model for dbv0.0.37_wckey_info.
+type Dbv0037WckeyInfo struct {
 	// Slurm errors
-	Errors *[]Dbv0039Error `json:"errors,omitempty"`
-	Meta   *Dbv0039Meta    `json:"meta,omitempty"`
+	Errors *[]Dbv0037Error `json:"errors,omitempty"`
 
 	// List of wckeys
-	Wckeys *[]Dbv0039Wckey `json:"wckeys,omitempty"`
+	Wckeys *[]Dbv0037Wckey `json:"wckeys,omitempty"`
 }
 
-// GetAccountParams defines parameters for GetAccount.
-type GetAccountParams struct {
-	// Include deleted accounts. False by default.
-	WithDeleted *bool `form:"with_deleted,omitempty" json:"with_deleted,omitempty"`
+// SlurmdbdDeleteAssociationParams defines parameters for SlurmdbdDeleteAssociation.
+type SlurmdbdDeleteAssociationParams struct {
+	// Cluster name
+	Cluster *string `form:"cluster,omitempty" json:"cluster,omitempty"`
+
+	// Account name
+	Account string `form:"account" json:"account"`
+
+	// User name
+	User string `form:"user" json:"user"`
+
+	// Partition Name
+	Partition *string `form:"partition,omitempty" json:"partition,omitempty"`
 }
 
-// GetAccountsParams defines parameters for GetAccounts.
-type GetAccountsParams struct {
-	// Include deleted accounts. False by default.
-	WithDeleted *bool `form:"with_deleted,omitempty" json:"with_deleted,omitempty"`
-}
-
-// UpdateAccountJSONBody defines parameters for UpdateAccount.
-type UpdateAccountJSONBody = Dbv0039UpdateAccount
-
-// DeleteAssociationParams defines parameters for DeleteAssociation.
-type DeleteAssociationParams struct {
+// SlurmdbdGetAssociationParams defines parameters for SlurmdbdGetAssociation.
+type SlurmdbdGetAssociationParams struct {
 	// Cluster name
 	Cluster *string `form:"cluster,omitempty" json:"cluster,omitempty"`
 
@@ -1133,56 +1070,8 @@ type DeleteAssociationParams struct {
 	Partition *string `form:"partition,omitempty" json:"partition,omitempty"`
 }
 
-// GetAssociationParams defines parameters for GetAssociation.
-type GetAssociationParams struct {
-	// Cluster name
-	Cluster *string `form:"cluster,omitempty" json:"cluster,omitempty"`
-
-	// Account name
-	Account *string `form:"account,omitempty" json:"account,omitempty"`
-
-	// User name
-	User *string `form:"user,omitempty" json:"user,omitempty"`
-
-	// Partition Name
-	Partition *string `form:"partition,omitempty" json:"partition,omitempty"`
-}
-
-// DeleteAssociationsParams defines parameters for DeleteAssociations.
-type DeleteAssociationsParams struct {
-	// Cluster name
-	Cluster *string `form:"cluster,omitempty" json:"cluster,omitempty"`
-
-	// Account name
-	Account *string `form:"account,omitempty" json:"account,omitempty"`
-
-	// User name
-	User *string `form:"user,omitempty" json:"user,omitempty"`
-
-	// Partition Name
-	Partition *string `form:"partition,omitempty" json:"partition,omitempty"`
-}
-
-// GetAssociationsParams defines parameters for GetAssociations.
-type GetAssociationsParams struct {
-	// Cluster name
-	Cluster *string `form:"cluster,omitempty" json:"cluster,omitempty"`
-
-	// Account name
-	Account *string `form:"account,omitempty" json:"account,omitempty"`
-
-	// User name
-	User *string `form:"user,omitempty" json:"user,omitempty"`
-
-	// Partition Name
-	Partition *string `form:"partition,omitempty" json:"partition,omitempty"`
-}
-
-// AddClustersJSONBody defines parameters for AddClusters.
-type AddClustersJSONBody = Dbv0039ClustersProperties
-
-// GetJobsParams defines parameters for GetJobs.
-type GetJobsParams struct {
+// SlurmdbdGetJobsParams defines parameters for SlurmdbdGetJobs.
+type SlurmdbdGetJobsParams struct {
 	// Filter by submission time
 	//  Accepted formats:
 	//  HH:MM[:SS] [AM|PM]
@@ -1273,45 +1162,3 @@ type GetJobsParams struct {
 	// Comma delimited list of wckeys to match
 	Wckey *string `form:"wckey,omitempty" json:"wckey,omitempty"`
 }
-
-// GetQosParams defines parameters for GetQos.
-type GetQosParams struct {
-	// Include deleted QOSs. False by default.
-	WithDeleted *bool `form:"with_deleted,omitempty" json:"with_deleted,omitempty"`
-}
-
-// UpdateQosJSONBody defines parameters for UpdateQos.
-type UpdateQosJSONBody = Dbv0039UpdateQos
-
-// GetSingleQosParams defines parameters for GetSingleQos.
-type GetSingleQosParams struct {
-	// Include deleted QOSs. False by default.
-	WithDeleted *bool `form:"with_deleted,omitempty" json:"with_deleted,omitempty"`
-}
-
-// GetUserParams defines parameters for GetUser.
-type GetUserParams struct {
-	// Include deleted users. False by default.
-	WithDeleted *bool `form:"with_deleted,omitempty" json:"with_deleted,omitempty"`
-}
-
-// GetUsersParams defines parameters for GetUsers.
-type GetUsersParams struct {
-	// Include deleted users. False by default.
-	WithDeleted *bool `form:"with_deleted,omitempty" json:"with_deleted,omitempty"`
-}
-
-// UpdateUsersJSONBody defines parameters for UpdateUsers.
-type UpdateUsersJSONBody = Dbv0039UpdateUsers
-
-// UpdateAccountJSONRequestBody defines body for UpdateAccount for application/json ContentType.
-type UpdateAccountJSONRequestBody = UpdateAccountJSONBody
-
-// AddClustersJSONRequestBody defines body for AddClusters for application/json ContentType.
-type AddClustersJSONRequestBody = AddClustersJSONBody
-
-// UpdateQosJSONRequestBody defines body for UpdateQos for application/json ContentType.
-type UpdateQosJSONRequestBody = UpdateQosJSONBody
-
-// UpdateUsersJSONRequestBody defines body for UpdateUsers for application/json ContentType.
-type UpdateUsersJSONRequestBody = UpdateUsersJSONBody

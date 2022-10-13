@@ -4,3 +4,4 @@ scdebug.log
 scripts/**
 /scom
 *.sbatch
+tmp/**

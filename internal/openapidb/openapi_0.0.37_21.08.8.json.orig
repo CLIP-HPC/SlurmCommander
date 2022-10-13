@@ -13,7 +13,7 @@
       "email": "sales@schedmd.com"
     },
     "title": "Slurm Rest API",
-    "version": "dbv0.0.38"
+    "version": "dbv0.0.37"
   },
   "tags": [
     {
@@ -27,14 +27,12 @@
   ],
   "servers": [
     {
-      "url": "/slurmdb/v0.0.38/"
+      "url": "/slurmdb/v0.0.37/"
     }
   ],
   "security": [
     {
-      "user": []
-    },
-    {
+      "user": [],
       "token": []
     }
   ],
@@ -44,19 +42,20 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "get_job",
+        "operationId": "slurmdbd_get_job",
         "summary": "Get job info",
         "description": "This endpoint may return multiple job entries since job_id is not a unique key - only the tuple (cluster, job_id, start_time) is unique. If the requested job_id is a component of a heterogeneous job all components are returned.",
         "parameters": [
           {
             "name": "job_id",
             "in": "path",
-            "description": "Slurm JobID",
+            "description": "Slurm Job ID",
             "required": true,
-            "style": "simple",
+            "style": "label",
             "explode": false,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int64"
             }
           }
         ],
@@ -65,31 +64,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_job_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_job_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_job_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_job_info"
                 }
               }
             },
             "description": "Job description"
           },
           "default": {
-            "description": "Unable to find job",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to find job"
           }
         }
       }
@@ -99,38 +86,26 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "get_config",
+        "operationId": "slurmdbd_get_db_config",
         "summary": "Dump all configuration information",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_config_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_config_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_config_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_config_info"
                 }
               }
             },
             "description": "slurmdbd configuration"
           },
           "default": {
-            "description": "Unable to dump config",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to dump config"
           }
         }
       },
@@ -138,7 +113,7 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "set_config",
+        "operationId": "slurmdbd_set_db_config",
         "summary": "Load all configuration information",
         "responses": {
           "200": {
@@ -146,30 +121,18 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_config_response"
+                  "$ref": "#/components/schemas/dbv0.0.37_config_response"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_config_response"
+                  "$ref": "#/components/schemas/dbv0.0.37_config_response"
                 }
               }
             }
           },
           "default": {
-            "description": "Unable to set config",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to set config"
           }
         }
       }
@@ -179,37 +142,25 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "update_tres",
+        "operationId": "slurmdbd_update_tres",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_tres"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_tres"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_tres"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_tres"
                 }
               }
             },
             "description": "List of TRES"
           },
           "default": {
-            "description": "Unable to update TRES",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to update TRES"
           }
         },
         "summary": "Set TRES info"
@@ -218,18 +169,18 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "get_tres",
+        "operationId": "slurmdbd_get_tres",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_tres_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_tres_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_tres_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_tres_info"
                 }
               }
             },
@@ -248,37 +199,25 @@
           "slurm"
         ],
         "summary": "Delete QOS",
-        "operationId": "delete_qos",
+        "operationId": "slurmdbd_delete_qos",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_qos_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_qos_delete"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_qos_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_qos_delete"
                 }
               }
             },
             "description": "Delete qos"
           },
           "default": {
-            "description": "Unable to delete QOS",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to delete QOS"
           }
         },
         "parameters": [
@@ -300,37 +239,25 @@
           "slurm"
         ],
         "summary": "Get QOS info",
-        "operationId": "get_single_qos",
+        "operationId": "slurmdbd_get_single_qos",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_qos_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_qos_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_qos_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_qos_info"
                 }
               }
             },
             "description": "QOS information"
           },
           "default": {
-            "description": "QOS not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "QOS not found"
           }
         },
         "parameters": [
@@ -344,17 +271,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "with_deleted",
-            "in": "query",
-            "description": "Include deleted QOSs. False by default.",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "boolean"
-            }
           }
         ]
       }
@@ -364,108 +280,28 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "get_qos",
-        "parameters": [
-          {
-            "name": "with_deleted",
-            "in": "query",
-            "description": "Include deleted QOSs. False by default.",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
+        "operationId": "slurmdbd_get_qos",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_qos_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_qos_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_qos_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_qos_info"
                 }
               }
             },
             "description": "List of QOS'"
           },
           "default": {
-            "description": "QOS not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "QOS not found"
           }
         },
         "summary": "Get QOS list"
-      },
-      "post": {
-        "tags": [
-          "slurm"
-        ],
-        "operationId": "update_qos",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_qos"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_qos"
-                }
-              }
-            },
-            "description": "QOS update response"
-          },
-          "default": {
-            "description": "Unable to update QOSs",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "description": "Add or update QOSs",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dbv0.0.38_update_qos"
-              }
-            },
-            "application/x-yaml": {
-              "schema": {
-                "$ref": "#/components/schemas/dbv0.0.38_update_qos"
-              }
-            }
-          },
-          "required": true
-        },
-        "summary": "Set QOS info"
       }
     },
     "/associations/": {
@@ -473,210 +309,55 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "update_associations",
+        "operationId": "slurmdbd_update_associations",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_associations"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_associations"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_associations"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_associations"
                 }
               }
             },
             "description": "status of associations update"
           },
           "default": {
-            "description": "Unable to update associations",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to update associations"
           }
         },
         "summary": "Set associations info"
       },
       "get": {
         "tags": [
-	  "slurm"
-	],
-	"operationId": "get_associations",
-	"parameters": [
-	  {
-	    "name": "cluster",
-	    "in": "query",
-	    "description": "Cluster name",
-	    "required": false,
-	    "style": "form",
-	    "explode": false,
-	    "schema": {
-	      "type": "string"
-	    }
-	  },
-	  {
-	    "name": "account",
-	    "in": "query",
-	    "description": "Account name",
-	    "required": false,
-	    "style": "form",
-	    "explode": false,
-	    "schema": {
-	      "type": "string"
-	    }
-	  },
-	  {
-	    "name": "user",
-	    "in": "query",
-	    "description": "User name",
-	    "required": false,
-	    "style": "form",
-	    "explode": false,
-	    "schema": {
-	      "type": "string"
-	    }
-	  },
-	  {
-	    "name": "partition",
-	    "in": "query",
-	    "description": "Partition Name",
-	    "required": false,
-	    "style": "form",
-	    "explode": false,
-	    "schema": {
-	      "type": "string"
-	    }
-	  }
-	],
-	"responses": {
-	  "200": {
-	    "content": {
-	      "application/json": {
-		"schema": {
-		  "$ref": "#/components/schemas/dbv0.0.38_associations_info"
-		}
-	      },
-	      "application/x-yaml": {
-		"schema": {
-		  "$ref": "#/components/schemas/dbv0.0.38_associations_info"
-		}
-	      }
-	    },
-	    "description": "List of associations"
-	  },
-	  "default": {
-	    "description": "Association not found",
-	    "content": {
-	      "application/json": {
-		"schema": {
-		  "$ref": "#/components/schemas/dbv0.0.38_errors"
-		}
-	      },
-	      "application/x-yaml": {
-		"schema": {
-		  "$ref": "#/components/schemas/dbv0.0.38_errors"
-		}
-	      }
-	    }
-	  }
-	},
-	"summary": "Get association list"
-      },
-      "delete": {
-	"tags": [
-	  "slurm"
-	],
-	"operationId": "delete_associations",
-	"parameters": [
-	  {
-	    "name": "cluster",
-	    "in": "query",
-	    "description": "Cluster name",
-	    "required": false,
-	    "style": "form",
-	    "explode": false,
-	    "schema": {
-	      "type": "string"
-	    }
-	  },
-	  {
-	    "name": "account",
-	    "in": "query",
-	    "description": "Account name",
-	    "required": false,
-	    "style": "form",
-	    "explode": false,
-	    "schema": {
-	      "type": "string"
-	    }
-	  },
-	  {
-	    "name": "user",
-	    "in": "query",
-	    "description": "User name",
-	    "required": false,
-	    "style": "form",
-	    "explode": false,
-	    "schema": {
-	      "type": "string"
-	    }
-	  },
-	  {
-	    "name": "partition",
-	    "in": "query",
-	    "description": "Partition Name",
-	    "required": false,
-	    "style": "form",
-	    "explode": false,
-	    "schema": {
-	      "type": "string"
-	    }
-	  }
-	],
-	"responses": {
-	  "200": {
-	    "content": {
-	      "application/json": {
-		"schema": {
-		  "$ref": "#/components/schemas/dbv0.0.38_response_associations_delete"
-		}
-	      },
-	      "application/x-yaml": {
-		"schema": {
-		  "$ref": "#/components/schemas/dbv0.0.38_response_associations_delete"
-		}
-	      }
-	    },
-	    "description": "Delete associations"
-	  },
-	  "default": {
-	    "description": "Associations not found or unable to delete association",
-	    "content": {
-	      "application/json": {
-		"schema": {
-		  "$ref": "#/components/schemas/dbv0.0.38_errors"
-		}
-	      },
-	      "application/x-yaml": {
-		"schema": {
-		  "$ref": "#/components/schemas/dbv0.0.38_errors"
-		}
-	      }
-	    }
-	  }
-	},
-	"summary": "Delete associations"
+          "slurm"
+        ],
+        "operationId": "slurmdbd_get_associations",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dbv0.0.37_associations_info"
+                }
+              },
+              "application/x-yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/dbv0.0.37_associations_info"
+                }
+              }
+            },
+            "description": "List of associations"
+          },
+          "default": {
+            "description": "Association not found"
+          }
+        },
+        "summary": "Get association list"
       }
     },
     "/association/": {
@@ -684,7 +365,7 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "get_association",
+        "operationId": "slurmdbd_get_association",
         "parameters": [
           {
             "name": "cluster",
@@ -736,31 +417,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_associations_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_associations_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_associations_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_associations_info"
                 }
               }
             },
             "description": "List of associations"
           },
           "default": {
-            "description": "Association not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Association not found"
           }
         },
         "summary": "Get association info"
@@ -769,7 +438,7 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "delete_association",
+        "operationId": "slurmdbd_delete_association",
         "parameters": [
           {
             "name": "cluster",
@@ -786,7 +455,7 @@
             "name": "account",
             "in": "query",
             "description": "Account name",
-	    "required": false,
+            "required": true,
             "style": "form",
             "explode": false,
             "schema": {
@@ -797,7 +466,7 @@
             "name": "user",
             "in": "query",
             "description": "User name",
-	    "required": false,
+            "required": true,
             "style": "form",
             "explode": false,
             "schema": {
@@ -821,31 +490,19 @@
             "content": {
               "application/json": {
                 "schema": {
-		  "$ref": "#/components/schemas/dbv0.0.38_response_associations_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_association_delete"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-		  "$ref": "#/components/schemas/dbv0.0.38_response_associations_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_association_delete"
                 }
               }
             },
             "description": "Delete associations"
           },
           "default": {
-            "description": "Association not found or unable to delete association",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Association not found or unable to delete association"
           }
         },
         "summary": "Delete association"
@@ -857,37 +514,25 @@
           "slurm"
         ],
         "summary": "Delete user",
-        "operationId": "delete_user",
+        "operationId": "slurmdbd_delete_user",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_user_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_user_delete"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_user_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_user_delete"
                 }
               }
             },
             "description": "Delete user"
           },
           "default": {
-            "description": "User not found or unable to delete user",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "User not found or unable to delete user"
           }
         },
         "parameters": [
@@ -909,37 +554,25 @@
           "slurm"
         ],
         "summary": "Get user info",
-        "operationId": "get_user",
+        "operationId": "slurmdbd_get_user",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_user_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_user_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_user_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_user_info"
                 }
               }
             },
             "description": "List of users"
           },
           "default": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "User not found"
           }
         },
         "parameters": [
@@ -953,17 +586,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "with_deleted",
-            "in": "query",
-            "description": "Include deleted users. False by default.",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "boolean"
-            }
           }
         ]
       }
@@ -974,53 +596,25 @@
           "slurm"
         ],
         "summary": "Update user",
-        "operationId": "update_users",
-        "requestBody": {
-          "description": "add or update user",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dbv0.0.38_update_users"
-              }
-            },
-            "application/x-yaml": {
-              "schema": {
-                "$ref": "#/components/schemas/dbv0.0.38_update_users"
-              }
-            }
-          },
-          "required": true
-        },
+        "operationId": "slurmdbd_update_users",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_user_update"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_user_update"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_user_update"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_user_update"
                 }
               }
             },
             "description": "Update users"
           },
           "default": {
-            "description": "User not found or not able to update user",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "User not found or not able to update user"
           }
         }
       },
@@ -1029,52 +623,27 @@
           "slurm"
         ],
         "summary": "Get user list",
-        "operationId": "get_users",
+        "operationId": "slurmdbd_get_users",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_user_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_user_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_user_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_user_info"
                 }
               }
             },
             "description": "List of users"
           },
           "default": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "User not found"
           }
-        },
-        "parameters": [
-          {
-            "name": "with_deleted",
-            "in": "query",
-            "description": "Include deleted users. False by default.",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ]
+        }
       }
     },
     "/cluster/{cluster_name}": {
@@ -1083,37 +652,25 @@
           "slurm"
         ],
         "summary": "Delete cluster",
-        "operationId": "delete_cluster",
+        "operationId": "slurmdbd_delete_cluster",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_cluster_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_cluster_delete"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_cluster_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_cluster_delete"
                 }
               }
             },
             "description": "Delete cluster"
           },
           "default": {
-            "description": "Cluster not found or unable to delete cluster",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Cluster not found or unable to delete cluster"
           }
         },
         "parameters": [
@@ -1135,37 +692,25 @@
           "slurm"
         ],
         "summary": "Get cluster info",
-        "operationId": "get_cluster",
+        "operationId": "slurmdbd_get_cluster",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_cluster_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_cluster_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_cluster_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_cluster_info"
                 }
               }
             },
             "description": "Cluster information"
           },
           "default": {
-            "description": "Cluster not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Cluster not found"
           }
         },
         "parameters": [
@@ -1188,37 +733,25 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "get_clusters",
+        "operationId": "slurmdbd_get_clusters",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_cluster_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_cluster_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_cluster_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_cluster_info"
                 }
               }
             },
             "description": "List of clusters"
           },
           "default": {
-            "description": "Cluster not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Cluster not found"
           }
         },
         "summary": "Get cluster list"
@@ -1227,56 +760,28 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "add_clusters",
+        "operationId": "slurmdbd_add_clusters",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_cluster_add"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_cluster_add"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_cluster_add"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_cluster_add"
                 }
               }
             },
             "description": "List of clusters"
           },
           "default": {
-            "description": "Unable to add cluster",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to add cluster"
           }
         },
-        "summary": "Add clusters",
-        "requestBody": {
-          "description": "Add or update clusters",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dbv0.0.38_clusters_properties"
-              }
-            },
-            "application/x-yaml": {
-              "schema": {
-                "$ref": "#/components/schemas/dbv0.0.38_clusters_properties"
-              }
-            }
-          },
-          "required": true
-        }
+        "summary": "Add clusters"
       }
     },
     "/wckey/{wckey}": {
@@ -1285,37 +790,25 @@
           "slurm"
         ],
         "summary": "Delete wckey",
-        "operationId": "delete_wckey",
+        "operationId": "slurmdbd_delete_wckey",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_wckey_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_wckey_delete"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_wckey_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_wckey_delete"
                 }
               }
             },
             "description": "Delete wckey"
           },
           "default": {
-            "description": "wckey not found or unable to delete wckey",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "wckey not found or unable to delete wckey"
           }
         },
         "parameters": [
@@ -1337,37 +830,25 @@
           "slurm"
         ],
         "summary": "Get wckey info",
-        "operationId": "get_wckey",
+        "operationId": "slurmdbd_get_wckey",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_wckey_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_wckey_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_wckey_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_wckey_info"
                 }
               }
             },
             "description": "List of wckey"
           },
           "default": {
-            "description": "wckey not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "wckey not found"
           }
         },
         "parameters": [
@@ -1390,37 +871,25 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "get_wckeys",
+        "operationId": "slurmdbd_get_wckeys",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_wckey_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_wckey_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_wckey_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_wckey_info"
                 }
               }
             },
             "description": "List of wckeys"
           },
           "default": {
-            "description": "wckey not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "wckey not found"
           }
         },
         "summary": "Get wckey list"
@@ -1429,37 +898,25 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "add_wckeys",
+        "operationId": "slurmdbd_add_wckeys",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_wckey_add"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_wckey_add"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_wckey_add"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_wckey_add"
                 }
               }
             },
             "description": "List of wckeys"
           },
           "default": {
-            "description": "Unable to add wckey",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to add wckey"
           }
         },
         "summary": "Add wckeys"
@@ -1471,37 +928,25 @@
           "slurm"
         ],
         "summary": "Delete account",
-        "operationId": "delete_account",
+        "operationId": "slurmdbd_delete_account",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_account_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_account_delete"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_response_account_delete"
+                  "$ref": "#/components/schemas/dbv0.0.37_response_account_delete"
                 }
               }
             },
             "description": "Delete account"
           },
           "default": {
-            "description": "Unable to delete account",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to delete account"
           }
         },
         "parameters": [
@@ -1523,37 +968,25 @@
           "slurm"
         ],
         "summary": "Get account info",
-        "operationId": "get_account",
+        "operationId": "slurmdbd_get_account",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_account_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_account_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_account_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_account_info"
                 }
               }
             },
             "description": "List of accounts"
           },
           "default": {
-            "description": "Account not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Account not found"
           }
         },
         "parameters": [
@@ -1567,17 +1000,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "with_deleted",
-            "in": "query",
-            "description": "Include deleted accounts. False by default.",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "boolean"
-            }
           }
         ]
       }
@@ -1587,50 +1009,25 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "get_accounts",
-        "parameters": [
-          {
-            "name": "with_deleted",
-            "in": "query",
-            "description": "Include deleted accounts. False by default.",
-            "required": false,
-            "style": "form",
-            "explode": false,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
+        "operationId": "slurmdbd_get_accounts",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_account_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_account_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_account_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_account_info"
                 }
               }
             },
             "description": "List of accounts"
           },
           "default": {
-            "description": "Account not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Account not found"
           }
         },
         "summary": "Get account list"
@@ -1639,56 +1036,28 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "update_account",
+        "operationId": "slurmdbd_update_account",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_account_response"
+                  "$ref": "#/components/schemas/dbv0.0.37_account_response"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_account_response"
+                  "$ref": "#/components/schemas/dbv0.0.37_account_response"
                 }
               }
             },
             "description": "Add/update list of accounts"
           },
           "default": {
-            "description": "Unable to add or update accounts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to add or update accounts"
           }
         },
-        "summary": "Update accounts",
-        "requestBody": {
-          "description": "update/create accounts",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/dbv0.0.38_update_account"
-              }
-            },
-            "application/x-yaml": {
-              "schema": {
-                "$ref": "#/components/schemas/dbv0.0.38_update_account"
-              }
-            }
-          },
-          "required": true
-        }
+        "summary": "Update accounts"
       }
     },
     "/jobs/": {
@@ -1696,7 +1065,7 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "get_jobs",
+        "operationId": "slurmdbd_get_jobs",
         "parameters": [
           {
             "in": "query",
@@ -1979,31 +1348,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_job_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_job_info"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_job_info"
+                  "$ref": "#/components/schemas/dbv0.0.37_job_info"
                 }
               }
             },
             "description": "List of jobs"
           },
           "default": {
-            "description": "Unable to query jobs",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to query jobs"
           }
         },
         "summary": "Get job list"
@@ -2014,37 +1371,25 @@
         "tags": [
           "slurm"
         ],
-        "operationId": "diag",
+        "operationId": "slurmdbd_diag",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_diag"
+                  "$ref": "#/components/schemas/dbv0.0.37_diag"
                 }
               },
               "application/x-yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_diag"
+                  "$ref": "#/components/schemas/dbv0.0.37_diag"
                 }
               }
             },
             "description": "Dictionary of statistics"
           },
           "default": {
-            "description": "Unable to query diagnostics",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/dbv0.0.38_errors"
-                }
-              }
-            }
+            "description": "Unable to query diagnostics"
           }
         },
         "summary": "Get slurmdb diagnostics"
@@ -2139,20 +1484,18 @@
       }
     },
     "schemas": {
-      "dbv0.0.38_diag": {
+      "dbv0.0.37_diag": {
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           },
           "statistics": {
             "type": "object",
+            "description": "dictionary of Slurmdb statistics",
             "properties": {
               "time_start": {
                 "type": "integer",
@@ -2257,7 +1600,7 @@
           }
         }
       },
-      "dbv0.0.38_account": {
+      "dbv0.0.37_account": {
         "type": "object",
         "description": "Account description",
         "properties": {
@@ -2265,14 +1608,14 @@
             "type": "array",
             "description": "List of assigned associations",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_association_short_info"
+              "$ref": "#/components/schemas/dbv0.0.37_association_short_info"
             }
           },
           "coordinators": {
             "type": "array",
             "description": "List of assigned coordinators",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_coordinator_info"
+              "$ref": "#/components/schemas/dbv0.0.37_coordinator_info"
             }
           },
           "description": {
@@ -2297,29 +1640,26 @@
           }
         }
       },
-      "dbv0.0.38_account_info": {
+      "dbv0.0.37_account_info": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           },
           "accounts": {
             "type": "array",
             "description": "List of accounts",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_account"
+              "$ref": "#/components/schemas/dbv0.0.37_account"
             }
           }
         }
       },
-      "dbv0.0.38_coordinator_info": {
+      "dbv0.0.37_coordinator_info": {
         "type": "object",
         "properties": {
           "name": {
@@ -2332,7 +1672,7 @@
           }
         }
       },
-      "dbv0.0.38_association_short_info": {
+      "dbv0.0.37_association_short_info": {
         "type": "object",
         "properties": {
           "account": {
@@ -2353,59 +1693,50 @@
           }
         }
       },
-      "dbv0.0.38_response_account_delete": {
+      "dbv0.0.37_response_account_delete": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_response_wckey_add": {
+      "dbv0.0.37_response_wckey_add": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_wckey_info": {
+      "dbv0.0.37_wckey_info": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           },
           "wckeys": {
             "type": "array",
             "description": "List of wckeys",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_wckey"
+              "$ref": "#/components/schemas/dbv0.0.37_wckey"
             }
           }
         }
       },
-      "dbv0.0.38_wckey": {
+      "dbv0.0.37_wckey": {
         "type": "object",
         "properties": {
           "accounts": {
@@ -2442,37 +1773,31 @@
           }
         }
       },
-      "dbv0.0.38_response_wckey_delete": {
+      "dbv0.0.37_response_wckey_delete": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_response_cluster_add": {
+      "dbv0.0.37_response_cluster_add": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_cluster_info": {
+      "dbv0.0.37_cluster_info": {
         "type": "object",
         "properties": {
           "controller": {
@@ -2514,7 +1839,7 @@
             "description": "Information about associations",
             "properties": {
               "root": {
-                "$ref": "#/components/schemas/dbv0.0.38_association_short_info"
+                "$ref": "#/components/schemas/dbv0.0.37_association_short_info"
               }
             }
           },
@@ -2526,42 +1851,36 @@
             "type": "array",
             "description": "List of TRES in cluster",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_response_tres"
+              "$ref": "#/components/schemas/dbv0.0.37_response_tres"
             }
           }
         }
       },
-      "dbv0.0.38_response_cluster_delete": {
+      "dbv0.0.37_response_cluster_delete": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_response_user_update": {
+      "dbv0.0.37_response_user_update": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_user": {
+      "dbv0.0.37_user": {
         "type": "object",
         "description": "User description",
         "properties": {
@@ -2570,17 +1889,19 @@
             "description": "Description of administrator level"
           },
           "associations": {
-            "type": "array",
+            "type": "object",
             "description": "Assigned associations",
-            "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_association_short_info"
+            "properties": {
+              "root": {
+                "$ref": "#/components/schemas/dbv0.0.37_association_short_info"
+              }
             }
           },
           "coordinators": {
             "type": "array",
             "description": "List of assigned coordinators",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_coordinator_info"
+              "$ref": "#/components/schemas/dbv0.0.37_coordinator_info"
             }
           },
           "default": {
@@ -2597,61 +1918,63 @@
               }
             }
           },
-          "flags": {
-            "type": "array",
-            "description": "List of properties of user",
-            "items": {
-              "type": "string",
-              "description": "String of property name"
-            }
-          },
           "name": {
             "type": "string",
             "description": "User name"
           }
         }
       },
-      "dbv0.0.38_user_info": {
+      "dbv0.0.37_user_info": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           },
           "users": {
             "type": "array",
             "description": "Array of users",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_user"
+              "$ref": "#/components/schemas/dbv0.0.37_user"
             }
           }
         }
       },
-      "dbv0.0.38_response_user_delete": {
+      "dbv0.0.37_response_user_delete": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_association": {
+      "dbv0.0.37_response_association_delete": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "description": "Slurm errors",
+            "items": {
+              "$ref": "#/components/schemas/dbv0.0.37_error"
+            }
+          }
+        }
+      },
+      "dbv0.0.37_association": {
         "type": "object",
         "description": "Association description",
         "properties": {
+          "is_default": {
+            "type": "integer",
+            "description": "is default association"
+          },
           "account": {
             "type": "string",
             "description": "Assigned account"
@@ -2686,6 +2009,18 @@
                 "type": "object",
                 "description": "Max jobs settings",
                 "properties": {
+                  "active": {
+                    "type": "integer",
+                    "description": "Max TRES for active total jobs"
+                  },
+                  "accruing": {
+                    "type": "integer",
+                    "description": "Max TRES for job accruing priority"
+                  },
+                  "total": {
+                    "type": "integer",
+                    "description": "Max TRES for job total submitted"
+                  },
                   "per": {
                     "type": "object",
                     "description": "Max jobs per settings",
@@ -2718,20 +2053,32 @@
                 "type": "object",
                 "description": "Max TRES settings",
                 "properties": {
+                  "group": {
+                    "type": "object",
+                    "description": "Max TRES per group",
+                    "properties": {
+                      "minutes": {
+                        "$ref": "#/components/schemas/dbv0.0.37_tres_list"
+                      },
+                      "active": {
+                        "$ref": "#/components/schemas/dbv0.0.37_tres_list"
+                      }
+                    }
+                  },
                   "per": {
                     "type": "object",
                     "description": "Max TRES per settings",
                     "properties": {
                       "job": {
-                        "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                        "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                       },
                       "node": {
-                        "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                        "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                       }
                     }
                   },
                   "total": {
-                    "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                    "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                   },
                   "minutes": {
                     "type": "object",
@@ -2742,12 +2089,12 @@
                         "description": "Max TRES minutes per settings",
                         "properties": {
                           "job": {
-                            "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                            "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                           }
                         }
                       },
                       "total": {
-                        "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                        "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                       }
                     }
                   }
@@ -2841,29 +2188,26 @@
           }
         }
       },
-      "dbv0.0.38_associations_info": {
+      "dbv0.0.37_associations_info": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           },
           "associations": {
             "type": "array",
             "description": "Array of associations",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_association"
+              "$ref": "#/components/schemas/dbv0.0.37_association"
             }
           }
         }
       },
-      "dbv0.0.38_qos": {
+      "dbv0.0.37_qos": {
         "type": "object",
         "description": "QOS description",
         "properties": {
@@ -2974,16 +2318,13 @@
                             "description": "Max TRES minutes per settings",
                             "properties": {
                               "job": {
-                                "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                                "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                               },
                               "account": {
-                                "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                                "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                               },
                               "user": {
-                                "$ref": "#/components/schemas/dbv0.0.38_tres_list"
-                              },
-                              "qos": {
-                                "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                                "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                               }
                             }
                           }
@@ -2994,16 +2335,16 @@
                         "description": "Max TRES per settings",
                         "properties": {
                           "account": {
-                            "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                            "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                           },
                           "job": {
-                            "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                            "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                           },
                           "node": {
-                            "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                            "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                           },
                           "user": {
-                            "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                            "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                           }
                         }
                       }
@@ -3028,7 +2369,7 @@
                         "description": "Min tres per settings",
                         "properties": {
                           "job": {
-                            "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                            "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                           }
                         }
                       }
@@ -3075,114 +2416,84 @@
           "usage_threshold": {
             "type": "number",
             "description": "Usage threshold"
-          },
-          "name": {
-            "description": "Assigned name of QOS",
-            "type": "string"
           }
         }
       },
-      "dbv0.0.38_qos_info": {
+      "dbv0.0.37_qos_info": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           },
           "qos": {
             "type": "array",
             "description": "Array of QOS",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_qos"
+              "$ref": "#/components/schemas/dbv0.0.37_qos"
             }
           }
         }
       },
-      "dbv0.0.38_response_qos": {
+      "dbv0.0.37_response_qos_delete": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_response_qos_delete": {
+      "dbv0.0.37_response_associations": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_response_associations": {
+      "dbv0.0.37_response_tres": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_response_tres": {
+      "dbv0.0.37_tres_info": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
-            }
-          }
-        }
-      },
-      "dbv0.0.38_tres_info": {
-        "type": "object",
-        "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
-          "errors": {
-            "type": "array",
-            "description": "Slurm errors",
-            "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           },
           "tres": {
-            "$ref": "#/components/schemas/dbv0.0.36_tres_list"
+            "type": "array",
+            "description": "Array of tres",
+            "items": {
+              "$ref": "#/components/schemas/dbv0.0.37_tres_list"
+            }
           }
         }
       },
-      "dbv0.0.38_tres_list": {
+      "dbv0.0.37_tres_list": {
         "type": "array",
         "description": "TRES list of attributes",
         "items": {
@@ -3207,29 +2518,26 @@
           }
         }
       },
-      "dbv0.0.38_job_info": {
+      "dbv0.0.37_job_info": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           },
           "jobs": {
             "type": "array",
             "description": "Array of jobs",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_job"
+              "$ref": "#/components/schemas/dbv0.0.37_job"
             }
           }
         }
       },
-      "dbv0.0.38_job": {
+      "dbv0.0.37_job": {
         "type": "object",
         "description": "Single job description",
         "properties": {
@@ -3376,7 +2684,7 @@
             }
           },
           "association": {
-            "$ref": "#/components/schemas/dbv0.0.38_association_short_info"
+            "$ref": "#/components/schemas/dbv0.0.37_association_short_info"
           },
           "cluster": {
             "type": "string",
@@ -3387,10 +2695,10 @@
             "description": "Constraints on job"
           },
           "derived_exit_code": {
-            "$ref": "#/components/schemas/dbv0.0.38_job_exit_code"
+            "$ref": "#/components/schemas/dbv0.0.37_job_exit_code"
           },
           "exit_code": {
-            "$ref": "#/components/schemas/dbv0.0.38_job_exit_code"
+            "$ref": "#/components/schemas/dbv0.0.37_job_exit_code"
           },
           "flags": {
             "type": "array",
@@ -3409,11 +2717,11 @@
             "description": "Heterogeneous Job details (optional)",
             "properties": {
               "job_id": {
-                "type": "integer",
+                "type": "object",
                 "description": "Parent HetJob id"
               },
               "job_offset": {
-                "type": "integer",
+                "type": "object",
                 "description": "Offset of this job to parent"
               }
             }
@@ -3502,7 +2810,7 @@
             "type": "array",
             "description": "Job step description",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_job_step"
+              "$ref": "#/components/schemas/dbv0.0.37_job_step"
             }
           },
           "tres": {
@@ -3510,10 +2818,10 @@
             "description": "TRES settings",
             "properties": {
               "allocated": {
-                "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                "$ref": "#/components/schemas/dbv0.0.37_tres_list"
               },
               "requested": {
-                "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                "$ref": "#/components/schemas/dbv0.0.37_tres_list"
               }
             }
           },
@@ -3542,14 +2850,10 @@
           "working_directory": {
             "type": "string",
             "description": "Directory where job was initially started"
-          },
-          "container": {
-            "type": "string",
-            "description": "absolute path to OCI container bundle"
           }
         }
       },
-      "dbv0.0.38_job_exit_code": {
+      "dbv0.0.37_job_exit_code": {
         "type": "object",
         "properties": {
           "status": {
@@ -3576,7 +2880,7 @@
           }
         }
       },
-      "dbv0.0.38_job_step": {
+      "dbv0.0.37_job_step": {
         "type": "object",
         "properties": {
           "time": {
@@ -3644,7 +2948,7 @@
             }
           },
           "exit_code": {
-            "$ref": "#/components/schemas/dbv0.0.38_job_exit_code"
+            "$ref": "#/components/schemas/dbv0.0.37_job_exit_code"
           },
           "nodes": {
             "type": "object",
@@ -3765,8 +3069,14 @@
             }
           },
           "task": {
-            "description": "Task distribution properties",
-            "type": "string"
+            "type": "object",
+            "description": "Task properties",
+            "properties": {
+              "distribution": {
+                "type": "string",
+                "description": "Task distribution type"
+              }
+            }
           },
           "tres": {
             "type": "object",
@@ -3777,16 +3087,16 @@
                 "description": "TRES requested for job",
                 "properties": {
                   "average": {
-                    "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                    "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                   },
                   "max": {
-                    "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                    "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                   },
                   "min": {
-                    "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                    "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                   },
                   "total": {
-                    "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                    "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                   }
                 }
               },
@@ -3795,245 +3105,116 @@
                 "description": "TRES requested for job",
                 "properties": {
                   "average": {
-                    "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                    "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                   },
                   "max": {
-                    "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                    "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                   },
                   "min": {
-                    "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                    "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                   },
                   "total": {
-                    "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                    "$ref": "#/components/schemas/dbv0.0.37_tres_list"
                   }
                 }
               },
               "allocated": {
-                "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+                "$ref": "#/components/schemas/dbv0.0.37_tres_list"
               }
             }
           }
         }
       },
-      "dbv0.0.38_config_info": {
+      "dbv0.0.37_config_info": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           },
           "tres": {
             "type": "array",
             "description": "Array of TRES",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_tres_list"
+              "$ref": "#/components/schemas/dbv0.0.37_tres_list"
             }
           },
           "accounts": {
             "type": "array",
             "description": "Array of accounts",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_account"
+              "$ref": "#/components/schemas/dbv0.0.37_account"
             }
           },
           "associations": {
             "type": "array",
             "description": "Array of associations",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_association"
+              "$ref": "#/components/schemas/dbv0.0.37_association"
             }
           },
           "users": {
             "type": "array",
             "description": "Array of users",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_user"
+              "$ref": "#/components/schemas/dbv0.0.37_user"
             }
           },
           "qos": {
             "type": "array",
             "description": "Array of qos",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_qos"
+              "$ref": "#/components/schemas/dbv0.0.37_qos"
             }
           },
           "wckeys": {
             "type": "array",
             "description": "Array of wckeys",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_wckey"
+              "$ref": "#/components/schemas/dbv0.0.37_wckey"
             }
           }
         }
       },
-      "dbv0.0.38_account_response": {
+      "dbv0.0.37_account_response": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_config_response": {
+      "dbv0.0.37_config_response": {
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/v0.0.38_meta"
-          },
           "errors": {
             "type": "array",
             "description": "Slurm errors",
             "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_error"
+              "$ref": "#/components/schemas/dbv0.0.37_error"
             }
           }
         }
       },
-      "dbv0.0.38_errors": {
-        "type": "array",
-        "description": "Slurm errors",
-        "items": {
-          "$ref": "#/components/schemas/dbv0.0.38_error"
-        }
-      },
-      "dbv0.0.38_error": {
+      "dbv0.0.37_error": {
         "properties": {
-          "error_number": {
-            "description": "Slurm internal error number",
+          "errno": {
+            "description": "Error number",
             "type": "integer"
           },
           "error": {
             "description": "Error message",
             "type": "string"
-          },
-          "source": {
-            "description": "Where error occured in the source",
-            "type": "string"
-          },
-          "description": {
-            "description": "Explaination of cause of error",
-            "type": "string"
           }
         },
         "type": "object"
-      },
-      "dbv0.0.38_meta": {
-        "type": "object",
-        "properties": {
-          "plugin": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "description": ""
-              },
-              "name": {
-                "type": "string",
-                "description": ""
-              }
-            }
-          },
-          "Slurm": {
-            "type": "object",
-            "description": "Slurm information",
-            "properties": {
-              "version": {
-                "type": "object",
-                "properties": {
-                  "major": {
-                    "type": "string",
-                    "description": ""
-                  },
-                  "micro": {
-                    "type": "string",
-                    "description": ""
-                  },
-                  "minor": {
-                    "type": "string",
-                    "description": ""
-                  }
-                }
-              },
-              "release": {
-                "type": "string",
-                "description": "version specifier"
-              }
-            }
-          }
-        }
-      },
-      "dbv0.0.38_update_users": {
-        "properties": {
-          "users": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_user"
-            }
-          }
-        }
-      },
-      "dbv0.0.38_update_qos": {
-        "properties": {
-          "qos": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_qos"
-            }
-          }
-        }
-      },
-      "dbv0.0.38_update_account": {
-        "properties": {
-          "accounts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/dbv0.0.38_account"
-            }
-          }
-        }
-      },
-      "dbv0.0.38_clusters_properties": {
-        "type": "object",
-        "properties": {
-          "clusters": {
-            "$ref": "#/components/schemas/dbv0.0.38_cluster_info"
-          }
-        }
-      },
-      "dbv0.0.38_response_associations_delete": {
-	"type": "object",
-	"properties": {
-	  "meta": {
-	    "$ref": "#/components/schemas/v0.0.38_meta"
-	  },
-	  "errors": {
-	    "type": "array",
-	    "description": "Slurm errors",
-	    "items": {
-	      "$ref": "#/components/schemas/dbv0.0.38_error"
-	    }
-	  },
-	  "removed_associations": {
-	    "type": "array",
-	    "description": "the associations",
-	    "items": {
-	      "type": "string"
-	    }
-	  }
-	}
       }
     }
   }

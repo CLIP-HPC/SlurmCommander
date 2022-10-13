@@ -16,7 +16,8 @@ type SacctEntry []string
 // SacctJob struct describes specific job.
 // Comes frofm unmarshalling sacct -j X --json call.
 type SacctJob struct {
-	Jobs []openapidb.Dbv0039Job
+	//Jobs []openapidb.Dbv0039Job
+	Jobs []openapidb.Dbv0037Job
 	// TODO: incorporate dbv0.0.39 where sacct response is defined.
 	// This is not the response from sacct.
 	//Jobs []openapi.V0039JobResponseProperties
