@@ -1,9 +1,11 @@
 package command
 
 import (
+	"bufio"
 	"encoding/json"
 	"log"
 	"os/exec"
+	"os/user"
 	"regexp"
 	"strings"
 	"time"
@@ -11,6 +13,64 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/pja237/slurmcommander/internal/slurm"
 )
+
+// UserName is a linux username string.
+type UserName string
+
+// GetUserName returns the linux username string.
+// Used to call sacctmgr and fetch users associations.
+func GetUserName(l *log.Logger) tea.Cmd {
+
+	return func() tea.Msg {
+
+		l.Printf("Fetching UserName\n")
+		u, err := user.Current()
+		if err != nil {
+			l.Fatalf("GetUserName FAILED: %s", err)
+		}
+
+		l.Printf("Return UserName: %s\n", u.Username)
+		return UserName(u.Username)
+	}
+}
+
+// UserAssoc is a list of associations between current username and slurm accounts.
+type UserAssoc []string
+
+// GetUserAssoc returns a list of associations between current username and slurm accounts.
+// Used later in sacct --json call to fetch users job history
+func GetUserAssoc(u string, l *log.Logger) tea.Cmd {
+	return func() tea.Msg {
+		var (
+			ua UserAssoc
+			sw []string
+		)
+
+		sw = append(sw, sacctmgrCmdSwitches...)
+		sw = append(sw, "user="+u)
+		c := exec.Command(sacctmgrCmd, sw...)
+
+		l.Printf("GetUserAssoc about to run: %v %v\n", sacctmgrCmd, sw)
+		stdOut, err := c.StdoutPipe()
+		if err != nil {
+			l.Fatalf("StdoutPipe call FAILED with %s\n", err)
+		}
+		if e := c.Start(); e != nil {
+			l.Fatalf("cmd.Run call FAILED with %s\n", err)
+		}
+		s := bufio.NewScanner(stdOut)
+		for s.Scan() {
+			l.Printf("Got UserAssoc %s -> %s\n", u, s.Text())
+			ua = append(ua, s.Text())
+		}
+		if e := c.Wait(); e != nil {
+			l.Fatalf("cmd.Wait call FAILED with %s\n", err)
+
+		}
+
+		return ua
+	}
+}
 
 // Calls `sinfo` to get node information for Cluster Tab
 func GetSinfo(t time.Time) tea.Msg {

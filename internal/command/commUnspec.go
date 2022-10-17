@@ -12,6 +12,7 @@ const (
 	sholdJobCmd    = "/bin/scontrol"
 	srequeueJobCmd = "/bin/scontrol"
 	sbatchCmd      = "/bin/sbatch"
+	sacctmgrCmd    = "/bin/sacctmgr"
 	Tag            = "!local && !prod"
 )
 
@@ -24,4 +25,5 @@ var (
 	sholdJobCmdSwitches    = []string{"hold"}
 	srequeueJobCmdSwitches = []string{"requeue"}
 	sbatchCmdSwitches      = []string{}
+	sacctmgrCmdSwitches    = []string{"list", "Association", "format=account", "-P", "-n"}
 )

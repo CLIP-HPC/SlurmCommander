@@ -188,6 +188,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// ToDo:
 	// prevent updates for non-selected tabs
 
+	// UAccounts fetched
+	case command.UserAssoc:
+		m.Log.Printf("Got UserAssoc msg, value: %#v\n", msg)
+		m.Globals.UAccounts = append(m.Globals.UAccounts, msg...)
+		m.Log.Printf("Appended UserAssoc msg go Globals, value now: %#v\n", m.Globals.UAccounts)
+		return m, nil
+
+	// UserName fetched
+	case command.UserName:
+		m.Log.Printf("Got UserNAme msg, save %q to Globals.\n", msg)
+		m.Globals.UserName = string(msg)
+		// now, call GetUserAssoc()
+		return m, command.GetUserAssoc(m.Globals.UserName, m.Log)
+
 	// Shold executed
 	case command.SBatchSent:
 		m.Log.Printf("Got SBatchSent msg on file %q\n", msg.JobFile)
