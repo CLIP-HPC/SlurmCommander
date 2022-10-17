@@ -169,25 +169,56 @@ CLIP-HPC Team @ VBC
 }
 
 func (m Model) getJobInfo() string {
+	var scr strings.Builder
+
 	n := m.JobTab.SqueueTable.Cursor()
 	m.Log.Printf("getJobInfo: cursor at %d table rows: %d\n", n, len(m.JobTab.SqueueFiltered.Jobs))
 	if len(m.JobTab.SqueueFiltered.Jobs) == 0 || n == -1 {
 		return "Select a job"
 	}
 
-	fmtStr := "%-20s : %-40s\n"
+	fmtStr := "%-15s : %-30s\n"
+	fmtStrLast := "%-15s : %-30s"
 	//ibFmt := "Job Name: %s\nJob Command: %s\nOutput: %s\nError: %s\n"
-	infoBox := fmt.Sprintf(fmtStr, "Job Name", *m.JobTab.SqueueFiltered.Jobs[n].Name)
-	infoBox += fmt.Sprintf(fmtStr, "Partition", *m.JobTab.SqueueFiltered.Jobs[n].Partition)
-	infoBox += fmt.Sprintf(fmtStr, "QoS", *m.JobTab.SqueueFiltered.Jobs[n].Qos)
-	infoBox += fmt.Sprintf(fmtStr, "TRES", *m.JobTab.SqueueFiltered.Jobs[n].TresReqStr)
-	infoBox += fmt.Sprintf(fmtStr, "wckey", *m.JobTab.SqueueFiltered.Jobs[n].Wckey)
-	infoBox += fmt.Sprintf(fmtStr, "Command", *m.JobTab.SqueueFiltered.Jobs[n].Command)
-	infoBox += fmt.Sprintf(fmtStr, "StdOut", *m.JobTab.SqueueFiltered.Jobs[n].StandardOutput)
-	infoBox += fmt.Sprintf(fmtStr, "StdErr", *m.JobTab.SqueueFiltered.Jobs[n].StandardError)
-	infoBox += fmt.Sprintf(fmtStr, "Working Dir", *m.JobTab.SqueueFiltered.Jobs[n].CurrentWorkingDirectory)
+	infoBoxLeft := fmt.Sprintf(fmtStr, "Partition", *m.JobTab.SqueueFiltered.Jobs[n].Partition)
+	infoBoxLeft += fmt.Sprintf(fmtStr, "QoS", *m.JobTab.SqueueFiltered.Jobs[n].Qos)
+	infoBoxLeft += fmt.Sprintf(fmtStr, "TRES", *m.JobTab.SqueueFiltered.Jobs[n].TresReqStr)
+	if m.JobTab.SqueueFiltered.Jobs[n].JobResources.Nodes != nil {
+		infoBoxLeft += fmt.Sprintf(fmtStr, "AllocNodes", *m.JobTab.SqueueFiltered.Jobs[n].JobResources.Nodes)
+	} else {
+		infoBoxLeft += fmt.Sprintf(fmtStr, "AllocNodes", "none")
 
-	return infoBox
+	}
+	infoBoxLeft += fmt.Sprintf(fmtStrLast, "wckey", *m.JobTab.SqueueFiltered.Jobs[n].Wckey)
+
+	infoBoxRight := fmt.Sprintf(fmtStr, "Array Job ID", strconv.Itoa(*m.JobTab.SqueueFiltered.Jobs[n].ArrayJobId))
+	if m.JobTab.SqueueFiltered.Jobs[n].ArrayTaskId != nil {
+		infoBoxRight += fmt.Sprintf(fmtStr, "Array Task ID", strconv.Itoa(*m.JobTab.SqueueFiltered.Jobs[n].ArrayTaskId))
+	} else {
+		infoBoxRight += fmt.Sprintf(fmtStr, "Array Task ID", "NoTaskID")
+	}
+	infoBoxRight += fmt.Sprintf(fmtStr, "Gres Details", strings.Join(*m.JobTab.SqueueFiltered.Jobs[n].GresDetail, ","))
+	infoBoxRight += fmt.Sprintf(fmtStr, "Batch Host", *m.JobTab.SqueueFiltered.Jobs[n].BatchHost)
+	infoBoxRight += fmt.Sprintf(fmtStrLast, "Features", *m.JobTab.SqueueFiltered.Jobs[n].Features)
+
+	infoBoxMiddle := fmt.Sprintf(fmtStr, "Submit", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].SubmitTime, 0))
+	if *m.JobTab.SqueueFiltered.Jobs[n].StartTime != 0 {
+		infoBoxMiddle += fmt.Sprintf(fmtStrLast, "Start", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].StartTime, 0))
+	} else {
+		infoBoxMiddle += fmt.Sprintf(fmtStrLast, "Start", "unknown")
+	}
+
+	infoBoxWide := fmt.Sprintf(fmtStr, "Job Name", *m.JobTab.SqueueFiltered.Jobs[n].Name)
+	infoBoxWide += fmt.Sprintf(fmtStr, "Command", *m.JobTab.SqueueFiltered.Jobs[n].Command)
+	infoBoxWide += fmt.Sprintf(fmtStr, "StdOut", *m.JobTab.SqueueFiltered.Jobs[n].StandardOutput)
+	infoBoxWide += fmt.Sprintf(fmtStr, "StdErr", *m.JobTab.SqueueFiltered.Jobs[n].StandardError)
+	infoBoxWide += fmt.Sprintf(fmtStrLast, "Working Dir", *m.JobTab.SqueueFiltered.Jobs[n].CurrentWorkingDirectory)
+
+	top := lipgloss.JoinHorizontal(lipgloss.Top, styles.JobInfoInBox.Render(infoBoxLeft), styles.JobInfoInBox.Render(infoBoxMiddle), styles.JobInfoInBox.Render(infoBoxRight))
+	scr.WriteString(lipgloss.JoinVertical(lipgloss.Left, top, styles.JobInfoInBox.Render(infoBoxWide)))
+
+	//return infoBox
+	return scr.String()
 }
 
 func genTabHelp(t int) string {

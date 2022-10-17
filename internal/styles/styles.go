@@ -12,7 +12,10 @@ var (
 	// Red
 	red = lipgloss.Color("#ff0000")
 
-	JobInfoBox = lipgloss.NewStyle().Padding(1, 1).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
+	//JobInfoBox   = lipgloss.NewStyle().Padding(1, 1).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
+	JobInfoBox = lipgloss.NewStyle().BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
+	//JobInfoInBox = lipgloss.NewStyle().Padding(1, 1).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue)
+	JobInfoInBox = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue)
 
 	Tab = lipgloss.NewStyle().
 		Border(TabTabBorder, true).
