@@ -74,10 +74,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Log.Printf("Update: Filter set, setcursor(0), activetable.Cursor==%d\n", activeTable.Cursor())
 				switch m.ActiveTab {
 				case tabJobs:
-					return m, command.QuickGetSqueue()
+					// TODO: change to immediate filtering, like for job hist
+					//return m, command.QuickGetSqueue()
+					rows, sqf := m.JobTab.Squeue.FilterSqueueTable(m.JobTab.Filter.Value(), m.Log)
+					m.JobTab.SqueueTable.SetRows(rows)
+					m.JobTab.SqueueFiltered = sqf
+					return m, nil
+
 				case tabJobHist:
 					//return m, command.QuickGetSacct()
-					return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
+					// this takes ~7 seconds on prod for 'als' 7 days ~3.7k jobs
+					// TODO: trigger filter on existing data?
+					//return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
+					rows, saf := m.JobHistTab.SacctHist.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
+					m.JobHistTab.SacctTable.SetRows(rows)
+					m.JobHistTab.SacctHistFiltered = saf
+					return m, nil
 				case tabCluster:
 					return m, command.QuickGetSinfo()
 				default:
