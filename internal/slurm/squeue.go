@@ -1,8 +1,10 @@
 package slurm
 
 import (
+	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/pja237/slurmcommander/internal/openapi"
@@ -62,12 +64,16 @@ var SqueueTabCols = []table.Column{
 
 type TableRows []table.Row
 
-func (sqJson *SqueueJSON) FilterSqueueTable(f string) (TableRows, SqueueJSON) {
+func (sqJson *SqueueJSON) FilterSqueueTable(f string, l *log.Logger) (TableRows, SqueueJSON) {
 	var (
 		sqTabRows      = TableRows{}
 		sqJsonFiltered = SqueueJSON{}
 	)
 
+	// TODO:  this is too slow, join & re2
+
+	l.Printf("Filter SQUEUE start.\n")
+	t := time.Now()
 	for _, v := range sqJson.Jobs {
 		app := false
 		if f != "" {
@@ -91,6 +97,7 @@ func (sqJson *SqueueJSON) FilterSqueueTable(f string) (TableRows, SqueueJSON) {
 			sqJsonFiltered.Jobs = append(sqJsonFiltered.Jobs, v)
 		}
 	}
+	l.Printf("Filter SQUEUE end in %.3f seconds\n", time.Since(t).Seconds())
 
 	return sqTabRows, sqJsonFiltered
 }

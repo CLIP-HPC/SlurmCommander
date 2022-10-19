@@ -1,9 +1,11 @@
 package command
 
 import (
+	"bufio"
 	"encoding/json"
 	"log"
 	"os/exec"
+	"os/user"
 	"regexp"
 	"strings"
 	"time"
@@ -11,6 +13,64 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/pja237/slurmcommander/internal/slurm"
 )
+
+// UserName is a linux username string.
+type UserName string
+
+// GetUserName returns the linux username string.
+// Used to call sacctmgr and fetch users associations.
+func GetUserName(l *log.Logger) tea.Cmd {
+
+	return func() tea.Msg {
+
+		l.Printf("Fetching UserName\n")
+		u, err := user.Current()
+		if err != nil {
+			l.Fatalf("GetUserName FAILED: %s", err)
+		}
+
+		l.Printf("Return UserName: %s\n", u.Username)
+		return UserName(u.Username)
+	}
+}
+
+// UserAssoc is a list of associations between current username and slurm accounts.
+type UserAssoc []string
+
+// GetUserAssoc returns a list of associations between current username and slurm accounts.
+// Used later in sacct --json call to fetch users job history
+func GetUserAssoc(u string, l *log.Logger) tea.Cmd {
+	return func() tea.Msg {
+		var (
+			ua UserAssoc
+			sw []string
+		)
+
+		sw = append(sw, sacctmgrCmdSwitches...)
+		sw = append(sw, "user="+u)
+		c := exec.Command(sacctmgrCmd, sw...)
+
+		l.Printf("GetUserAssoc about to run: %v %v\n", sacctmgrCmd, sw)
+		stdOut, err := c.StdoutPipe()
+		if err != nil {
+			l.Fatalf("StdoutPipe call FAILED with %s\n", err)
+		}
+		if e := c.Start(); e != nil {
+			l.Fatalf("cmd.Run call FAILED with %s\n", err)
+		}
+		s := bufio.NewScanner(stdOut)
+		for s.Scan() {
+			l.Printf("Got UserAssoc %s -> %s\n", u, s.Text())
+			ua = append(ua, s.Text())
+		}
+		if e := c.Wait(); e != nil {
+			l.Fatalf("cmd.Wait call FAILED with %s\n", err)
+
+		}
+
+		return ua
+	}
+}
 
 // Calls `sinfo` to get node information for Cluster Tab
 func GetSinfo(t time.Time) tea.Msg {
@@ -110,21 +170,53 @@ func QuickGetSacct() tea.Cmd {
 	return tea.Tick(0*time.Second, GetSacct)
 }
 
-func SingleJobGetSacct(jobid string) tea.Cmd {
+func GetSacctHist(uaccs string, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
-		var sacctJob slurm.SacctJob
+		var (
+			sacctJobs slurm.SacctJobHist
+			sw        []string
+		)
 
+		l.Printf("GetSacctHist(%q) start\n", uaccs)
+		sw = append(sacctHistCmdSwitches, "-A", uaccs)
+		l.Printf("EXEC: %q %q\n", sacctHistCmd, sw)
+		out, err := exec.Command(sacctHistCmd, sw...).CombinedOutput()
+		l.Printf("EXEC returned: %d bytes\n", len(out))
+		if err != nil {
+			l.Fatalf("Error exec sacct: %q\n", err)
+		}
+
+		err = json.Unmarshal(out, &sacctJobs)
+		if err != nil {
+			l.Fatalf("Error unmarshall: %q\n", err)
+		}
+
+		l.Printf("Unmarshalled %d jobs from hist\n", len(sacctJobs.Jobs))
+
+		return sacctJobs
+	}
+}
+
+func SingleJobGetSacct(jobid string, l *log.Logger) tea.Cmd {
+	return func() tea.Msg {
+		var sacctJob slurm.SacctSingleJobHist
+
+		l.Printf("SingleJobGetSacct start.\n")
 		switches := append(sacctJobCmdSwitches, jobid)
 		out, err := exec.Command(sacctJobCmd, switches...).CombinedOutput()
+		l.Printf("SingleJobGetSacct EXEC: %q %q\n", sacctJobCmd, switches)
 		if err != nil {
 			log.Fatalf("Error exec sacct: %q\n", err)
 		}
+		l.Printf("SingleJobGetSacct EXEC got bytes: %d\n", len(out))
 
 		err = json.Unmarshal(out, &sacctJob)
 		if err != nil {
 			log.Fatalf("Error unmarshall: %q\n", err)
 		}
+		l.Printf("SingleJobGetSacct UNMARSHALLED items: %d\n", len(sacctJob.Jobs))
 
+		// do a new type for a single job, otherwise the update() will handle single job and the whole hist list in same code-path
 		return sacctJob
 	}
 }

@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
@@ -29,15 +30,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// This shortens the testing for table movement keys
 	switch m.ActiveTab {
 	case tabJobs:
-		activeTable = &m.SqueueTable
+		activeTable = &m.JobTab.SqueueTable
 		activeFilter = &m.JobTab.Filter
 	case tabJobHist:
-		activeTable = &m.SacctTable
+		activeTable = &m.JobHistTab.SacctTable
 		activeFilter = &m.JobHistTab.Filter
 	case tabJobFromTemplate:
-		activeTable = &m.TemplatesTable
+		activeTable = &m.JobFromTemplateTab.TemplatesTable
 	case tabCluster:
-		activeTable = &m.SinfoTable
+		activeTable = &m.JobClusterTab.SinfoTable
 		activeFilter = &m.JobClusterTab.Filter
 	}
 
@@ -73,9 +74,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Log.Printf("Update: Filter set, setcursor(0), activetable.Cursor==%d\n", activeTable.Cursor())
 				switch m.ActiveTab {
 				case tabJobs:
-					return m, command.QuickGetSqueue()
+					// TODO: change to immediate filtering, like for job hist
+					//return m, command.QuickGetSqueue()
+					rows, sqf := m.JobTab.Squeue.FilterSqueueTable(m.JobTab.Filter.Value(), m.Log)
+					m.JobTab.SqueueTable.SetRows(rows)
+					m.JobTab.SqueueFiltered = sqf
+					return m, nil
+
 				case tabJobHist:
-					return m, command.QuickGetSacct()
+					//return m, command.QuickGetSacct()
+					// this takes ~7 seconds on prod for 'als' 7 days ~3.7k jobs
+					// TODO: trigger filter on existing data?
+					//return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
+					rows, saf := m.JobHistTab.SacctHist.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
+					m.JobHistTab.SacctTable.SetRows(rows)
+					m.JobHistTab.SacctHistFiltered = saf
+					return m, nil
 				case tabCluster:
 					return m, command.QuickGetSinfo()
 				default:
@@ -188,6 +202,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// ToDo:
 	// prevent updates for non-selected tabs
 
+	// UAccounts fetched
+	case command.UserAssoc:
+		m.Log.Printf("Got UserAssoc msg, value: %#v\n", msg)
+		// TODO: consider changing this to string and do a join(",") to be ready to pass around
+		m.Globals.UAccounts = append(m.Globals.UAccounts, msg...)
+		m.Log.Printf("Appended UserAssoc msg go Globals, value now: %#v\n", m.Globals.UAccounts)
+		// Now we trigger a sacctHist
+		//return m, nil
+		m.Log.Printf("Appended UserAssoc msg go Globals, calling GetSacctHist()\n")
+		return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
+
+	// UserName fetched
+	case command.UserName:
+		m.Log.Printf("Got UserNAme msg, save %q to Globals.\n", msg)
+		m.Globals.UserName = string(msg)
+		// now, call GetUserAssoc()
+		return m, command.GetUserAssoc(m.Globals.UserName, m.Log)
+
 	// Shold executed
 	case command.SBatchSent:
 		m.Log.Printf("Got SBatchSent msg on file %q\n", msg.JobFile)
@@ -256,7 +288,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// TODO:
 			// fix: if after filtering m.table.Cursor|SelectedRow > lines in table, Info crashes trying to fetch nonexistent row
-			rows, sqf := msg.FilterSqueueTable(m.JobTab.Filter.Value())
+			rows, sqf := msg.FilterSqueueTable(m.JobTab.Filter.Value(), m.Log)
 			m.JobTab.SqueueTable.SetRows(rows)
 			m.JobTab.SqueueFiltered = sqf
 			//m.SqueueTable.UpdateViewport()
@@ -297,23 +329,33 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	// Job History tab update
-	case slurm.SacctList:
-		m.Log.Printf("U(): got SacctList\n")
-		// fill out model
-		m.DebugMsg += "H"
-		m.JobHistTab.SacctList = msg
-		//m.JobHistTab.SacctTable.SetRows(msg.FilterSacctTable(m.JobHistTab.Filter.Value()))
-		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value())
-		m.JobHistTab.SacctTable.SetRows(rows)
-		m.JobHistTab.SacctListFiltered = saf
-		//m.LogF.WriteString(fmt.Sprintf("U(): got Filtered rows %#v\n", msg.FilterSacctTable(m.JobHistTab.Filter.Value())))
-		return m, nil
+	//
+	//case slurm.SacctList:
+	//	m.Log.Printf("U(): got SacctList\n")
+	//	// fill out model
+	//	m.DebugMsg += "H"
+	//	m.JobHistTab.SacctList = msg
+	//	//m.JobHistTab.SacctTable.SetRows(msg.FilterSacctTable(m.JobHistTab.Filter.Value()))
+	//	rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value())
+	//	m.JobHistTab.SacctTable.SetRows(rows)
+	//	m.JobHistTab.SacctListFiltered = saf
+	//	//m.LogF.WriteString(fmt.Sprintf("U(): got Filtered rows %#v\n", msg.FilterSacctTable(m.JobHistTab.Filter.Value())))
+	//	return m, nil
 
 	// Job Details tab update
-	case slurm.SacctJob:
-		m.Log.Printf("U(): got SacctJob\n")
-		m.DebugMsg += "D"
-		m.JobDetailsTab.SacctJob = msg
+	case slurm.SacctSingleJobHist:
+		m.Log.Printf("Got SacctSingleJobHist\n")
+		m.JobDetailsTab.SacctSingleJobHist = msg
+		return m, nil
+
+	// Job History tab update
+	case slurm.SacctJobHist:
+		m.Log.Printf("Got SacctJobHist len: %d\n", len(msg.Jobs))
+		m.JobHistTab.SacctHist = msg
+		// Filter and create filtered table
+		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
+		m.JobHistTab.SacctTable.SetRows(rows)
+		m.JobHistTab.SacctHistFiltered = saf
 		return m, nil
 
 	// TODO: find a way to simplify this mess below...
@@ -400,16 +442,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Job History tab: Select Job from history and open its Details tab
 			case tabJobHist:
 				n := m.JobHistTab.SacctTable.Cursor()
-				m.Log.Printf("Update ENTER key @ jobhist table, cursor=%d, len=%d\n", n, len(m.JobHistTab.SacctListFiltered))
-				if n == -1 || len(m.JobHistTab.SacctListFiltered) == 0 {
+				m.Log.Printf("Update ENTER key @ jobhist table, cursor=%d, len=%d\n", n, len(m.JobHistTab.SacctHistFiltered.Jobs))
+				if n == -1 || len(m.JobHistTab.SacctHistFiltered.Jobs) == 0 {
 					m.Log.Printf("Update ENTER key @ jobhist table, no jobs selected/empty table\n")
 					return m, nil
 				}
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
 				m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
-				m.DebugMsg += "<-"
-				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID)
+				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID, m.Log)
 
 			// Job from Template tab: Open template for editing
 			case tabJobFromTemplate:

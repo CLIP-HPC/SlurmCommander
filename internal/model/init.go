@@ -11,9 +11,9 @@ func (m Model) Init() tea.Cmd {
 	//return command.TimedGetSqueue()
 	//return tea.Batch(command.TimedGetSqueue(), command.TimedGetSinfo(), command.TimedGetSacct())
 	return tea.Batch(
+		command.GetUserName(m.Log),
 		command.QuickGetSqueue(),
 		command.QuickGetSinfo(),
-		command.QuickGetSacct(),
 		jobfromtemplate.GetTemplateList(jobfromtemplate.DefaultTemplatePaths, m.Log),
 	)
 }

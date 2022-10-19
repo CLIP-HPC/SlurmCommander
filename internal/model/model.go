@@ -66,6 +66,8 @@ type Globals struct {
 	Log       *log.Logger
 	Help      help.Model
 	FilterSwitch
+	UserName  string
+	UAccounts []string
 }
 
 // FilterSwitch == -1 if filter is off.

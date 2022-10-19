@@ -1,6 +1,8 @@
 package slurm
 
 import (
+	"log"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -13,14 +15,15 @@ type SacctList []SacctEntry
 
 type SacctEntry []string
 
-// SacctJob struct describes specific job.
-// Comes frofm unmarshalling sacct -j X --json call.
-type SacctJob struct {
-	//Jobs []openapidb.Dbv0039Job
+// SacctJobHist struct holds job history.
+// Comes from unmarshalling sacct -A -S now-Xdays --json call.
+type SacctJobHist struct {
 	Jobs []openapidb.Dbv0037Job
-	// TODO: incorporate dbv0.0.39 where sacct response is defined.
-	// This is not the response from sacct.
-	//Jobs []openapi.V0039JobResponseProperties
+}
+
+// This is to distinguish in Update() the return from the jobhisttab and jobdetails tab
+type SacctSingleJobHist struct {
+	Jobs []openapidb.Dbv0037Job
 }
 
 type SacctJobJSON struct {
@@ -55,23 +58,24 @@ var SacctTabCols = []table.Column{
 	},
 }
 
-func (saList *SacctList) FilterSacctTable(f string) (TableRows, SacctList) {
+func (saList *SacctJobHist) FilterSacctTable(f string, l *log.Logger) (TableRows, SacctJobHist) {
 	var (
-		saTabRows      = TableRows{}
-		saListFiltered = SacctList{}
+		saTabRows         = TableRows{}
+		sacctHistFiltered = SacctJobHist{}
 	)
 
-	for _, v := range *saList {
+	l.Printf("FilterSacctTable: rows %d", len(saList.Jobs))
+	for _, v := range saList.Jobs {
 		app := false
 		if f != "" {
 			switch {
-			case strings.Contains(v[0], f):
+			case strings.Contains(strconv.Itoa(*v.JobId), f):
 				// Id
 				app = true
-			case strings.Contains(v[1], f):
+			case strings.Contains(*v.Name, f):
 				// Name
 				app = true
-			case strings.Contains(v[3], f):
+			case strings.Contains(*v.State.Current, f):
 				// State
 				app = true
 			}
@@ -79,10 +83,11 @@ func (saList *SacctList) FilterSacctTable(f string) (TableRows, SacctList) {
 			app = true
 		}
 		if app {
-			saTabRows = append(saTabRows, table.Row{v[0], v[1], v[2], v[3], v[4]})
-			saListFiltered = append(saListFiltered, v)
+			//saTabRows = append(saTabRows, table.Row{v[0], v[1], v[2], v[3], v[4]})
+			saTabRows = append(saTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Partition, *v.State.Current, *v.ExitCode.Status})
+			sacctHistFiltered.Jobs = append(sacctHistFiltered.Jobs, v)
 		}
 	}
 
-	return saTabRows, saListFiltered
+	return saTabRows, sacctHistFiltered
 }
