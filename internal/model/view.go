@@ -65,31 +65,31 @@ func (m Model) tabJobDetails() (scr string) {
 	switch {
 	case m.JobDetailsTab.SelJobID == "":
 		return "Select a job from the Job History tab.\n"
-	case len(m.SacctJobHist.Jobs) == 0:
+	case len(m.SacctSingleJobHist.Jobs) == 0:
 		return fmt.Sprintf("Waiting for job %s info...\n", m.JobDetailsTab.SelJobID)
 
 	}
 
-	m.Log.Printf("Job Account: %#v\n", *m.SacctJobHist.Jobs[0].Account)
+	m.Log.Printf("Job Account: %#v\n", *m.SacctSingleJobHist.Jobs[0].Account)
 	//scr = fmt.Sprintf("Job count: %d\n\n", len(m.SacctJob.Jobs))
 
 	// TODO: consider moving this to a table...
 
-	waitT := time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.Submission), 0).Sub(time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.Submission), 0))
-	runT := time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.End), 0).Sub(time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.Start), 0))
+	waitT := time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Submission), 0).Sub(time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Submission), 0))
+	runT := time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.End), 0).Sub(time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Start), 0))
 	fmtStr := "%-20s : %-40s\n"
 	scr += "---\n"
-	scr += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*m.SacctJobHist.Jobs[0].JobId))
-	scr += fmt.Sprintf(fmtStr, "Job Name", *m.SacctJobHist.Jobs[0].Name)
-	scr += fmt.Sprintf(fmtStr, "Job Account", *m.SacctJobHist.Jobs[0].Account)
-	scr += fmt.Sprintf(fmtStr, "Job Submission", time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.Submission), 0).String())
-	scr += fmt.Sprintf(fmtStr, "Job Start", time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.Start), 0).String())
-	scr += fmt.Sprintf(fmtStr, "Job End", time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.End), 0).String())
+	scr += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*m.SacctSingleJobHist.Jobs[0].JobId))
+	scr += fmt.Sprintf(fmtStr, "Job Name", *m.SacctSingleJobHist.Jobs[0].Name)
+	scr += fmt.Sprintf(fmtStr, "Job Account", *m.SacctSingleJobHist.Jobs[0].Account)
+	scr += fmt.Sprintf(fmtStr, "Job Submission", time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Submission), 0).String())
+	scr += fmt.Sprintf(fmtStr, "Job Start", time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Start), 0).String())
+	scr += fmt.Sprintf(fmtStr, "Job End", time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.End), 0).String())
 	scr += fmt.Sprintf(fmtStr, "Job Wait time", waitT.String())
 	scr += fmt.Sprintf(fmtStr, "Job Run time", runT.String())
-	scr += fmt.Sprintf(fmtStr, "Partition", *m.SacctJobHist.Jobs[0].Partition)
-	scr += fmt.Sprintf(fmtStr, "Priority", strconv.Itoa(*m.SacctJobHist.Jobs[0].Priority))
-	scr += fmt.Sprintf(fmtStr, "QoS", *m.SacctJobHist.Jobs[0].Qos)
+	scr += fmt.Sprintf(fmtStr, "Partition", *m.SacctSingleJobHist.Jobs[0].Partition)
+	scr += fmt.Sprintf(fmtStr, "Priority", strconv.Itoa(*m.SacctSingleJobHist.Jobs[0].Priority))
+	scr += fmt.Sprintf(fmtStr, "QoS", *m.SacctSingleJobHist.Jobs[0].Qos)
 	scr += "---\n"
 	//scr += fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID)
 	//m.LogF.WriteString(fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID))

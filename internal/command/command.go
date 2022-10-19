@@ -197,21 +197,26 @@ func GetSacctHist(uaccs string, l *log.Logger) tea.Cmd {
 	}
 }
 
-func SingleJobGetSacct(jobid string) tea.Cmd {
+func SingleJobGetSacct(jobid string, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
-		var sacctJob slurm.SacctJobHist
+		var sacctJob slurm.SacctSingleJobHist
 
+		l.Printf("SingleJobGetSacct start.\n")
 		switches := append(sacctJobCmdSwitches, jobid)
 		out, err := exec.Command(sacctJobCmd, switches...).CombinedOutput()
+		l.Printf("SingleJobGetSacct EXEC: %q %q\n", sacctJobCmd, switches)
 		if err != nil {
 			log.Fatalf("Error exec sacct: %q\n", err)
 		}
+		l.Printf("SingleJobGetSacct EXEC got bytes: %d\n", len(out))
 
 		err = json.Unmarshal(out, &sacctJob)
 		if err != nil {
 			log.Fatalf("Error unmarshall: %q\n", err)
 		}
+		l.Printf("SingleJobGetSacct UNMARSHALLED items: %d\n", len(sacctJob.Jobs))
 
+		// do a new type for a single job, otherwise the update() will handle single job and the whole hist list in same code-path
 		return sacctJob
 	}
 }

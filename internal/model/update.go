@@ -331,11 +331,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	//	return m, nil
 
 	// Job Details tab update
-	//case slurm.SacctJob:
-	//	m.Log.Printf("U(): got SacctJob\n")
-	//	m.DebugMsg += "D"
-	//	m.JobDetailsTab.SacctJob = msg
-	//	return m, nil
+	case slurm.SacctSingleJobHist:
+		m.Log.Printf("Got SacctSingleJobHist\n")
+		m.JobDetailsTab.SacctSingleJobHist = msg
+		return m, nil
 
 	// Job History tab update
 	case slurm.SacctJobHist:
@@ -439,8 +438,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
 				m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
-				m.DebugMsg += "<-"
-				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID)
+				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID, m.Log)
 
 			// Job from Template tab: Open template for editing
 			case tabJobFromTemplate:
