@@ -62,5 +62,8 @@ var (
 	MenuNormalDesc    = lipgloss.NewStyle().Foreground(yellow).Background(blue)
 	MenuSelectedDesc  = lipgloss.NewStyle().Foreground(yellow)
 
+	// Job steps
+	JobStepBoxStyle = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue)
+
 	NotFound = lipgloss.NewStyle().Foreground(red)
 )

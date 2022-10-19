@@ -371,7 +371,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// DOWN
 		case key.Matches(msg, keybindings.DefaultKeyMap.Down):
+			m.Log.Printf("Update: Move down\n")
 			activeTable.MoveDown(1)
+			m.Log.Printf("Update: Move down finished\n")
 			m.lastKey = "down"
 
 		// PAGE DOWN

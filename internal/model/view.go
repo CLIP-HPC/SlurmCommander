@@ -70,27 +70,75 @@ func (m Model) tabJobDetails() (scr string) {
 
 	}
 
-	m.Log.Printf("Job Account: %#v\n", *m.SacctSingleJobHist.Jobs[0].Account)
+	width := m.Globals.winW - 10
+	job := m.SacctSingleJobHist.Jobs[0]
+
+	m.Log.Printf("Job Details req %#v ,got: %#v\n", m.JobDetailsTab.SelJobID, job.JobId)
 	//scr = fmt.Sprintf("Job count: %d\n\n", len(m.SacctJob.Jobs))
 
 	// TODO: consider moving this to a table...
 
-	waitT := time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Submission), 0).Sub(time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Submission), 0))
-	runT := time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.End), 0).Sub(time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Start), 0))
+	head := ""
+	waitT := time.Unix(int64(*job.Time.Submission), 0).Sub(time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Submission), 0))
+	runT := time.Unix(int64(*job.Time.End), 0).Sub(time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Start), 0))
 	fmtStr := "%-20s : %-40s\n"
-	scr += "---\n"
-	scr += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*m.SacctSingleJobHist.Jobs[0].JobId))
-	scr += fmt.Sprintf(fmtStr, "Job Name", *m.SacctSingleJobHist.Jobs[0].Name)
-	scr += fmt.Sprintf(fmtStr, "Job Account", *m.SacctSingleJobHist.Jobs[0].Account)
-	scr += fmt.Sprintf(fmtStr, "Job Submission", time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Submission), 0).String())
-	scr += fmt.Sprintf(fmtStr, "Job Start", time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Start), 0).String())
-	scr += fmt.Sprintf(fmtStr, "Job End", time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.End), 0).String())
-	scr += fmt.Sprintf(fmtStr, "Job Wait time", waitT.String())
-	scr += fmt.Sprintf(fmtStr, "Job Run time", runT.String())
-	scr += fmt.Sprintf(fmtStr, "Partition", *m.SacctSingleJobHist.Jobs[0].Partition)
-	scr += fmt.Sprintf(fmtStr, "Priority", strconv.Itoa(*m.SacctSingleJobHist.Jobs[0].Priority))
-	scr += fmt.Sprintf(fmtStr, "QoS", *m.SacctSingleJobHist.Jobs[0].Qos)
-	scr += "---\n"
+	head += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*job.JobId))
+	head += fmt.Sprintf(fmtStr, "User", *job.User)
+	head += fmt.Sprintf(fmtStr, "Job Name", *job.Name)
+	head += fmt.Sprintf(fmtStr, "Job Account", *job.Account)
+	head += fmt.Sprintf(fmtStr, "Job Submission", time.Unix(int64(*job.Time.Submission), 0).String())
+	head += fmt.Sprintf(fmtStr, "Job Start", time.Unix(int64(*job.Time.Start), 0).String())
+	head += fmt.Sprintf(fmtStr, "Job End", time.Unix(int64(*job.Time.End), 0).String())
+	head += fmt.Sprintf(fmtStr, "Job Wait time", waitT.String())
+	head += fmt.Sprintf(fmtStr, "Job Run time", runT.String())
+	head += fmt.Sprintf(fmtStr, "Partition", *job.Partition)
+	head += fmt.Sprintf(fmtStr, "Priority", strconv.Itoa(*job.Priority))
+	head += fmt.Sprintf(fmtStr, "QoS", *job.Qos)
+
+	scr += styles.JobStepBoxStyle.Width(width).Render(head)
+	scr += fmt.Sprintf("\n Steps count: %d", len(*job.Steps))
+
+	steps := ""
+	for i, v := range *job.Steps {
+
+		m.Log.Printf("Job Details, step: %d name: %s\n", i, *v.Step.Name)
+		step := fmt.Sprintf(fmtStr, "Name", *v.Step.Name)
+		step += fmt.Sprintf(fmtStr, "State", *v.State)
+		step += fmt.Sprintf(fmtStr, "ExitStatus", *v.ExitCode.Status)
+		if *v.ExitCode.Status == "SIGNALED" {
+			step += fmt.Sprintf(fmtStr, "Signal ID", strconv.Itoa(*v.ExitCode.Signal.SignalId))
+			step += fmt.Sprintf(fmtStr, "SignalName", *v.ExitCode.Signal.Name)
+		}
+		if v.KillRequestUser != nil {
+			step += fmt.Sprintf(fmtStr, "KillReqUser", *v.KillRequestUser)
+		}
+		step += fmt.Sprintf(fmtStr, "Tasks", strconv.Itoa(*v.Tasks.Count))
+		//steps += lipgloss.JoinVertical(lipgloss.Bottom, steps, styles.JobStepBoxStyle.Width(m.Globals.winW-10).Render(step))
+		steps += "\n" + styles.JobStepBoxStyle.Width(width).Render(step)
+		//m.Log.Printf("Step %d, VALUE: %q", i, steps)
+		//m.Log.Printf("================================================================================\n")
+	}
+	scr += steps
+
+	//// get Type of struct
+	//t := reflect.TypeOf(m.JobDetailsTab.Jobs[0])
+	//// get Value of struct
+	//v := reflect.ValueOf(m.JobDetailsTab.Jobs[0])
+	//// get struct fields from Type
+	//f := reflect.VisibleFields(t)
+	//scr += fmt.Sprintf("num. Fields = %d\n", len(f))
+	//for _, val := range f {
+	//	dv := v.FieldByName(val.Name).Elem()
+	//	switch dv.Kind() {
+	//	case reflect.String:
+	//		scr += fmt.Sprintf("*string FIELD: %-20s VALUE: %-20s\n", val.Name, dv.String())
+	//	case reflect.Int:
+	//		scr += fmt.Sprintf("*int FIELD: %-20s VALUE: %-20d\n", val.Name, dv.Int())
+	//	default:
+	//		scr += fmt.Sprintf("UnknownKind %v FIELD: %-20s VALUE: %-20v\n", v.FieldByName(val.Name).Kind(), val.Name, v.FieldByName(val.Name).String())
+
+	//	}
+	//}
 	//scr += fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID)
 	//m.LogF.WriteString(fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID))
 
