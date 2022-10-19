@@ -276,7 +276,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// TODO:
 			// fix: if after filtering m.table.Cursor|SelectedRow > lines in table, Info crashes trying to fetch nonexistent row
-			rows, sqf := msg.FilterSqueueTable(m.JobTab.Filter.Value())
+			rows, sqf := msg.FilterSqueueTable(m.JobTab.Filter.Value(), m.Log)
 			m.JobTab.SqueueTable.SetRows(rows)
 			m.JobTab.SqueueFiltered = sqf
 			//m.SqueueTable.UpdateViewport()
