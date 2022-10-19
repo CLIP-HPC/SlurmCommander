@@ -9,12 +9,9 @@ import (
 )
 
 type JobHistTab struct {
-	// TODO: why did i choose to hold separate lists? why not directly in Update() move data from msg to table?
-	// Can't remember... :(
-	SacctList         slurm.SacctList
-	SacctListFiltered slurm.SacctList
 	SacctTable        table.Model
-	Sacct             slurm.SacctJob
+	SacctHist         slurm.SacctJobHist
+	SacctHistFiltered slurm.SacctJobHist
 	Filter            textinput.Model
 }
 

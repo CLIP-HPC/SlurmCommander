@@ -170,9 +170,36 @@ func QuickGetSacct() tea.Cmd {
 	return tea.Tick(0*time.Second, GetSacct)
 }
 
+func GetSacctHist(uaccs string, l *log.Logger) tea.Cmd {
+	return func() tea.Msg {
+		var (
+			sacctJobs slurm.SacctJobHist
+			sw        []string
+		)
+
+		l.Printf("GetSacctHist(%q) start\n", uaccs)
+		sw = append(sacctHistCmdSwitches, "-A", uaccs)
+		l.Printf("EXEC: %q %q\n", sacctHistCmd, sw)
+		out, err := exec.Command(sacctHistCmd, sw...).CombinedOutput()
+		l.Printf("EXEC returned: %d bytes\n", len(out))
+		if err != nil {
+			l.Fatalf("Error exec sacct: %q\n", err)
+		}
+
+		err = json.Unmarshal(out, &sacctJobs)
+		if err != nil {
+			l.Fatalf("Error unmarshall: %q\n", err)
+		}
+
+		l.Printf("Unmarshalled %d jobs from hist\n", len(sacctJobs.Jobs))
+
+		return sacctJobs
+	}
+}
+
 func SingleJobGetSacct(jobid string) tea.Cmd {
 	return func() tea.Msg {
-		var sacctJob slurm.SacctJob
+		var sacctJob slurm.SacctJobHist
 
 		switches := append(sacctJobCmdSwitches, jobid)
 		out, err := exec.Command(sacctJobCmd, switches...).CombinedOutput()

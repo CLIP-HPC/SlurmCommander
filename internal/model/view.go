@@ -65,31 +65,31 @@ func (m Model) tabJobDetails() (scr string) {
 	switch {
 	case m.JobDetailsTab.SelJobID == "":
 		return "Select a job from the Job History tab.\n"
-	case len(m.SacctJob.Jobs) == 0:
+	case len(m.SacctJobHist.Jobs) == 0:
 		return fmt.Sprintf("Waiting for job %s info...\n", m.JobDetailsTab.SelJobID)
 
 	}
 
-	m.Log.Printf("Job Account: %#v\n", *m.SacctJob.Jobs[0].Account)
+	m.Log.Printf("Job Account: %#v\n", *m.SacctJobHist.Jobs[0].Account)
 	//scr = fmt.Sprintf("Job count: %d\n\n", len(m.SacctJob.Jobs))
 
 	// TODO: consider moving this to a table...
 
-	waitT := time.Unix(int64(*m.SacctJob.Jobs[0].Time.Submission), 0).Sub(time.Unix(int64(*m.SacctJob.Jobs[0].Time.Submission), 0))
-	runT := time.Unix(int64(*m.SacctJob.Jobs[0].Time.End), 0).Sub(time.Unix(int64(*m.SacctJob.Jobs[0].Time.Start), 0))
+	waitT := time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.Submission), 0).Sub(time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.Submission), 0))
+	runT := time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.End), 0).Sub(time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.Start), 0))
 	fmtStr := "%-20s : %-40s\n"
 	scr += "---\n"
-	scr += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*m.SacctJob.Jobs[0].JobId))
-	scr += fmt.Sprintf(fmtStr, "Job Name", *m.SacctJob.Jobs[0].Name)
-	scr += fmt.Sprintf(fmtStr, "Job Account", *m.SacctJob.Jobs[0].Account)
-	scr += fmt.Sprintf(fmtStr, "Job Submission", time.Unix(int64(*m.SacctJob.Jobs[0].Time.Submission), 0).String())
-	scr += fmt.Sprintf(fmtStr, "Job Start", time.Unix(int64(*m.SacctJob.Jobs[0].Time.Start), 0).String())
-	scr += fmt.Sprintf(fmtStr, "Job End", time.Unix(int64(*m.SacctJob.Jobs[0].Time.End), 0).String())
+	scr += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*m.SacctJobHist.Jobs[0].JobId))
+	scr += fmt.Sprintf(fmtStr, "Job Name", *m.SacctJobHist.Jobs[0].Name)
+	scr += fmt.Sprintf(fmtStr, "Job Account", *m.SacctJobHist.Jobs[0].Account)
+	scr += fmt.Sprintf(fmtStr, "Job Submission", time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.Submission), 0).String())
+	scr += fmt.Sprintf(fmtStr, "Job Start", time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.Start), 0).String())
+	scr += fmt.Sprintf(fmtStr, "Job End", time.Unix(int64(*m.SacctJobHist.Jobs[0].Time.End), 0).String())
 	scr += fmt.Sprintf(fmtStr, "Job Wait time", waitT.String())
 	scr += fmt.Sprintf(fmtStr, "Job Run time", runT.String())
-	scr += fmt.Sprintf(fmtStr, "Partition", *m.SacctJob.Jobs[0].Partition)
-	scr += fmt.Sprintf(fmtStr, "Priority", strconv.Itoa(*m.SacctJob.Jobs[0].Priority))
-	scr += fmt.Sprintf(fmtStr, "QoS", *m.SacctJob.Jobs[0].Qos)
+	scr += fmt.Sprintf(fmtStr, "Partition", *m.SacctJobHist.Jobs[0].Partition)
+	scr += fmt.Sprintf(fmtStr, "Priority", strconv.Itoa(*m.SacctJobHist.Jobs[0].Priority))
+	scr += fmt.Sprintf(fmtStr, "QoS", *m.SacctJobHist.Jobs[0].Qos)
 	scr += "---\n"
 	//scr += fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID)
 	//m.LogF.WriteString(fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID))
@@ -272,7 +272,7 @@ func (m Model) View() string {
 		}
 	case tabJobHist:
 		//scr.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n\n")
-		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctListFiltered)))
+		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabJobHist())
@@ -301,13 +301,13 @@ func (m Model) View() string {
 	// FOOTER
 	scr.WriteString("\n")
 	// Debug information:
-	if m.Globals.Debug {
-		scr.WriteString("DEBUG:\n")
-		scr.WriteString(fmt.Sprintf("Last key pressed: %q\n", m.lastKey))
-		scr.WriteString(fmt.Sprintf("Window Width: %d\tHeight:%d\n", m.winW, m.winH))
-		scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: TBD\t InfoOn: %v\n", m.ActiveTab, m.InfoOn))
-		scr.WriteString(fmt.Sprintf("Debug Msg: %q\n", m.DebugMsg))
-	}
+	//if m.Globals.Debug {
+	//	scr.WriteString("DEBUG:\n")
+	//	scr.WriteString(fmt.Sprintf("Last key pressed: %q\n", m.lastKey))
+	//	scr.WriteString(fmt.Sprintf("Window Width: %d\tHeight:%d\n", m.winW, m.winH))
+	//	scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: TBD\t InfoOn: %v\n", m.ActiveTab, m.InfoOn))
+	//	scr.WriteString(fmt.Sprintf("Debug Msg: %q\n", m.DebugMsg))
+	//}
 
 	// TODO: Help doesn't split into multiple lines (e.g. when window too narrow)
 	scr.WriteString(m.Help.View(keybindings.DefaultKeyMap))

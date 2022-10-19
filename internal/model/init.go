@@ -14,7 +14,6 @@ func (m Model) Init() tea.Cmd {
 		command.GetUserName(m.Log),
 		command.QuickGetSqueue(),
 		command.QuickGetSinfo(),
-		command.QuickGetSacct(),
 		jobfromtemplate.GetTemplateList(jobfromtemplate.DefaultTemplatePaths, m.Log),
 	)
 }

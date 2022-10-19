@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
@@ -29,15 +30,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// This shortens the testing for table movement keys
 	switch m.ActiveTab {
 	case tabJobs:
-		activeTable = &m.SqueueTable
+		activeTable = &m.JobTab.SqueueTable
 		activeFilter = &m.JobTab.Filter
 	case tabJobHist:
-		activeTable = &m.SacctTable
+		activeTable = &m.JobHistTab.SacctTable
 		activeFilter = &m.JobHistTab.Filter
 	case tabJobFromTemplate:
-		activeTable = &m.TemplatesTable
+		activeTable = &m.JobFromTemplateTab.TemplatesTable
 	case tabCluster:
-		activeTable = &m.SinfoTable
+		activeTable = &m.JobClusterTab.SinfoTable
 		activeFilter = &m.JobClusterTab.Filter
 	}
 
@@ -75,7 +76,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case tabJobs:
 					return m, command.QuickGetSqueue()
 				case tabJobHist:
-					return m, command.QuickGetSacct()
+					//return m, command.QuickGetSacct()
+					return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
 				case tabCluster:
 					return m, command.QuickGetSinfo()
 				default:
@@ -191,9 +193,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// UAccounts fetched
 	case command.UserAssoc:
 		m.Log.Printf("Got UserAssoc msg, value: %#v\n", msg)
+		// TODO: consider changing this to string and do a join(",") to be ready to pass around
 		m.Globals.UAccounts = append(m.Globals.UAccounts, msg...)
 		m.Log.Printf("Appended UserAssoc msg go Globals, value now: %#v\n", m.Globals.UAccounts)
-		return m, nil
+		// Now we trigger a sacctHist
+		//return m, nil
+		m.Log.Printf("Appended UserAssoc msg go Globals, calling GetSacctHist()\n")
+		return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
 
 	// UserName fetched
 	case command.UserName:
@@ -311,23 +317,34 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	// Job History tab update
-	case slurm.SacctList:
-		m.Log.Printf("U(): got SacctList\n")
-		// fill out model
-		m.DebugMsg += "H"
-		m.JobHistTab.SacctList = msg
-		//m.JobHistTab.SacctTable.SetRows(msg.FilterSacctTable(m.JobHistTab.Filter.Value()))
-		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value())
-		m.JobHistTab.SacctTable.SetRows(rows)
-		m.JobHistTab.SacctListFiltered = saf
-		//m.LogF.WriteString(fmt.Sprintf("U(): got Filtered rows %#v\n", msg.FilterSacctTable(m.JobHistTab.Filter.Value())))
-		return m, nil
+	//
+	//case slurm.SacctList:
+	//	m.Log.Printf("U(): got SacctList\n")
+	//	// fill out model
+	//	m.DebugMsg += "H"
+	//	m.JobHistTab.SacctList = msg
+	//	//m.JobHistTab.SacctTable.SetRows(msg.FilterSacctTable(m.JobHistTab.Filter.Value()))
+	//	rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value())
+	//	m.JobHistTab.SacctTable.SetRows(rows)
+	//	m.JobHistTab.SacctListFiltered = saf
+	//	//m.LogF.WriteString(fmt.Sprintf("U(): got Filtered rows %#v\n", msg.FilterSacctTable(m.JobHistTab.Filter.Value())))
+	//	return m, nil
 
 	// Job Details tab update
-	case slurm.SacctJob:
-		m.Log.Printf("U(): got SacctJob\n")
-		m.DebugMsg += "D"
-		m.JobDetailsTab.SacctJob = msg
+	//case slurm.SacctJob:
+	//	m.Log.Printf("U(): got SacctJob\n")
+	//	m.DebugMsg += "D"
+	//	m.JobDetailsTab.SacctJob = msg
+	//	return m, nil
+
+	// Job History tab update
+	case slurm.SacctJobHist:
+		m.Log.Printf("Got SacctJobHist len: %d\n", len(msg.Jobs))
+		m.JobHistTab.SacctHist = msg
+		// Filter and create filtered table
+		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
+		m.JobHistTab.SacctTable.SetRows(rows)
+		m.JobHistTab.SacctHistFiltered = saf
 		return m, nil
 
 	// TODO: find a way to simplify this mess below...
@@ -414,8 +431,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Job History tab: Select Job from history and open its Details tab
 			case tabJobHist:
 				n := m.JobHistTab.SacctTable.Cursor()
-				m.Log.Printf("Update ENTER key @ jobhist table, cursor=%d, len=%d\n", n, len(m.JobHistTab.SacctListFiltered))
-				if n == -1 || len(m.JobHistTab.SacctListFiltered) == 0 {
+				m.Log.Printf("Update ENTER key @ jobhist table, cursor=%d, len=%d\n", n, len(m.JobHistTab.SacctHistFiltered.Jobs))
+				if n == -1 || len(m.JobHistTab.SacctHistFiltered.Jobs) == 0 {
 					m.Log.Printf("Update ENTER key @ jobhist table, no jobs selected/empty table\n")
 					return m, nil
 				}

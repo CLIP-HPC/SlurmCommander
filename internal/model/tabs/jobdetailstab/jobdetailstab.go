@@ -8,7 +8,7 @@ import (
 
 type JobDetailsTab struct {
 	SelJobID string
-	slurm.SacctJob
+	slurm.SacctJobHist
 }
 
 type Keys map[*key.Binding]bool
