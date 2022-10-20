@@ -29,6 +29,7 @@ type JobTab struct {
 }
 
 type Stats struct {
+	// TODO: also perhaps: count by user? account?
 	StateCnt map[string]uint
 }
 

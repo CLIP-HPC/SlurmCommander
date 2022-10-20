@@ -2,6 +2,8 @@ package model
 
 import (
 	"fmt"
+	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -288,6 +290,43 @@ func genTabHelp(t int) string {
 	return th + "\n\n"
 }
 
+func GenCountStr(cnt map[string]uint, l *log.Logger) string {
+	var (
+		scr string
+	)
+
+	sm := make([]struct {
+		name string
+		val  uint
+	}, 0)
+
+	// place map to slice
+	for k, v := range cnt {
+		sm = append(sm, struct {
+			name string
+			val  uint
+		}{name: k, val: uint(v)})
+	}
+
+	// sort it
+	sort.Slice(sm, func(i, j int) bool {
+		if sm[i].name < sm[j].name {
+			return true
+		} else {
+			return false
+		}
+	})
+
+	// print it out
+	scr = "Count: "
+	for _, v := range sm {
+		scr += fmt.Sprintf("%s: %d ", v.name, v.val)
+	}
+	scr += "\n\n"
+
+	return scr
+}
+
 func (m Model) View() string {
 
 	var scr strings.Builder
@@ -300,13 +339,8 @@ func (m Model) View() string {
 
 	switch m.ActiveTab {
 	case tabJobs:
-		//scr.WriteString("Filter: " + m.JobTab.Filter.Value() + "\n\n")
 		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
-		scr.WriteString("Count: ")
-		for k, v := range m.JobTab.Stats.StateCnt {
-			scr.WriteString(fmt.Sprintf("%s: %d ", k, v))
-		}
-		scr.WriteString("\n\n")
+		scr.WriteString(GenCountStr(m.JobTab.Stats.StateCnt, m.Log))
 
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
@@ -327,11 +361,7 @@ func (m Model) View() string {
 	case tabJobHist:
 		//scr.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n\n")
 		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
-		scr.WriteString("Count: ")
-		for k, v := range m.JobHistTab.Stats.StateCnt {
-			scr.WriteString(fmt.Sprintf("%s: %d ", k, v))
-		}
-		scr.WriteString("\n\n")
+		scr.WriteString(GenCountStr(m.JobHistTab.Stats.StateCnt, m.Log))
 
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
