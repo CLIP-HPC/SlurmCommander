@@ -377,6 +377,7 @@ func (m Model) View() string {
 	case tabCluster:
 		//scr.WriteString("Filter: " + m.JobClusterTab.Filter.Value() + "\n\n")
 		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobClusterTab.Filter.Value(), len(m.JobClusterTab.SinfoFiltered.Nodes)))
+		scr.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabCluster())

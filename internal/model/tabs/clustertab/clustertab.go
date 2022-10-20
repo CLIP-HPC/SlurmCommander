@@ -1,6 +1,9 @@
 package clustertab
 
 import (
+	"log"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/table"
@@ -16,6 +19,30 @@ type JobClusterTab struct {
 	Sinfo         slurm.SinfoJSON
 	SinfoFiltered slurm.SinfoJSON
 	Filter        textinput.Model
+	Stats
+}
+
+type Stats struct {
+	// TODO: also perhaps: count by user? account?
+	StateCnt map[string]uint
+}
+
+func (t *JobClusterTab) GetStatsFiltered(l *log.Logger) {
+	var key string
+
+	t.Stats.StateCnt = map[string]uint{}
+
+	l.Printf("GetStatsFiltered JobClusterTab start\n")
+	for _, v := range t.SinfoFiltered.Nodes {
+		if len(*v.StateFlags) != 0 {
+			key = *v.State + "+" + strings.Join(*v.StateFlags, "+")
+		} else {
+			key = *v.State
+		}
+		//t.Stats.StateCnt[*v.JobState]++
+		t.Stats.StateCnt[key]++
+	}
+	l.Printf("GetStatsFiltered end\n")
 }
 
 type Keys map[*key.Binding]bool

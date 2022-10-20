@@ -93,6 +93,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.JobHistTab.GetStatsFiltered(m.Log)
 					return m, nil
 				case tabCluster:
+					m.JobClusterTab.GetStatsFiltered(m.Log)
 					return m, command.QuickGetSinfo()
 				default:
 					return m, nil
@@ -319,6 +320,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			rows, sif := msg.FilterSinfoTable(m.JobClusterTab.Filter.Value())
 			m.JobClusterTab.SinfoTable.SetRows(rows)
 			m.JobClusterTab.SinfoFiltered = sif
+			m.JobClusterTab.GetStatsFiltered(m.Log)
 		}
 		m.UpdateCnt++
 		// if active window != this, don't trigger new refresh
