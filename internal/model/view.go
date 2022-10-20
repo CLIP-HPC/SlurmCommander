@@ -253,7 +253,7 @@ func (m Model) getJobInfo() string {
 
 	infoBoxMiddle := fmt.Sprintf(fmtStr, "Submit", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].SubmitTime, 0))
 	if *m.JobTab.SqueueFiltered.Jobs[n].StartTime != 0 {
-		infoBoxMiddle += fmt.Sprintf(fmtStrLast, "Start", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].StartTime, 0))
+		infoBoxMiddle += fmt.Sprintf(fmtStrLast, "Start /expected", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].StartTime, 0))
 	} else {
 		infoBoxMiddle += fmt.Sprintf(fmtStrLast, "Start", "unknown")
 	}
@@ -264,8 +264,13 @@ func (m Model) getJobInfo() string {
 	infoBoxWide += fmt.Sprintf(fmtStr, "StdErr", *m.JobTab.SqueueFiltered.Jobs[n].StandardError)
 	infoBoxWide += fmt.Sprintf(fmtStrLast, "Working Dir", *m.JobTab.SqueueFiltered.Jobs[n].CurrentWorkingDirectory)
 
-	top := lipgloss.JoinHorizontal(lipgloss.Top, styles.JobInfoInBox.Render(infoBoxLeft), styles.JobInfoInBox.Render(infoBoxMiddle), styles.JobInfoInBox.Render(infoBoxRight))
-	scr.WriteString(lipgloss.JoinVertical(lipgloss.Left, top, styles.JobInfoInBox.Render(infoBoxWide)))
+	// 8 for borders (~10 extra)
+	w := ((m.Globals.winW - 10) / 3) * 3
+	s := styles.JobInfoInBox.Copy().Width(w / 3).Height(5)
+	//top := lipgloss.JoinHorizontal(lipgloss.Top, styles.JobInfoInBox.Render(infoBoxLeft), styles.JobInfoInBox.Render(infoBoxMiddle), styles.JobInfoInBox.Render(infoBoxRight))
+	top := lipgloss.JoinHorizontal(lipgloss.Top, s.Render(infoBoxLeft), s.Render(infoBoxMiddle), s.Render(infoBoxRight))
+	s = styles.JobInfoInBox.Copy().Width(w + 4)
+	scr.WriteString(lipgloss.JoinVertical(lipgloss.Left, top, s.Render(infoBoxWide)))
 
 	//return infoBox
 	return scr.String()
