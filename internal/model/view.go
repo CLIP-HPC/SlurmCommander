@@ -362,6 +362,7 @@ func (m Model) View() string {
 		//scr.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n\n")
 		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
 		scr.WriteString(GenCountStr(m.JobHistTab.Stats.StateCnt, m.Log))
+		scr.WriteString(fmt.Sprintf("AvgWait: %s\n", m.JobHistTab.Stats.AvgWait.String()))
 
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
