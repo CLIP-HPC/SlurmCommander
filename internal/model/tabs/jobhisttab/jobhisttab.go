@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/pja237/slurmcommander/internal/keybindings"
 	"github.com/pja237/slurmcommander/internal/slurm"
+	"github.com/pja237/slurmcommander/internal/stats"
 )
 
 type JobHistTab struct {
@@ -22,22 +23,31 @@ type JobHistTab struct {
 type Stats struct {
 	StateCnt map[string]uint
 	AvgWait  time.Duration
+	MinWait  time.Duration
+	MaxWait  time.Duration
+	MedWait  time.Duration
 	SDWait   int
 }
 
 func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
 	t.Stats.StateCnt = map[string]uint{}
+	tmp := []time.Duration{}
 	t.AvgWait = 0
+	t.MedWait = 0
 
-	l.Printf("GetStatsFiltered start\n")
+	l.Printf("GetStatsFiltered start on %d rows\n", len(t.SacctHistFiltered.Jobs))
+
 	for _, v := range t.SacctHistFiltered.Jobs {
 		t.Stats.StateCnt[*v.State.Current]++
-		t.AvgWait += time.Unix(int64(*v.Time.Start), 0).Sub(time.Unix(int64(*v.Time.Submission), 0))
+		tmp = append(tmp, time.Unix(int64(*v.Time.Start), 0).Sub(time.Unix(int64(*v.Time.Submission), 0)))
 	}
+
 	l.Printf("GetStatsFiltered totalwait: %d\n", t.AvgWait)
 	l.Printf("GetStatsFiltered totalwait: %s\n", t.AvgWait.String())
-	t.AvgWait = t.AvgWait / time.Duration((len(t.SacctHistFiltered.Jobs)))
+	t.MedWait, t.MinWait, t.MaxWait = stats.Median(tmp)
+	t.AvgWait = stats.Avg(tmp)
 	l.Printf("GetStatsFiltered avgwait: %d\n", t.AvgWait)
+	l.Printf("GetStatsFiltered medwait: %d\n", t.MedWait)
 	l.Printf("GetStatsFiltered end\n")
 }
 
