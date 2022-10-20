@@ -79,8 +79,8 @@ func (m Model) tabJobDetails() (scr string) {
 	// TODO: consider moving this to a table...
 
 	head := ""
-	waitT := time.Unix(int64(*job.Time.Submission), 0).Sub(time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Submission), 0))
-	runT := time.Unix(int64(*job.Time.End), 0).Sub(time.Unix(int64(*m.SacctSingleJobHist.Jobs[0].Time.Start), 0))
+	waitT := time.Unix(int64(*job.Time.Submission), 0).Sub(time.Unix(int64(*job.Time.Start), 0))
+	runT := time.Unix(int64(*job.Time.End), 0).Sub(time.Unix(int64(*job.Time.Start), 0))
 	fmtStr := "%-20s : %-40s\n"
 	head += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*job.JobId))
 	head += fmt.Sprintf(fmtStr, "User", *job.User)
