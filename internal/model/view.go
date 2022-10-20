@@ -79,7 +79,7 @@ func (m Model) tabJobDetails() (scr string) {
 	// TODO: consider moving this to a table...
 
 	head := ""
-	waitT := time.Unix(int64(*job.Time.Submission), 0).Sub(time.Unix(int64(*job.Time.Start), 0))
+	waitT := time.Unix(int64(*job.Time.Start), 0).Sub(time.Unix(int64(*job.Time.Submission), 0))
 	runT := time.Unix(int64(*job.Time.End), 0).Sub(time.Unix(int64(*job.Time.Start), 0))
 	fmtStr := "%-20s : %-40s\n"
 	head += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*job.JobId))
@@ -301,7 +301,13 @@ func (m Model) View() string {
 	switch m.ActiveTab {
 	case tabJobs:
 		//scr.WriteString("Filter: " + m.JobTab.Filter.Value() + "\n\n")
-		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
+		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
+		scr.WriteString("Count: ")
+		for k, v := range m.JobTab.Stats.StateCnt {
+			scr.WriteString(fmt.Sprintf("%s: %d ", k, v))
+		}
+		scr.WriteString("\n\n")
+
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabJobs())

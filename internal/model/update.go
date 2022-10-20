@@ -79,6 +79,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					rows, sqf := m.JobTab.Squeue.FilterSqueueTable(m.JobTab.Filter.Value(), m.Log)
 					m.JobTab.SqueueTable.SetRows(rows)
 					m.JobTab.SqueueFiltered = sqf
+					m.JobTab.GetStatsFiltered(m.Log)
 					return m, nil
 
 				case tabJobHist:
@@ -291,6 +292,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			rows, sqf := msg.FilterSqueueTable(m.JobTab.Filter.Value(), m.Log)
 			m.JobTab.SqueueTable.SetRows(rows)
 			m.JobTab.SqueueFiltered = sqf
+			m.JobTab.GetStatsFiltered(m.Log)
 			//m.SqueueTable.UpdateViewport()
 		}
 		m.UpdateCnt++

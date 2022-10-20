@@ -25,6 +25,11 @@ type JobTab struct {
 	MenuOn           bool
 	MenuChoice       MenuItem
 	Menu             list.Model
+	Stats
+}
+
+type Stats struct {
+	StateCnt map[string]uint
 }
 
 type JobMenuOptions map[string]MenuOptions
@@ -33,6 +38,16 @@ type MenuOptions []list.Item
 type MenuItem struct {
 	action      string
 	description string
+}
+
+func (t *JobTab) GetStatsFiltered(l *log.Logger) {
+	t.Stats.StateCnt = map[string]uint{}
+
+	l.Printf("GetStatsFiltered start\n")
+	for _, v := range t.SqueueFiltered.Jobs {
+		t.Stats.StateCnt[*v.JobState]++
+	}
+	l.Printf("GetStatsFiltered end\n")
 }
 
 // TODO: we don't need to return messages, we're called from update, just error and let update continue...
