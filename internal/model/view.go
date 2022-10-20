@@ -326,7 +326,13 @@ func (m Model) View() string {
 		}
 	case tabJobHist:
 		//scr.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n\n")
-		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
+		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
+		scr.WriteString("Count: ")
+		for k, v := range m.JobHistTab.Stats.StateCnt {
+			scr.WriteString(fmt.Sprintf("%s: %d ", k, v))
+		}
+		scr.WriteString("\n\n")
+
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			scr.WriteString(m.tabJobHist())

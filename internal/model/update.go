@@ -90,6 +90,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					rows, saf := m.JobHistTab.SacctHist.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
 					m.JobHistTab.SacctTable.SetRows(rows)
 					m.JobHistTab.SacctHistFiltered = saf
+					m.JobHistTab.GetStatsFiltered(m.Log)
 					return m, nil
 				case tabCluster:
 					return m, command.QuickGetSinfo()
@@ -358,6 +359,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
 		m.JobHistTab.SacctTable.SetRows(rows)
 		m.JobHistTab.SacctHistFiltered = saf
+		m.JobHistTab.GetStatsFiltered(m.Log)
 		return m, nil
 
 	// TODO: find a way to simplify this mess below...
