@@ -271,6 +271,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.winW = msg.Width
 		m.winH = msg.Height
+		// TODO: set also maxheight/width here on change?
 		styles.MainWindow = styles.MainWindow.Height(m.winH - 10)
 		styles.MainWindow = styles.MainWindow.Width(m.winW - 15)
 		styles.HelpWindow = styles.HelpWindow.Width(m.winW - 15)
