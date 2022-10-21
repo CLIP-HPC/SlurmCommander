@@ -239,13 +239,13 @@ func (m Model) getJobInfo() string {
 	infoBoxLeft := fmt.Sprintf(fmtStr, "Partition", *m.JobTab.SqueueFiltered.Jobs[n].Partition)
 	infoBoxLeft += fmt.Sprintf(fmtStr, "QoS", *m.JobTab.SqueueFiltered.Jobs[n].Qos)
 	infoBoxLeft += fmt.Sprintf(fmtStr, "TRES", *m.JobTab.SqueueFiltered.Jobs[n].TresReqStr)
+	infoBoxLeft += fmt.Sprintf(fmtStr, "Batch Host", *m.JobTab.SqueueFiltered.Jobs[n].BatchHost)
 	if m.JobTab.SqueueFiltered.Jobs[n].JobResources.Nodes != nil {
-		infoBoxLeft += fmt.Sprintf(fmtStr, "AllocNodes", *m.JobTab.SqueueFiltered.Jobs[n].JobResources.Nodes)
+		infoBoxLeft += fmt.Sprintf(fmtStrLast, "AllocNodes", *m.JobTab.SqueueFiltered.Jobs[n].JobResources.Nodes)
 	} else {
-		infoBoxLeft += fmt.Sprintf(fmtStr, "AllocNodes", "none")
+		infoBoxLeft += fmt.Sprintf(fmtStrLast, "AllocNodes", "none")
 
 	}
-	infoBoxLeft += fmt.Sprintf(fmtStrLast, "wckey", *m.JobTab.SqueueFiltered.Jobs[n].Wckey)
 
 	infoBoxRight := fmt.Sprintf(fmtStr, "Array Job ID", strconv.Itoa(*m.JobTab.SqueueFiltered.Jobs[n].ArrayJobId))
 	if m.JobTab.SqueueFiltered.Jobs[n].ArrayTaskId != nil {
@@ -254,8 +254,8 @@ func (m Model) getJobInfo() string {
 		infoBoxRight += fmt.Sprintf(fmtStr, "Array Task ID", "NoTaskID")
 	}
 	infoBoxRight += fmt.Sprintf(fmtStr, "Gres Details", strings.Join(*m.JobTab.SqueueFiltered.Jobs[n].GresDetail, ","))
-	infoBoxRight += fmt.Sprintf(fmtStr, "Batch Host", *m.JobTab.SqueueFiltered.Jobs[n].BatchHost)
-	infoBoxRight += fmt.Sprintf(fmtStrLast, "Features", *m.JobTab.SqueueFiltered.Jobs[n].Features)
+	infoBoxRight += fmt.Sprintf(fmtStr, "Features", *m.JobTab.SqueueFiltered.Jobs[n].Features)
+	infoBoxRight += fmt.Sprintf(fmtStrLast, "wckey", *m.JobTab.SqueueFiltered.Jobs[n].Wckey)
 
 	infoBoxMiddle := fmt.Sprintf(fmtStr, "Submit", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].SubmitTime, 0))
 	if *m.JobTab.SqueueFiltered.Jobs[n].StartTime != 0 {
