@@ -8,6 +8,10 @@ import (
 func Median(s []time.Duration) (time.Duration, time.Duration, time.Duration) {
 	var ret time.Duration
 
+	if len(s) == 0 {
+		return 0, 0, 0
+	}
+
 	n := len(s)
 	sort.Slice(s, func(i, j int) bool {
 		if s[i] < s[j] {
@@ -29,6 +33,10 @@ func Avg(s []time.Duration) time.Duration {
 	var ret time.Duration
 
 	n := len(s)
+	if n == 0 {
+		return 0
+	}
+
 	for _, v := range s {
 		ret += v
 	}

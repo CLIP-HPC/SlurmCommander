@@ -24,7 +24,7 @@ var (
 
 	TabColor = lipgloss.AdaptiveColor{Light: "#0057B7", Dark: "#0057B7"}
 
-	TabActiveTab       = Tab.Copy().Border(TabActiveTabBorder, true)
+	TabActiveTab       = Tab.Copy().Border(TabActiveTabBorder, true).Foreground(yellow)
 	TabActiveTabBorder = lipgloss.ThickBorder()
 	//TabActiveTabBorder= lipgloss.Border{
 	//	Top:         "─",
