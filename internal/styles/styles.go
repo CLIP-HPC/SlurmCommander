@@ -65,5 +65,8 @@ var (
 	// Job steps
 	JobStepBoxStyle = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue)
 
-	NotFound = lipgloss.NewStyle().Foreground(red)
+	// Main Window area
+	MainWindow = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue).MaxHeight(80)
+	HelpWindow = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(yellow).Height(2).MaxHeight(4)
+	NotFound   = lipgloss.NewStyle().Foreground(red)
 )

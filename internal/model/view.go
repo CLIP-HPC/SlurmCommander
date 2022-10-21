@@ -210,12 +210,14 @@ func (m Model) tabCluster() string {
 func (m Model) tabAbout() string {
 
 	s := `
-
 petar.jager@imba.oeaw.ac.at
-CLIP-HPC Team @ VBC
-	`
+CLIP-HPC Team @ VBC`
 
-	return "About tab active" + s
+	//st := styles.MainWindow.Copy().Height(m.Globals.winH - 10)
+
+	//return "About tab active" + s
+	//return styles.MainWindow.Render(styles.JobInfoBox.Render(s))
+	return s
 }
 
 func (m Model) getJobInfo() string {
@@ -334,7 +336,10 @@ func GenCountStr(cnt map[string]uint, l *log.Logger) string {
 
 func (m Model) View() string {
 
-	var scr strings.Builder
+	var (
+		scr        strings.Builder
+		MainWindow strings.Builder
+	)
 
 	// HEADER / TABS
 	scr.WriteString(m.genTabs())
@@ -344,59 +349,60 @@ func (m Model) View() string {
 
 	switch m.ActiveTab {
 	case tabJobs:
-		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
-		scr.WriteString(GenCountStr(m.JobTab.Stats.StateCnt, m.Log))
+		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
+		MainWindow.WriteString(GenCountStr(m.JobTab.Stats.StateCnt, m.Log))
 
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
-			scr.WriteString(m.tabJobs())
-			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+			MainWindow.WriteString(m.tabJobs())
+			MainWindow.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		case m.JobTab.MenuOn:
 			// TODO: Render menu here
-			scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.MenuBoxStyle.Render(m.JobTab.Menu.View())))
-			//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), m.JobTab.Menu.View()))
+			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.MenuBoxStyle.Render(m.JobTab.Menu.View())))
+			//MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), m.JobTab.Menu.View()))
 			m.Log.Printf("\nITEMS LIST: %#v\n", m.JobTab.Menu.Items())
 		case m.JobTab.InfoOn:
-			//scr.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.JobInfoBox.Render(m.getJobInfo())))
-			scr.WriteString(m.tabJobs() + "\n")
-			scr.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
+			//MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.JobInfoBox.Render(m.getJobInfo())))
+			MainWindow.WriteString(m.tabJobs() + "\n")
+			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
 		default:
-			scr.WriteString(m.tabJobs())
+			MainWindow.WriteString(m.tabJobs())
 		}
 	case tabJobHist:
-		//scr.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n\n")
-		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
-		scr.WriteString(GenCountStr(m.JobHistTab.Stats.StateCnt, m.Log))
-		scr.WriteString(fmt.Sprintf("AvgWait: %s MedianWait: %s MinWait: %s Maxwait: %s\n", m.JobHistTab.Stats.AvgWait.String(), m.JobHistTab.MedWait.String(), m.JobHistTab.MinWait.String(), m.JobHistTab.MaxWait.String()))
+		//MainWindow.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n\n")
+		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
+		MainWindow.WriteString(GenCountStr(m.JobHistTab.Stats.StateCnt, m.Log))
+		MainWindow.WriteString(fmt.Sprintf("AvgWait: %s MedianWait: %s MinWait: %s Maxwait: %s\n", m.JobHistTab.Stats.AvgWait.String(), m.JobHistTab.MedWait.String(), m.JobHistTab.MinWait.String(), m.JobHistTab.MaxWait.String()))
 
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
-			scr.WriteString(m.tabJobHist())
-			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobHistTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+			MainWindow.WriteString(m.tabJobHist())
+			MainWindow.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobHistTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		default:
-			scr.WriteString(m.tabJobHist())
+			MainWindow.WriteString(m.tabJobHist())
 		}
 	case tabJobDetails:
-		scr.WriteString(m.tabJobDetails())
+		MainWindow.WriteString(m.tabJobDetails())
 	case tabJobFromTemplate:
-		scr.WriteString(m.tabJobFromTemplate())
+		MainWindow.WriteString(m.tabJobFromTemplate())
 	case tabCluster:
-		//scr.WriteString("Filter: " + m.JobClusterTab.Filter.Value() + "\n\n")
-		scr.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobClusterTab.Filter.Value(), len(m.JobClusterTab.SinfoFiltered.Nodes)))
-		scr.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))
+		//MainWindow.WriteString("Filter: " + m.JobClusterTab.Filter.Value() + "\n\n")
+		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobClusterTab.Filter.Value(), len(m.JobClusterTab.SinfoFiltered.Nodes)))
+		MainWindow.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
-			scr.WriteString(m.tabCluster())
-			scr.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobClusterTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+			MainWindow.WriteString(m.tabCluster())
+			MainWindow.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobClusterTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		default:
-			scr.WriteString(m.tabCluster())
+			MainWindow.WriteString(m.tabCluster())
 		}
 	case tabAbout:
-		scr.WriteString(m.tabAbout())
+		//MainWindow.WriteString(m.tabAbout())
+		MainWindow.WriteString(m.tabAbout())
 	}
 
 	// FOOTER
-	scr.WriteString("\n")
+	MainWindow.WriteString("\n")
 	// Debug information:
 	//if m.Globals.Debug {
 	//	scr.WriteString("DEBUG:\n")
@@ -407,7 +413,11 @@ func (m Model) View() string {
 	//}
 
 	// TODO: Help doesn't split into multiple lines (e.g. when window too narrow)
-	scr.WriteString(m.Help.View(keybindings.DefaultKeyMap))
+	//scr.WriteString(m.Help.View(keybindings.DefaultKeyMap))
+
+	//scr.WriteString(styles.MainWindow.Render(MainWindow.String()))
+	//scr.WriteString(styles.HelpWindow.Render(m.Help.View(keybindings.DefaultKeyMap)))
+	scr.WriteString(lipgloss.JoinVertical(lipgloss.Left, styles.MainWindow.Render(MainWindow.String()), styles.HelpWindow.Render(m.Help.View(keybindings.DefaultKeyMap))))
 
 	return scr.String()
 }
