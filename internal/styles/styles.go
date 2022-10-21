@@ -12,11 +12,6 @@ var (
 	// Red
 	red = lipgloss.Color("#ff0000")
 
-	//JobInfoBox   = lipgloss.NewStyle().Padding(1, 1).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
-	JobInfoBox = lipgloss.NewStyle().BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
-	//JobInfoInBox = lipgloss.NewStyle().Padding(1, 1).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue)
-	JobInfoInBox = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue)
-
 	Tab = lipgloss.NewStyle().
 		Border(TabTabBorder, true).
 		BorderForeground(TabColor).
@@ -62,8 +57,20 @@ var (
 	MenuNormalDesc    = lipgloss.NewStyle().Foreground(yellow).Background(blue)
 	MenuSelectedDesc  = lipgloss.NewStyle().Foreground(yellow)
 
+	// Main Window area
+	//MainWindow = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue).MaxHeight(80)
+	MainWindow = lipgloss.NewStyle().MaxHeight(80)
+	HelpWindow = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(yellow).Height(2).MaxHeight(4)
+	NotFound   = lipgloss.NewStyle().Foreground(red)
+
+	// JobQueue tab, infobox
+	//JobInfoBox   = lipgloss.NewStyle().Padding(1, 1).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
+	//JobInfoBox = lipgloss.NewStyle().BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
+	JobInfoBox = lipgloss.NewStyle()
+	//JobInfoInBox = lipgloss.NewStyle().Padding(1, 1).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue)
+	JobInfoInBox       = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue).MaxHeight(7)
+	JobInfoInBottomBox = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue).MaxHeight(7)
+
 	// Job steps
 	JobStepBoxStyle = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue)
-
-	NotFound = lipgloss.NewStyle().Foreground(red)
 )

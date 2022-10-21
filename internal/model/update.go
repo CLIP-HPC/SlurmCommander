@@ -15,6 +15,7 @@ import (
 	"github.com/pja237/slurmcommander/internal/model/tabs/jobfromtemplate"
 	"github.com/pja237/slurmcommander/internal/model/tabs/jobtab"
 	"github.com/pja237/slurmcommander/internal/slurm"
+	"github.com/pja237/slurmcommander/internal/styles"
 )
 
 type errMsg error
@@ -270,6 +271,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.winW = msg.Width
 		m.winH = msg.Height
+		// TODO: set also maxheight/width here on change?
+		styles.MainWindow = styles.MainWindow.Height(m.winH - 10)
+		styles.MainWindow = styles.MainWindow.Width(m.winW - 15)
+		styles.HelpWindow = styles.HelpWindow.Width(m.winW - 15)
+		styles.JobStepBoxStyle = styles.JobStepBoxStyle.Width(m.winW - 20)
+		// InfoBox
+		w := ((m.Globals.winW - 25) / 3) * 3
+		styles.JobInfoInBox = styles.JobInfoInBox.Width(w / 3).Height(5)
+		styles.JobInfoInBottomBox = styles.JobInfoInBottomBox.Width(w + 4).Height(5)
+		//s = styles.JobInfoInBox.Copy().Width(w + 4)
+
 		m.Log.Printf("Update: got WindowSizeMsg: %d %d\n", msg.Width, msg.Height)
 		// Tabs :  3
 		// Header  3

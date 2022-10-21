@@ -5,14 +5,20 @@ import (
 	"time"
 )
 
+// Return med,min,max
 func Median(s []time.Duration) (time.Duration, time.Duration, time.Duration) {
 	var ret time.Duration
 
-	if len(s) == 0 {
+	n := len(s)
+	switch n {
+	case 0:
 		return 0, 0, 0
+	case 1:
+		return s[0], s[0], s[0]
 	}
 
-	n := len(s)
+	n -= 1
+
 	sort.Slice(s, func(i, j int) bool {
 		if s[i] < s[j] {
 			return true
