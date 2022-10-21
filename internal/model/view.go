@@ -72,7 +72,7 @@ func (m Model) tabJobDetails() (scr string) {
 
 	}
 
-	width := m.Globals.winW - 10
+	//width := m.Globals.winW - 10
 	job := m.SacctSingleJobHist.Jobs[0]
 
 	m.Log.Printf("Job Details req %#v ,got: %#v\n", m.JobDetailsTab.SelJobID, job.JobId)
@@ -97,7 +97,8 @@ func (m Model) tabJobDetails() (scr string) {
 	head += fmt.Sprintf(fmtStr, "Priority", strconv.Itoa(*job.Priority))
 	head += fmt.Sprintf(fmtStr, "QoS", *job.Qos)
 
-	scr += styles.JobStepBoxStyle.Width(width).Render(head)
+	//scr += styles.JobStepBoxStyle.Width(width).Render(head)
+	scr += styles.JobStepBoxStyle.Render(head)
 	scr += fmt.Sprintf("\n Steps count: %d", len(*job.Steps))
 
 	steps := ""
@@ -116,7 +117,10 @@ func (m Model) tabJobDetails() (scr string) {
 		}
 		step += fmt.Sprintf(fmtStr, "Tasks", strconv.Itoa(*v.Tasks.Count))
 		//steps += lipgloss.JoinVertical(lipgloss.Bottom, steps, styles.JobStepBoxStyle.Width(m.Globals.winW-10).Render(step))
-		steps += "\n" + styles.JobStepBoxStyle.Width(width).Render(step)
+		//
+		//steps += "\n" + styles.JobStepBoxStyle.Width(width).Render(step)
+		steps += "\n" + styles.JobStepBoxStyle.Render(step)
+		//
 		//m.Log.Printf("Step %d, VALUE: %q", i, steps)
 		//m.Log.Printf("================================================================================\n")
 	}
@@ -267,12 +271,12 @@ func (m Model) getJobInfo() string {
 	infoBoxWide += fmt.Sprintf(fmtStrLast, "Working Dir", *m.JobTab.SqueueFiltered.Jobs[n].CurrentWorkingDirectory)
 
 	// 8 for borders (~10 extra)
-	w := ((m.Globals.winW - 10) / 3) * 3
-	s := styles.JobInfoInBox.Copy().Width(w / 3).Height(5)
-	//top := lipgloss.JoinHorizontal(lipgloss.Top, styles.JobInfoInBox.Render(infoBoxLeft), styles.JobInfoInBox.Render(infoBoxMiddle), styles.JobInfoInBox.Render(infoBoxRight))
-	top := lipgloss.JoinHorizontal(lipgloss.Top, s.Render(infoBoxLeft), s.Render(infoBoxMiddle), s.Render(infoBoxRight))
-	s = styles.JobInfoInBox.Copy().Width(w + 4)
-	scr.WriteString(lipgloss.JoinVertical(lipgloss.Left, top, s.Render(infoBoxWide)))
+	//w := ((m.Globals.winW - 10) / 3) * 3
+	//s := styles.JobInfoInBox.Copy().Width(w / 3).Height(5)
+	////top := lipgloss.JoinHorizontal(lipgloss.Top, styles.JobInfoInBox.Render(infoBoxLeft), styles.JobInfoInBox.Render(infoBoxMiddle), styles.JobInfoInBox.Render(infoBoxRight))
+	top := lipgloss.JoinHorizontal(lipgloss.Top, styles.JobInfoInBox.Render(infoBoxLeft), styles.JobInfoInBox.Render(infoBoxMiddle), styles.JobInfoInBox.Render(infoBoxRight))
+	//s = styles.JobInfoInBox.Copy().Width(w + 4)
+	scr.WriteString(lipgloss.JoinVertical(lipgloss.Left, top, styles.JobInfoInBottomBox.Render(infoBoxWide)))
 
 	//return infoBox
 	return scr.String()
@@ -402,7 +406,7 @@ func (m Model) View() string {
 	}
 
 	// FOOTER
-	MainWindow.WriteString("\n")
+	//MainWindow.WriteString("\n")
 	// Debug information:
 	//if m.Globals.Debug {
 	//	scr.WriteString("DEBUG:\n")
