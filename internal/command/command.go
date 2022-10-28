@@ -272,7 +272,7 @@ func CallScontrolHold(jobid string, l *log.Logger) tea.Cmd {
 			Jobid: jobid,
 		}
 
-		cmd := cc.Binpaths["shold"]
+		cmd := cc.Binpaths["scontrol"]
 		switches := append(sholdJobCmdSwitches, jobid)
 
 		l.Printf("EXEC: %q %q\n", cmd, switches)
@@ -303,7 +303,9 @@ func CallScontrolRequeue(jobid string, l *log.Logger) tea.Cmd {
 		l.Printf("EXEC: %q %q\n", cmd, switches)
 		out, err := exec.Command(cmd, switches...).CombinedOutput()
 		if err != nil {
-			l.Fatalf("Error exec requeue: %q\n", err)
+			//l.Fatalf("Error exec requeue: %q\n", err)
+			l.Printf("Error exec requeue: %q\n", err)
+			l.Printf("Possible Reason: requeue can only be executed for batch jobs (e.g. won't work on srun --pty)\n")
 		}
 		l.Printf("EXEC output: %q\n", out)
 
