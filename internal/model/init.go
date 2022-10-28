@@ -2,8 +2,8 @@ package model
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pja237/slurmcommander/internal/command"
-	"github.com/pja237/slurmcommander/internal/model/tabs/jobfromtemplate"
+	"github.com/pja237/slurmcommander-dev/internal/command"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobfromtemplate"
 )
 
 func (m Model) Init() tea.Cmd {

@@ -4,12 +4,13 @@ import (
 	"log"
 
 	"github.com/charmbracelet/bubbles/help"
-	"github.com/pja237/slurmcommander/internal/model/tabs/abouttab"
-	"github.com/pja237/slurmcommander/internal/model/tabs/clustertab"
-	"github.com/pja237/slurmcommander/internal/model/tabs/jobdetailstab"
-	"github.com/pja237/slurmcommander/internal/model/tabs/jobfromtemplate"
-	"github.com/pja237/slurmcommander/internal/model/tabs/jobhisttab"
-	"github.com/pja237/slurmcommander/internal/model/tabs/jobtab"
+	"github.com/pja237/slurmcommander-dev/internal/config"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/abouttab"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/clustertab"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobdetailstab"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobfromtemplate"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobhisttab"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
 )
 
 const (
@@ -68,6 +69,7 @@ type Globals struct {
 	FilterSwitch
 	UserName  string
 	UAccounts []string
+	config.ConfigContainer
 }
 
 // FilterSwitch == -1 if filter is off.

@@ -8,8 +8,8 @@ import (
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/pja237/slurmcommander/internal/keybindings"
-	"github.com/pja237/slurmcommander/internal/slurm"
+	"github.com/pja237/slurmcommander-dev/internal/keybindings"
+	"github.com/pja237/slurmcommander-dev/internal/slurm"
 )
 
 type JobClusterTab struct {

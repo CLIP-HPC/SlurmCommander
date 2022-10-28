@@ -2,8 +2,8 @@ package jobdetailstab
 
 import (
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/pja237/slurmcommander/internal/keybindings"
-	"github.com/pja237/slurmcommander/internal/slurm"
+	"github.com/pja237/slurmcommander-dev/internal/keybindings"
+	"github.com/pja237/slurmcommander-dev/internal/slurm"
 )
 
 type JobDetailsTab struct {

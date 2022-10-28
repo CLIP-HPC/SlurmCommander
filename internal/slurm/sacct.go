@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/table"
-	"github.com/pja237/slurmcommander/internal/openapidb"
+	"github.com/pja237/slurmcommander-dev/internal/openapidb"
 )
 
 type SacctList []SacctEntry

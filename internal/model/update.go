@@ -10,12 +10,12 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pja237/slurmcommander/internal/command"
-	"github.com/pja237/slurmcommander/internal/keybindings"
-	"github.com/pja237/slurmcommander/internal/model/tabs/jobfromtemplate"
-	"github.com/pja237/slurmcommander/internal/model/tabs/jobtab"
-	"github.com/pja237/slurmcommander/internal/slurm"
-	"github.com/pja237/slurmcommander/internal/styles"
+	"github.com/pja237/slurmcommander-dev/internal/command"
+	"github.com/pja237/slurmcommander-dev/internal/keybindings"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobfromtemplate"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
+	"github.com/pja237/slurmcommander-dev/internal/slurm"
+	"github.com/pja237/slurmcommander-dev/internal/styles"
 )
 
 type errMsg error

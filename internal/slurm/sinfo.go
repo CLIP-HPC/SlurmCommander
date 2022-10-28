@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/table"
-	"github.com/pja237/slurmcommander/internal/openapi"
+	"github.com/pja237/slurmcommander-dev/internal/openapi"
 )
 
 type SinfoJSON struct {

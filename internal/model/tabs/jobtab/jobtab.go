@@ -8,10 +8,10 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pja237/slurmcommander/internal/command"
-	"github.com/pja237/slurmcommander/internal/keybindings"
-	"github.com/pja237/slurmcommander/internal/slurm"
-	"github.com/pja237/slurmcommander/internal/styles"
+	"github.com/pja237/slurmcommander-dev/internal/command"
+	"github.com/pja237/slurmcommander-dev/internal/keybindings"
+	"github.com/pja237/slurmcommander-dev/internal/slurm"
+	"github.com/pja237/slurmcommander-dev/internal/styles"
 )
 
 type JobTab struct {
