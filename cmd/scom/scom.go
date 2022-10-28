@@ -10,14 +10,17 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/pja237/slurmcommander/internal/command"
-	"github.com/pja237/slurmcommander/internal/logger"
-	"github.com/pja237/slurmcommander/internal/model"
-	"github.com/pja237/slurmcommander/internal/model/tabs/clustertab"
-	"github.com/pja237/slurmcommander/internal/model/tabs/jobfromtemplate"
-	"github.com/pja237/slurmcommander/internal/model/tabs/jobhisttab"
-	"github.com/pja237/slurmcommander/internal/model/tabs/jobtab"
-	"github.com/pja237/slurmcommander/internal/slurm"
+	"github.com/pja237/slurmcommander-dev/internal/cmdline"
+	"github.com/pja237/slurmcommander-dev/internal/command"
+	"github.com/pja237/slurmcommander-dev/internal/config"
+	"github.com/pja237/slurmcommander-dev/internal/logger"
+	"github.com/pja237/slurmcommander-dev/internal/model"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/clustertab"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobfromtemplate"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobhisttab"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
+	"github.com/pja237/slurmcommander-dev/internal/slurm"
+	"github.com/pja237/slurmcommander-dev/internal/version"
 )
 
 func main() {
@@ -28,6 +31,24 @@ func main() {
 	)
 
 	fmt.Println("Welcome to Slurm Commander!")
+
+	args, err := cmdline.NewCmdArgs()
+	if err != nil {
+		log.Fatalf("ERROR: parsing cmdline args: %s\n", err)
+	}
+
+	if *args.Version {
+		version.DumpVersion()
+		os.Exit(0)
+	}
+
+	cc := config.NewConfigContainer()
+	err = cc.GetConfig()
+	if err != nil {
+		log.Printf("WARRNING: parsing config file: %s\n", err)
+	}
+
+	log.Printf("INFO: %s\n", cc.DumpConfig())
 
 	// TODO: move all this away to view somewhere...
 	s := table.DefaultStyles()
@@ -61,11 +82,12 @@ func main() {
 
 	m := model.Model{
 		Globals: model.Globals{
-			Help:         help.New(),
-			ActiveTab:    0,
-			Log:          l,
-			FilterSwitch: -1,
-			Debug:        debugSet,
+			Help:            help.New(),
+			ActiveTab:       0,
+			Log:             l,
+			FilterSwitch:    -1,
+			Debug:           debugSet,
+			ConfigContainer: *cc,
 		},
 		JobTab: jobtab.JobTab{
 			SqueueTable: table.New(table.WithColumns(slurm.SqueueTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),

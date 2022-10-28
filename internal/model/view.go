@@ -10,8 +10,9 @@ import (
 
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/pja237/slurmcommander/internal/keybindings"
-	"github.com/pja237/slurmcommander/internal/styles"
+	"github.com/pja237/slurmcommander-dev/internal/keybindings"
+	"github.com/pja237/slurmcommander-dev/internal/styles"
+	"github.com/pja237/slurmcommander-dev/internal/version"
 )
 
 // genTabs() generates top tabs
@@ -213,9 +214,14 @@ func (m Model) tabCluster() string {
 
 func (m Model) tabAbout() string {
 
-	s := `
+	s := "Version: " + version.BuildVersion + "\n"
+	s += "Commit : " + version.BuildCommit + "\n"
+
+	s += `
 petar.jager@imba.oeaw.ac.at
-CLIP-HPC Team @ VBC`
+CLIP-HPC Team @ VBC
+
+`
 
 	//st := styles.MainWindow.Copy().Height(m.Globals.winH - 10)
 

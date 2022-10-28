@@ -11,7 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pja237/slurmcommander/internal/keybindings"
+	"github.com/pja237/slurmcommander-dev/internal/keybindings"
 )
 
 type JobFromTemplateTab struct {
@@ -103,7 +103,7 @@ type TemplatesListRows []table.Row
 
 var (
 	DefaultTemplatePaths = []string{
-		"/etc/slurmcommander/templates",
+		"/etc/slurmcommander-dev/templates",
 	}
 )
 

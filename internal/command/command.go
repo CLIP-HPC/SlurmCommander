@@ -11,7 +11,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pja237/slurmcommander/internal/slurm"
+	"github.com/pja237/slurmcommander-dev/internal/slurm"
 )
 
 // UserName is a linux username string.

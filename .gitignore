@@ -5,3 +5,4 @@ scripts/**
 /scom
 *.sbatch
 tmp/**
+build/**
