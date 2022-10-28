@@ -15,7 +15,8 @@ import (
 )
 
 type ConfigContainer struct {
-	Binpaths map[string]string `json:"binpaths"`
+	Prefix   string            // if this is set, then we prepend this path to all commands
+	Binpaths map[string]string `json:"binpaths"` // else, we specify one by one
 }
 
 func NewConfigContainer() *ConfigContainer {
@@ -67,15 +68,24 @@ func (cc *ConfigContainer) testNsetBinPaths() error {
 
 	// default paths
 	defaultpaths := map[string]string{
-		"sacct":  "/bin/sacct",
-		"sstat":  "/bin/sstat",
-		"sinfo":  "/bin/sinfo",
-		"squeue": "/bin/squeue",
+		"sacct":    "/bin/sacct",
+		"sstat":    "/bin/sstat",
+		"sinfo":    "/bin/sinfo",
+		"squeue":   "/bin/squeue",
+		"sbatch":   "/bin/sbatch",
+		"scancel":  "/bin/scancel",
+		"scontrol": "/bin/scontrol",
+		"sacctmgr": "/bin/sacctmgr",
 	}
 
 	for key, path := range defaultpaths {
 		if val, exists := cc.Binpaths[key]; !exists || val == "" {
-			cc.Binpaths[key] = path
+			if cc.Prefix != "" {
+				// prefix is set, prepend it
+				cc.Binpaths[key] = cc.Prefix + "/" + key
+			} else {
+				cc.Binpaths[key] = path
+			}
 		}
 	}
 

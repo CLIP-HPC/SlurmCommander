@@ -11,8 +11,18 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/pja237/slurmcommander-dev/internal/config"
 	"github.com/pja237/slurmcommander-dev/internal/slurm"
 )
+
+var cc config.ConfigContainer
+
+// NewCmdCC sets the package variable ConfigContainer to the values from config files/defaults.
+// To be used in the package locally without being passed around.
+// Not the smartest choice, consider refactoring later.
+func NewCmdCC(config config.ConfigContainer) {
+	cc = config
+}
 
 // UserName is a linux username string.
 type UserName string
@@ -46,11 +56,13 @@ func GetUserAssoc(u string, l *log.Logger) tea.Cmd {
 			sw []string
 		)
 
+		cmd := cc.Binpaths["sacctmgr"]
 		sw = append(sw, sacctmgrCmdSwitches...)
 		sw = append(sw, "user="+u)
-		c := exec.Command(sacctmgrCmd, sw...)
+		//c := exec.Command(sacctmgrCmd, sw...)
+		c := exec.Command(cmd, sw...)
 
-		l.Printf("GetUserAssoc about to run: %v %v\n", sacctmgrCmd, sw)
+		l.Printf("GetUserAssoc about to run: %v %v\n", cmd, sw)
 		stdOut, err := c.StdoutPipe()
 		if err != nil {
 			l.Fatalf("StdoutPipe call FAILED with %s\n", err)
@@ -76,9 +88,10 @@ func GetUserAssoc(u string, l *log.Logger) tea.Cmd {
 func GetSinfo(t time.Time) tea.Msg {
 	var siJson slurm.SinfoJSON
 
-	out, err := exec.Command(sinfoCmd, sinfoCmdSwitches...).CombinedOutput()
+	cmd := cc.Binpaths["sinfo"]
+	out, err := exec.Command(cmd, sinfoCmdSwitches...).CombinedOutput()
 	if err != nil {
-		log.Fatalf("Error exec sinfo: %q\n", err)
+		log.Fatalf("Error exec sinfo: %s : %q\n", cmd, err)
 	}
 
 	err = json.Unmarshal(out, &siJson)
@@ -105,9 +118,10 @@ func GetSqueue(t time.Time) tea.Msg {
 
 	var sqJson slurm.SqueueJSON
 
-	out, err := exec.Command(squeueCmd, squeueCmdSwitches...).CombinedOutput()
+	cmd := cc.Binpaths["squeue"]
+	out, err := exec.Command(cmd, squeueCmdSwitches...).CombinedOutput()
 	if err != nil {
-		log.Fatalf("Error exec squeue: %q\n", err)
+		log.Fatalf("Error exec squeue: %s : %q\n", cmd, err)
 	}
 
 	err = json.Unmarshal(out, &sqJson)
@@ -142,9 +156,10 @@ func GetSacct(t time.Time) tea.Msg {
 	}
 
 	// run sacct to get list of last 7 days
-	out, err := exec.Command(sacctCmd, sacctCmdSwitches...).CombinedOutput()
+	cmd := cc.Binpaths["sacct"]
+	out, err := exec.Command(cmd, sacctCmdSwitches...).CombinedOutput()
 	if err != nil {
-		log.Fatalf("Error exec sacct: %q\n", err)
+		log.Fatalf("Error exec sacct: %s : %q\n", cmd, err)
 	}
 
 	// split output into lines
@@ -178,9 +193,10 @@ func GetSacctHist(uaccs string, l *log.Logger) tea.Cmd {
 		)
 
 		l.Printf("GetSacctHist(%q) start\n", uaccs)
+		cmd := cc.Binpaths["sacct"]
 		sw = append(sacctHistCmdSwitches, "-A", uaccs)
-		l.Printf("EXEC: %q %q\n", sacctHistCmd, sw)
-		out, err := exec.Command(sacctHistCmd, sw...).CombinedOutput()
+		l.Printf("EXEC: %q %q\n", cmd, sw)
+		out, err := exec.Command(cmd, sw...).CombinedOutput()
 		l.Printf("EXEC returned: %d bytes\n", len(out))
 		if err != nil {
 			l.Fatalf("Error exec sacct: %q\n", err)
@@ -202,9 +218,10 @@ func SingleJobGetSacct(jobid string, l *log.Logger) tea.Cmd {
 		var sacctJob slurm.SacctSingleJobHist
 
 		l.Printf("SingleJobGetSacct start.\n")
+		cmd := cc.Binpaths["sacct"]
 		switches := append(sacctJobCmdSwitches, jobid)
-		out, err := exec.Command(sacctJobCmd, switches...).CombinedOutput()
-		l.Printf("SingleJobGetSacct EXEC: %q %q\n", sacctJobCmd, switches)
+		out, err := exec.Command(cmd, switches...).CombinedOutput()
+		l.Printf("SingleJobGetSacct EXEC: %q %q\n", cmd, switches)
 		if err != nil {
 			log.Fatalf("Error exec sacct: %q\n", err)
 		}
@@ -230,10 +247,12 @@ func CallScancel(jobid string, l *log.Logger) tea.Cmd {
 		var scret ScancelSent = ScancelSent{
 			Jobid: jobid,
 		}
+
+		cmd := cc.Binpaths["scancel"]
 		switches := append(scancelJobCmdSwitches, jobid)
 
-		l.Printf("EXEC: %q %q\n", scancelJobCmd, switches)
-		out, err := exec.Command(scancelJobCmd, switches...).CombinedOutput()
+		l.Printf("EXEC: %q %q\n", cmd, switches)
+		out, err := exec.Command(cmd, switches...).CombinedOutput()
 		if err != nil {
 			l.Fatalf("Error exec scancel: %q\n", err)
 		}
@@ -252,10 +271,12 @@ func CallScontrolHold(jobid string, l *log.Logger) tea.Cmd {
 		var scret SHoldSent = SHoldSent{
 			Jobid: jobid,
 		}
+
+		cmd := cc.Binpaths["shold"]
 		switches := append(sholdJobCmdSwitches, jobid)
 
-		l.Printf("EXEC: %q %q\n", sholdJobCmd, switches)
-		out, err := exec.Command(sholdJobCmd, switches...).CombinedOutput()
+		l.Printf("EXEC: %q %q\n", cmd, switches)
+		out, err := exec.Command(cmd, switches...).CombinedOutput()
 		if err != nil {
 			l.Fatalf("Error exec hold: %q\n", err)
 		}
@@ -275,10 +296,12 @@ func CallScontrolRequeue(jobid string, l *log.Logger) tea.Cmd {
 		var scret SRequeueSent = SRequeueSent{
 			Jobid: jobid,
 		}
+
+		cmd := cc.Binpaths["scontrol"]
 		switches := append(srequeueJobCmdSwitches, jobid)
 
-		l.Printf("EXEC: %q %q\n", srequeueJobCmd, switches)
-		out, err := exec.Command(srequeueJobCmd, switches...).CombinedOutput()
+		l.Printf("EXEC: %q %q\n", cmd, switches)
+		out, err := exec.Command(cmd, switches...).CombinedOutput()
 		if err != nil {
 			l.Fatalf("Error exec requeue: %q\n", err)
 		}
@@ -298,10 +321,12 @@ func CallSbatch(jobfile string, l *log.Logger) tea.Cmd {
 		var scret SBatchSent = SBatchSent{
 			JobFile: jobfile,
 		}
+
+		cmd := cc.Binpaths["sbatch"]
 		switches := append(sbatchCmdSwitches, jobfile)
 
-		l.Printf("EXEC: %q %q\n", sbatchCmd, switches)
-		out, err := exec.Command(sbatchCmd, switches...).CombinedOutput()
+		l.Printf("EXEC: %q %q\n", cmd, switches)
+		out, err := exec.Command(cmd, switches...).CombinedOutput()
 		if err != nil {
 			l.Fatalf("Error exec sbatch: %q\n", err)
 		}

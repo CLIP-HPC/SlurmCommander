@@ -11,7 +11,6 @@ type CmdArgs struct {
 }
 
 // NewCmdArgs return the CmdArgs structure built from command line parameters.
-// `prog` string is used to build the default /etc/slurm/`prog`.conf configFile string.
 func NewCmdArgs() (*CmdArgs, error) {
 	c := new(CmdArgs)
 

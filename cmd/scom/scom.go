@@ -26,7 +26,6 @@ import (
 func main() {
 
 	var (
-		logf     *os.File
 		debugSet bool = false
 	)
 
@@ -49,6 +48,7 @@ func main() {
 	}
 
 	log.Printf("INFO: %s\n", cc.DumpConfig())
+	command.NewCmdCC(*cc)
 
 	// TODO: move all this away to view somewhere...
 	s := table.DefaultStyles()
@@ -112,12 +112,9 @@ func main() {
 		},
 	}
 
-	logf.WriteString("Starting program.\n")
-	logf.WriteString("Build tag: " + command.Tag + "\n")
 	//m.SqTable.SetStyles(s)
 	p := tea.NewProgram(tea.Model(m), tea.WithAltScreen())
 	if err := p.Start(); err != nil {
 		log.Fatalf("ERROR: starting tea program: %q\n", err)
 	}
-	logf.WriteString("Good bye!\n")
 }
