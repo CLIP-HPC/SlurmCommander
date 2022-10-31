@@ -395,21 +395,48 @@ func (m Model) JobClusterTabStats() string {
 	return str
 }
 
+func HumanizeDuration(t time.Duration, l *log.Logger) string {
+	var ret string
+
+	l.Printf("Humanizing %f seconds to:\n", t.Seconds())
+	// total seconds
+	s := int64(t.Seconds())
+
+	// days
+	l.Printf("seconds: %d\n", s)
+	d := s / (24 * 60 * 60)
+	s = s % (24 * 60 * 60)
+	l.Printf("seconds: %d\n", s)
+
+	// hours
+	h := s / 3600
+	s = s % 3600
+	l.Printf("seconds: %d\n", s)
+
+	// minutes
+	m := s / 60
+	s = s % 60
+	l.Printf("seconds: %d\n", s)
+
+	ret += fmt.Sprintf("%.2d-%.2d:%.2d:%.2d", d, h, m, s)
+
+	l.Printf("Humanized %q\n", ret)
+	return ret
+}
+
 func (m Model) JobHistTabStats() string {
 
 	m.Log.Printf("JobHistTabStats called\n")
 
 	str := "History statistics (filtered):\n\n"
-	// TODO: make it sorted
 	str += GenCountStrVert(m.JobHistTab.Stats.StateCnt, m.Log)
-	//for k, v := range m.JobTab.Stats.StateCnt {
-	//	str += fmt.Sprintf("%-10s : %d\n", k, v)
-	//}
+
 	str += "Waiting times:\n\n"
-	str += fmt.Sprintf("%-10s : %s\n", "MinWait", m.JobHistTab.Stats.MinWait.String())
-	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", m.JobHistTab.Stats.AvgWait.String())
-	str += fmt.Sprintf("%-10s : %s\n", "MedWait", m.JobHistTab.Stats.MedWait.String())
-	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", m.JobHistTab.Stats.MaxWait.String())
+	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
+	str += fmt.Sprintf("%-10s : %s\n", "MinWait", HumanizeDuration(m.JobHistTab.Stats.MinWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", HumanizeDuration(m.JobHistTab.Stats.AvgWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MedWait", HumanizeDuration(m.JobHistTab.Stats.MedWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", HumanizeDuration(m.JobHistTab.Stats.MaxWait, m.Log))
 
 	return str
 }
@@ -425,16 +452,18 @@ func (m Model) JobTabStats() string {
 	//	str += fmt.Sprintf("%-10s : %d\n", k, v)
 	//}
 	str += "Pending Jobs:\n\n"
-	str += fmt.Sprintf("%-10s : %s\n", "MinWait", m.JobTab.Stats.MinWait.String())
-	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", m.JobTab.Stats.AvgWait.String())
-	str += fmt.Sprintf("%-10s : %s\n", "MedWait", m.JobTab.Stats.MedWait.String())
-	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", m.JobTab.Stats.MaxWait.String())
+	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
+	str += fmt.Sprintf("%-10s : %s\n", "MinWait", HumanizeDuration(m.JobTab.Stats.MinWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", HumanizeDuration(m.JobTab.Stats.AvgWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MedWait", HumanizeDuration(m.JobTab.Stats.MedWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", HumanizeDuration(m.JobTab.Stats.MaxWait, m.Log))
 
 	str += "\nRunning Jobs:\n\n"
-	str += fmt.Sprintf("%-10s : %s\n", "MinRun", m.JobTab.Stats.MinRun.String())
-	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", m.JobTab.Stats.AvgRun.String())
-	str += fmt.Sprintf("%-10s : %s\n", "MedRun", m.JobTab.Stats.MedRun.String())
-	str += fmt.Sprintf("%-10s : %s\n", "MaxRun", m.JobTab.Stats.MaxRun.String())
+	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
+	str += fmt.Sprintf("%-10s : %s\n", "MinRun", HumanizeDuration(m.JobTab.Stats.MinRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", HumanizeDuration(m.JobTab.Stats.AvgRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MedRun", HumanizeDuration(m.JobTab.Stats.MedRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MaxRun", HumanizeDuration(m.JobTab.Stats.MaxRun, m.Log))
 
 	return str
 }
