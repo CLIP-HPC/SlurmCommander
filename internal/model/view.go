@@ -387,13 +387,23 @@ func (m Model) JobTabStats() string {
 
 	m.Log.Printf("JobTabStats called\n")
 
-	str := "Queue statistics (filtered):\n"
+	str := "Queue statistics (filtered):\n\n"
 	// TODO: make it sorted
 	str += GenCountStrVert(m.JobTab.Stats.StateCnt, m.Log)
 	//for k, v := range m.JobTab.Stats.StateCnt {
 	//	str += fmt.Sprintf("%-10s : %d\n", k, v)
-
 	//}
+	str += "Pending Jobs:\n\n"
+	str += fmt.Sprintf("%-10s : %s\n", "MinWait", m.JobTab.Stats.MinWait.String())
+	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", m.JobTab.Stats.AvgWait.String())
+	str += fmt.Sprintf("%-10s : %s\n", "MedWait", m.JobTab.Stats.MedWait.String())
+	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", m.JobTab.Stats.MaxWait.String())
+
+	str += "\nRunning Jobs:\n\n"
+	str += fmt.Sprintf("%-10s : %s\n", "MinRun", m.JobTab.Stats.MinRun.String())
+	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", m.JobTab.Stats.AvgRun.String())
+	str += fmt.Sprintf("%-10s : %s\n", "MedRun", m.JobTab.Stats.MedRun.String())
+	str += fmt.Sprintf("%-10s : %s\n", "MaxRun", m.JobTab.Stats.MaxRun.String())
 
 	return str
 }
