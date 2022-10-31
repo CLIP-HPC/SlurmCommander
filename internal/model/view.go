@@ -376,18 +376,30 @@ func GenCountStrVert(cnt map[string]uint, l *log.Logger) string {
 	// print it out
 	//scr = "Count: "
 	for _, v := range sm {
-		scr += fmt.Sprintf("%-10s: %d\n", v.name, v.val)
+		scr += fmt.Sprintf("%-15s: %d\n", v.name, v.val)
 	}
 	scr += "\n\n"
 
 	return scr
 }
 
+func (m Model) JobClusterTabStats() string {
+
+	m.Log.Printf("JobClusterTabStats called\n")
+
+	str := "Nodes state statistics (filtered):\n\n"
+
+	//str += GenCountStrVert(m.JobClusterTab.Stats.StateCnt, m.Log)
+	str += GenCountStrVert(m.JobClusterTab.Stats.StateSimpleCnt, m.Log)
+
+	return str
+}
+
 func (m Model) JobHistTabStats() string {
 
 	m.Log.Printf("JobHistTabStats called\n")
 
-	str := "Queue statistics (filtered):\n\n"
+	str := "History statistics (filtered):\n\n"
 	// TODO: make it sorted
 	str += GenCountStrVert(m.JobHistTab.Stats.StateCnt, m.Log)
 	//for k, v := range m.JobTab.Stats.StateCnt {
@@ -496,15 +508,23 @@ func (m Model) View() string {
 	case tabJobFromTemplate:
 		MainWindow.WriteString(m.tabJobFromTemplate())
 	case tabCluster:
-		//MainWindow.WriteString("Filter: " + m.JobClusterTab.Filter.Value() + "\n\n")
+		// Top Main
 		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobClusterTab.Filter.Value(), len(m.JobClusterTab.SinfoFiltered.Nodes)))
 		MainWindow.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))
+
+		// Mid Main: table || table+stats
 		switch {
-		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
-			MainWindow.WriteString(m.tabCluster())
-			MainWindow.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobClusterTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+		case m.JobClusterTab.StatsOn:
+			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabCluster(), styles.MenuBoxStyle.Render(m.JobClusterTabStats())))
 		default:
 			MainWindow.WriteString(m.tabCluster())
+		}
+
+		// Low Main: nil || filter
+		switch {
+		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
+			// filter
+			MainWindow.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobClusterTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		}
 	case tabAbout:
 		//MainWindow.WriteString(m.tabAbout())
