@@ -49,6 +49,8 @@ var (
 		BorderLeft(false).
 		BorderRight(false)
 
+	StatsSeparatorTitle = lipgloss.NewStyle().Foreground(yellow).Background(blue)
+
 	//MenuTitleStyle    = lipgloss.NewStyle().Background(blue).Foreground(yellow)
 	MenuBoxStyle      = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
 	MenuTitleStyle    = lipgloss.NewStyle().Foreground(yellow)
