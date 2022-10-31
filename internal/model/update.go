@@ -500,6 +500,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Log.Printf("JobTab toggle from: %v\n", m.JobTab.StatsOn)
 				toggleSwitch(&m.JobTab.StatsOn)
 				m.Log.Printf("JobTab toggle to: %v\n", m.JobTab.StatsOn)
+			case tabJobHist:
+				m.Log.Printf("JobHistTab toggle from: %v\n", m.JobHistTab.StatsOn)
+				toggleSwitch(&m.JobHistTab.StatsOn)
+				m.Log.Printf("JobHistTab toggle to: %v\n", m.JobHistTab.StatsOn)
 			}
 			return m, nil
 

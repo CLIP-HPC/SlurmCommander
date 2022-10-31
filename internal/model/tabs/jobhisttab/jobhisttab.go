@@ -21,6 +21,7 @@ type JobHistTab struct {
 }
 
 type Stats struct {
+	StatsOn  bool
 	StateCnt map[string]uint
 	AvgWait  time.Duration
 	MinWait  time.Duration
