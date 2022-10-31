@@ -307,6 +307,7 @@ func genTabHelp(t int) string {
 	return th + "\n\n"
 }
 
+// Generate statistics string, horizontal.
 func GenCountStr(cnt map[string]uint, l *log.Logger) string {
 	var (
 		scr string
@@ -344,6 +345,59 @@ func GenCountStr(cnt map[string]uint, l *log.Logger) string {
 	return scr
 }
 
+// Generate statistics string, vertical.
+func GenCountStrVert(cnt map[string]uint, l *log.Logger) string {
+	var (
+		scr string
+	)
+
+	sm := make([]struct {
+		name string
+		val  uint
+	}, 0)
+
+	// place map to slice
+	for k, v := range cnt {
+		sm = append(sm, struct {
+			name string
+			val  uint
+		}{name: k, val: uint(v)})
+	}
+
+	// sort it
+	sort.Slice(sm, func(i, j int) bool {
+		if sm[i].val > sm[j].val {
+			return true
+		} else {
+			return false
+		}
+	})
+
+	// print it out
+	//scr = "Count: "
+	for _, v := range sm {
+		scr += fmt.Sprintf("%-10s: %d\n", v.name, v.val)
+	}
+	scr += "\n\n"
+
+	return scr
+}
+
+func (m Model) JobTabStats() string {
+
+	m.Log.Printf("JobTabStats called\n")
+
+	str := "Queue statistics (filtered):\n"
+	// TODO: make it sorted
+	str += GenCountStrVert(m.JobTab.Stats.StateCnt, m.Log)
+	//for k, v := range m.JobTab.Stats.StateCnt {
+	//	str += fmt.Sprintf("%-10s : %d\n", k, v)
+
+	//}
+
+	return str
+}
+
 func (m Model) View() string {
 
 	var (
@@ -359,24 +413,29 @@ func (m Model) View() string {
 
 	switch m.ActiveTab {
 	case tabJobs:
+		// Top Main
 		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
 		MainWindow.WriteString(GenCountStr(m.JobTab.Stats.StateCnt, m.Log))
 
+		// Mid Main: table || table+stats || table+menu
 		switch {
-		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
-			MainWindow.WriteString(m.tabJobs())
-			MainWindow.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		case m.JobTab.MenuOn:
 			// TODO: Render menu here
 			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.MenuBoxStyle.Render(m.JobTab.Menu.View())))
 			//MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), m.JobTab.Menu.View()))
 			m.Log.Printf("\nITEMS LIST: %#v\n", m.JobTab.Menu.Items())
-		case m.JobTab.InfoOn:
-			//MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.JobInfoBox.Render(m.getJobInfo())))
-			MainWindow.WriteString(m.tabJobs() + "\n")
-			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
+		case m.JobTab.StatsOn:
+			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.MenuBoxStyle.Render(m.JobTabStats())))
 		default:
 			MainWindow.WriteString(m.tabJobs())
+		}
+
+		// Low Main: nil || info || filter
+		switch {
+		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
+			MainWindow.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+		case m.JobTab.InfoOn:
+			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
 		}
 	case tabJobHist:
 		//MainWindow.WriteString("Filter: " + m.JobHistTab.Filter.Value() + "\n\n")

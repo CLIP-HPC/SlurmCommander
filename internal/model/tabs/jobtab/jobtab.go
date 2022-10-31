@@ -16,6 +16,7 @@ import (
 
 type JobTab struct {
 	InfoOn           bool
+	StatsOn          bool
 	SqueueTable      table.Model
 	Squeue           slurm.SqueueJSON
 	SqueueFiltered   slurm.SqueueJSON
@@ -121,6 +122,7 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.Slash:    true,
 	&keybindings.DefaultKeyMap.Info:     true,
 	&keybindings.DefaultKeyMap.Enter:    true,
+	&keybindings.DefaultKeyMap.Stats:    true,
 }
 
 func (k *Keys) SetupKeys() {
