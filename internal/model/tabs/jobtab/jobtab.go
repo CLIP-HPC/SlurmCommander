@@ -66,7 +66,7 @@ func (t *JobTab) GetStatsFiltered(l *log.Logger) {
 		case "PENDING":
 			tmp = append(tmp, time.Since(time.Unix(int64(*v.SubmitTime), 0)))
 		case "RUNNING":
-			tmpRun = append(tmp, time.Since(time.Unix(int64(*v.StartTime), 0)))
+			tmpRun = append(tmpRun, time.Since(time.Unix(int64(*v.StartTime), 0)))
 		}
 	}
 	l.Printf("jobtab GetStatsFiltered totalwait: %d\n", t.AvgWait)
