@@ -493,6 +493,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.DebugMsg += "I"
 			return m, nil
 
+		// Stats - toggle on/off
+		case key.Matches(msg, keybindings.DefaultKeyMap.Stats):
+			switch m.ActiveTab {
+			case tabJobs:
+				m.Log.Printf("JobTab toggle from: %v\n", m.JobTab.StatsOn)
+				toggleSwitch(&m.JobTab.StatsOn)
+				m.Log.Printf("JobTab toggle to: %v\n", m.JobTab.StatsOn)
+			case tabJobHist:
+				m.Log.Printf("JobHistTab toggle from: %v\n", m.JobHistTab.StatsOn)
+				toggleSwitch(&m.JobHistTab.StatsOn)
+				m.Log.Printf("JobHistTab toggle to: %v\n", m.JobHistTab.StatsOn)
+			case tabCluster:
+				m.Log.Printf("JobCluster toggle from: %v\n", m.JobClusterTab.StatsOn)
+				toggleSwitch(&m.JobClusterTab.StatsOn)
+				m.Log.Printf("JobCluster toggle to: %v\n", m.JobClusterTab.StatsOn)
+			}
+			return m, nil
+
 		// QUIT
 		case key.Matches(msg, keybindings.DefaultKeyMap.Quit):
 			fmt.Println("Quit key pressed")
@@ -501,4 +519,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, nil
+}
+
+func toggleSwitch(b *bool) {
+	if *b {
+		*b = false
+	} else {
+		*b = true
+	}
 }

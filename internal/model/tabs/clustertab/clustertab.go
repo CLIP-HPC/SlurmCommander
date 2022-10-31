@@ -13,6 +13,7 @@ import (
 )
 
 type JobClusterTab struct {
+	StatsOn       bool
 	SinfoTable    table.Model
 	CpuBar        progress.Model
 	MemBar        progress.Model
@@ -24,13 +25,15 @@ type JobClusterTab struct {
 
 type Stats struct {
 	// TODO: also perhaps: count by user? account?
-	StateCnt map[string]uint
+	StateCnt       map[string]uint
+	StateSimpleCnt map[string]uint
 }
 
 func (t *JobClusterTab) GetStatsFiltered(l *log.Logger) {
 	var key string
 
 	t.Stats.StateCnt = map[string]uint{}
+	t.Stats.StateSimpleCnt = map[string]uint{}
 
 	l.Printf("GetStatsFiltered JobClusterTab start\n")
 	for _, v := range t.SinfoFiltered.Nodes {
@@ -41,6 +44,7 @@ func (t *JobClusterTab) GetStatsFiltered(l *log.Logger) {
 		}
 		//t.Stats.StateCnt[*v.JobState]++
 		t.Stats.StateCnt[key]++
+		t.Stats.StateSimpleCnt[*v.State]++
 	}
 	l.Printf("GetStatsFiltered end\n")
 }
@@ -55,6 +59,7 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.Slash:    true,
 	&keybindings.DefaultKeyMap.Info:     false,
 	&keybindings.DefaultKeyMap.Enter:    false,
+	&keybindings.DefaultKeyMap.Stats:    true,
 }
 
 func (k *Keys) SetupKeys() {

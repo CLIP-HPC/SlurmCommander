@@ -21,6 +21,7 @@ type JobHistTab struct {
 }
 
 type Stats struct {
+	StatsOn  bool
 	StateCnt map[string]uint
 	AvgWait  time.Duration
 	MinWait  time.Duration
@@ -61,6 +62,7 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.Slash:    true,
 	&keybindings.DefaultKeyMap.Info:     false,
 	&keybindings.DefaultKeyMap.Enter:    true,
+	&keybindings.DefaultKeyMap.Stats:    true,
 }
 
 func (k *Keys) SetupKeys() {
