@@ -86,8 +86,9 @@ func (m Model) tabJobDetails() (scr string) {
 	runT := time.Unix(int64(*job.Time.End), 0).Sub(time.Unix(int64(*job.Time.Start), 0))
 	fmtStr := "%-20s : %-40s\n"
 	head += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*job.JobId))
-	head += fmt.Sprintf(fmtStr, "User", *job.User)
 	head += fmt.Sprintf(fmtStr, "Job Name", *job.Name)
+	head += fmt.Sprintf(fmtStr, "User", *job.User)
+	head += fmt.Sprintf(fmtStr, "Group", *job.Group)
 	head += fmt.Sprintf(fmtStr, "Job Account", *job.Account)
 	head += fmt.Sprintf(fmtStr, "Job Submission", time.Unix(int64(*job.Time.Submission), 0).String())
 	head += fmt.Sprintf(fmtStr, "Job Start", time.Unix(int64(*job.Time.Start), 0).String())
@@ -107,6 +108,7 @@ func (m Model) tabJobDetails() (scr string) {
 
 		m.Log.Printf("Job Details, step: %d name: %s\n", i, *v.Step.Name)
 		step := fmt.Sprintf(fmtStr, "Name", *v.Step.Name)
+		step += fmt.Sprintf(fmtStr, "Nodes", *v.Nodes.Range)
 		step += fmt.Sprintf(fmtStr, "State", *v.State)
 		step += fmt.Sprintf(fmtStr, "ExitStatus", *v.ExitCode.Status)
 		if *v.ExitCode.Status == "SIGNALED" {
