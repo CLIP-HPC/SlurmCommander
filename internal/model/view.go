@@ -56,9 +56,6 @@ func (m Model) tabJobs() string {
 
 func (m Model) tabJobHist() string {
 
-	// TODO: do some statistics on job history
-	// e.g. avg waiting times, jobs successfull/failed count, etc...
-
 	return m.JobHistTab.SacctTable.View() + "\n"
 }
 
@@ -519,6 +516,12 @@ func (m Model) View() string {
 			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
 		}
 	case tabJobHist:
+		// Check if history is here, if not, return "Waiting for sacct..."
+		if !m.JobHistTab.HistFetched {
+			MainWindow.WriteString("Waiting for job history...\n")
+			break
+		}
+
 		// Top Main
 		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
 		MainWindow.WriteString(GenCountStr(m.JobHistTab.Stats.StateCnt, m.Log))

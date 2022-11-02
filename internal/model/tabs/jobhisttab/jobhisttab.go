@@ -13,6 +13,8 @@ import (
 )
 
 type JobHistTab struct {
+	StatsOn           bool
+	HistFetched       bool
 	SacctTable        table.Model
 	SacctHist         slurm.SacctJobHist
 	SacctHistFiltered slurm.SacctJobHist
@@ -21,7 +23,6 @@ type JobHistTab struct {
 }
 
 type Stats struct {
-	StatsOn  bool
 	StateCnt map[string]uint
 	AvgWait  time.Duration
 	MinWait  time.Duration

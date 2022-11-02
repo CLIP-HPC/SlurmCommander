@@ -345,20 +345,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-	// Job History tab update
-	//
-	//case slurm.SacctList:
-	//	m.Log.Printf("U(): got SacctList\n")
-	//	// fill out model
-	//	m.DebugMsg += "H"
-	//	m.JobHistTab.SacctList = msg
-	//	//m.JobHistTab.SacctTable.SetRows(msg.FilterSacctTable(m.JobHistTab.Filter.Value()))
-	//	rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value())
-	//	m.JobHistTab.SacctTable.SetRows(rows)
-	//	m.JobHistTab.SacctListFiltered = saf
-	//	//m.LogF.WriteString(fmt.Sprintf("U(): got Filtered rows %#v\n", msg.FilterSacctTable(m.JobHistTab.Filter.Value())))
-	//	return m, nil
-
 	// Job Details tab update
 	case slurm.SacctSingleJobHist:
 		m.Log.Printf("Got SacctSingleJobHist\n")
@@ -374,6 +360,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.JobHistTab.SacctTable.SetRows(rows)
 		m.JobHistTab.SacctHistFiltered = saf
 		m.JobHistTab.GetStatsFiltered(m.Log)
+		m.JobHistTab.HistFetched = true
 		return m, nil
 
 	// TODO: find a way to simplify this mess below...

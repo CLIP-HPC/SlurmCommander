@@ -8,3 +8,4 @@
 * UI table responsiveness when len(rows)>1++k
 * terminal columns ~150 breaks stats windows
 * table sorting, e.g. ctrl-1,2,3 (sort by 1st, 2nd, 3rd,...)
+* statistics: add counting per user, per group/account?

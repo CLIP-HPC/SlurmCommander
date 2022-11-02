@@ -192,6 +192,10 @@ func GetSacctHist(uaccs string, l *log.Logger) tea.Cmd {
 			sw        []string
 		)
 
+		// TODO: use https://pkg.go.dev/context#WithTimeout
+		// ...to limit the sacct runs. Flip bool switch in model to failed if it exceeds.
+		// Setup command line switch to pick how many days of sacct to fetch in case of massive runs.
+
 		l.Printf("GetSacctHist(%q) start\n", uaccs)
 		cmd := cc.Binpaths["sacct"]
 		sw = append(sacctHistCmdSwitches, "-A", uaccs)
