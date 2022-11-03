@@ -38,7 +38,7 @@ type SacctJobJSON struct {
 var SacctTabCols = []table.Column{
 	{
 		Title: "Job ID",
-		Width: 15,
+		Width: 10,
 	},
 	{
 		Title: "Job Name",
@@ -50,7 +50,7 @@ var SacctTabCols = []table.Column{
 	},
 	{
 		Title: "State",
-		Width: 20,
+		Width: 10,
 	},
 	{
 		Title: "Exit Code",

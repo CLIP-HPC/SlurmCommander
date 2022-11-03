@@ -2,12 +2,12 @@ package command
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os/exec"
 	"os/user"
-	"regexp"
-	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -142,86 +142,67 @@ func QuickGetSqueue() tea.Cmd {
 	return tea.Tick(0*time.Second, GetSqueue)
 }
 
-// Calls `sacct` to get job information for Jobs History Tab
-func GetSacct(t time.Time) tea.Msg {
-
-	var (
-		sacct slurm.SacctList
-	)
-
-	re, err := regexp.Compile(`\D+`)
-	if err != nil {
-		// TODO: what do do now? return nil msg?
-		return nil
-	}
-
-	// run sacct to get list of last 7 days
-	cmd := cc.Binpaths["sacct"]
-	out, err := exec.Command(cmd, sacctCmdSwitches...).CombinedOutput()
-	if err != nil {
-		log.Fatalf("Error exec sacct: %s : %q\n", cmd, err)
-	}
-
-	// split output into lines
-	for _, v := range strings.Split(string(out), "\n") {
-		if v == "" {
-			continue
-		}
-		// Test each line if jobid is num-only and append those lines to SacctList
-		tmp := strings.Split(v, "|")
-		if !re.MatchString(tmp[0]) {
-			sacct = append(sacct, tmp)
-		}
-	}
-
-	return sacct
+type JobHistTabMsg struct {
+	HistFetchFail bool
+	slurm.SacctJobHist
 }
 
-func TimedGetSacct() tea.Cmd {
-	return tea.Tick(tick*time.Second, GetSacct)
-}
-
-func QuickGetSacct() tea.Cmd {
-	return tea.Tick(0*time.Second, GetSacct)
-}
-
-func GetSacctHist(uaccs string, l *log.Logger) tea.Cmd {
+func GetSacctHist(uaccs string, d uint, t uint, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
 		var (
-			sacctJobs slurm.SacctJobHist
-			sw        []string
+			jht JobHistTabMsg
 		)
 
-		l.Printf("GetSacctHist(%q) start\n", uaccs)
+		// TODO: Setup command line switch to pick how many days of sacct to fetch in case of massive runs.
+
+		l.Printf("GetSacctHist(%q) start: days %d, timeout: %d\n", uaccs, d, t)
+
+		// setup context with 5 second timeout
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(t)*time.Second)
+		defer cancel()
+
+		// prepare command
 		cmd := cc.Binpaths["sacct"]
-		sw = append(sacctHistCmdSwitches, "-A", uaccs)
-		l.Printf("EXEC: %q %q\n", cmd, sw)
-		out, err := exec.Command(cmd, sw...).CombinedOutput()
+		start := fmt.Sprintf("now-%ddays", d)
+		switches := append(sacctHistCmdSwitches, "-S", start)
+		switches = append(switches, "-A", uaccs)
+
+		l.Printf("EXEC: %q %q\n", cmd, switches)
+		out, err := exec.CommandContext(ctx, cmd, switches...).CombinedOutput()
+		if err != nil {
+			l.Printf("Error exec sacct: %q\n", err)
+			// set error, return.
+			jht.HistFetchFail = true
+			return jht
+		}
 		l.Printf("EXEC returned: %d bytes\n", len(out))
+
+		err = json.Unmarshal(out, &jht.SacctJobHist)
 		if err != nil {
-			l.Fatalf("Error exec sacct: %q\n", err)
+			jht.HistFetchFail = true
+			l.Printf("Error unmarshall: %q\n", err)
+			return jht
 		}
 
-		err = json.Unmarshal(out, &sacctJobs)
-		if err != nil {
-			l.Fatalf("Error unmarshall: %q\n", err)
-		}
+		jht.HistFetchFail = false
+		l.Printf("Unmarshalled %d jobs from hist\n", len(jht.SacctJobHist.Jobs))
 
-		l.Printf("Unmarshalled %d jobs from hist\n", len(sacctJobs.Jobs))
-
-		return sacctJobs
+		return jht
 	}
 }
 
-func SingleJobGetSacct(jobid string, l *log.Logger) tea.Cmd {
+func SingleJobGetSacct(jobid string, d uint, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
 		var sacctJob slurm.SacctSingleJobHist
 
 		l.Printf("SingleJobGetSacct start.\n")
 		cmd := cc.Binpaths["sacct"]
+		start := fmt.Sprintf("now-%ddays", d)
 		switches := append(sacctJobCmdSwitches, jobid)
-		out, err := exec.Command(cmd, switches...).CombinedOutput()
+		switches = append(switches, "-S", start)
+
 		l.Printf("SingleJobGetSacct EXEC: %q %q\n", cmd, switches)
+		out, err := exec.Command(cmd, switches...).CombinedOutput()
 		if err != nil {
 			log.Fatalf("Error exec sacct: %q\n", err)
 		}

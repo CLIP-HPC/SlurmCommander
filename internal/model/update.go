@@ -215,7 +215,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Now we trigger a sacctHist
 		//return m, nil
 		m.Log.Printf("Appended UserAssoc msg go Globals, calling GetSacctHist()\n")
-		return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
+		return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Globals.JobHistStart, m.Globals.JobHistTimeout, m.Log)
 
 	// UserName fetched
 	case command.UserName:
@@ -345,24 +345,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-	// Job History tab update
-	//
-	//case slurm.SacctList:
-	//	m.Log.Printf("U(): got SacctList\n")
-	//	// fill out model
-	//	m.DebugMsg += "H"
-	//	m.JobHistTab.SacctList = msg
-	//	//m.JobHistTab.SacctTable.SetRows(msg.FilterSacctTable(m.JobHistTab.Filter.Value()))
-	//	rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value())
-	//	m.JobHistTab.SacctTable.SetRows(rows)
-	//	m.JobHistTab.SacctListFiltered = saf
-	//	//m.LogF.WriteString(fmt.Sprintf("U(): got Filtered rows %#v\n", msg.FilterSacctTable(m.JobHistTab.Filter.Value())))
-	//	return m, nil
-
 	// Job Details tab update
 	case slurm.SacctSingleJobHist:
 		m.Log.Printf("Got SacctSingleJobHist\n")
 		m.JobDetailsTab.SacctSingleJobHist = msg
+		return m, nil
+
+	// Job History tab update - NEW, with wrapped failure message
+	case command.JobHistTabMsg:
+		m.Log.Printf("Got SacctJobHist len: %d\n", len(msg.Jobs))
+		m.JobHistTab.SacctHist = msg.SacctJobHist
+		m.JobHistTab.HistFetchFail = msg.HistFetchFail
+		// Filter and create filtered table
+		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
+		m.JobHistTab.SacctTable.SetRows(rows)
+		m.JobHistTab.SacctHistFiltered = saf
+		m.JobHistTab.GetStatsFiltered(m.Log)
+		if !m.JobHistTab.HistFetchFail {
+			m.JobHistTab.HistFetched = true
+		}
 		return m, nil
 
 	// Job History tab update
@@ -374,6 +375,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.JobHistTab.SacctTable.SetRows(rows)
 		m.JobHistTab.SacctHistFiltered = saf
 		m.JobHistTab.GetStatsFiltered(m.Log)
+		m.JobHistTab.HistFetched = true
 		return m, nil
 
 	// TODO: find a way to simplify this mess below...
@@ -470,7 +472,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
 				m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
-				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID, m.Log)
+				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID, m.Globals.JobHistStart, m.Log)
 
 			// Job from Template tab: Open template for editing
 			case tabJobFromTemplate:

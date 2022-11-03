@@ -13,6 +13,9 @@ import (
 )
 
 type JobHistTab struct {
+	StatsOn           bool
+	HistFetched       bool // signals View() if sacct call is finished, to print "waiting for..." message
+	HistFetchFail     bool // if sacct call times out/errors, this is set to true
 	SacctTable        table.Model
 	SacctHist         slurm.SacctJobHist
 	SacctHistFiltered slurm.SacctJobHist
@@ -21,7 +24,6 @@ type JobHistTab struct {
 }
 
 type Stats struct {
-	StatsOn  bool
 	StateCnt map[string]uint
 	AvgWait  time.Duration
 	MinWait  time.Duration

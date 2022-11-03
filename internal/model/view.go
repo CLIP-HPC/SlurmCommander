@@ -56,9 +56,6 @@ func (m Model) tabJobs() string {
 
 func (m Model) tabJobHist() string {
 
-	// TODO: do some statistics on job history
-	// e.g. avg waiting times, jobs successfull/failed count, etc...
-
 	return m.JobHistTab.SacctTable.View() + "\n"
 }
 
@@ -86,8 +83,9 @@ func (m Model) tabJobDetails() (scr string) {
 	runT := time.Unix(int64(*job.Time.End), 0).Sub(time.Unix(int64(*job.Time.Start), 0))
 	fmtStr := "%-20s : %-40s\n"
 	head += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*job.JobId))
-	head += fmt.Sprintf(fmtStr, "User", *job.User)
 	head += fmt.Sprintf(fmtStr, "Job Name", *job.Name)
+	head += fmt.Sprintf(fmtStr, "User", *job.User)
+	head += fmt.Sprintf(fmtStr, "Group", *job.Group)
 	head += fmt.Sprintf(fmtStr, "Job Account", *job.Account)
 	head += fmt.Sprintf(fmtStr, "Job Submission", time.Unix(int64(*job.Time.Submission), 0).String())
 	head += fmt.Sprintf(fmtStr, "Job Start", time.Unix(int64(*job.Time.Start), 0).String())
@@ -107,6 +105,7 @@ func (m Model) tabJobDetails() (scr string) {
 
 		m.Log.Printf("Job Details, step: %d name: %s\n", i, *v.Step.Name)
 		step := fmt.Sprintf(fmtStr, "Name", *v.Step.Name)
+		step += fmt.Sprintf(fmtStr, "Nodes", *v.Nodes.Range)
 		step += fmt.Sprintf(fmtStr, "State", *v.State)
 		step += fmt.Sprintf(fmtStr, "ExitStatus", *v.ExitCode.Status)
 		if *v.ExitCode.Status == "SIGNALED" {
@@ -294,7 +293,7 @@ func genTabHelp(t int) string {
 	case tabJobs:
 		th = "List of jobs in the queue"
 	case tabJobHist:
-		th = "Last 7 days job history"
+		th = "Job history"
 	case tabJobDetails:
 		th = "Job details, select a job from Job History tab"
 	case tabJobFromTemplate:
@@ -517,6 +516,21 @@ func (m Model) View() string {
 			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
 		}
 	case tabJobHist:
+		// If sacct timed out/errored, instruct the user to reduce fetch period from default 7 days
+		m.Log.Printf("HistFetch: %t HistFetchFail: %t\n", m.JobHistTab.HistFetched, m.JobHistTab.HistFetchFail)
+		if m.JobHistTab.HistFetchFail {
+			msg := fmt.Sprintf("Fetching jobs history timed out (-t %d seconds), probably too many jobs in the last -d %d days.\n", m.Globals.JobHistTimeout, m.Globals.JobHistStart)
+			MainWindow.WriteString(msg)
+			MainWindow.WriteString("You can reduce the history period with -d N (days) switch, or increase the history fetch timeout with -t N (seconds) switch.\n")
+			break
+		}
+
+		// Check if history is here, if not, return "Waiting for sacct..."
+		if !m.JobHistTab.HistFetched {
+			MainWindow.WriteString("Waiting for job history...\n")
+			break
+		}
+
 		// Top Main
 		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
 		MainWindow.WriteString(GenCountStr(m.JobHistTab.Stats.StateCnt, m.Log))
