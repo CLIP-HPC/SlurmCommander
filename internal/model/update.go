@@ -215,7 +215,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Now we trigger a sacctHist
 		//return m, nil
 		m.Log.Printf("Appended UserAssoc msg go Globals, calling GetSacctHist()\n")
-		return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
+		return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Globals.JobHistStart, m.Log)
 
 	// UserName fetched
 	case command.UserName:
@@ -361,7 +361,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.JobHistTab.SacctTable.SetRows(rows)
 		m.JobHistTab.SacctHistFiltered = saf
 		m.JobHistTab.GetStatsFiltered(m.Log)
-		m.JobHistTab.HistFetched = true
+		if !m.JobHistTab.HistFetchFail {
+			m.JobHistTab.HistFetched = true
+		}
 		return m, nil
 
 	// Job History tab update
@@ -470,7 +472,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
 				m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
-				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID, m.Log)
+				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID, m.Globals.JobHistStart, m.Log)
 
 			// Job from Template tab: Open template for editing
 			case tabJobFromTemplate:

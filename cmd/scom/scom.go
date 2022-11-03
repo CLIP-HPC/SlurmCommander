@@ -88,6 +88,7 @@ func main() {
 			FilterSwitch:    -1,
 			Debug:           debugSet,
 			ConfigContainer: *cc,
+			JobHistStart:    *args.HistDays,
 		},
 		JobTab: jobtab.JobTab{
 			SqueueTable: table.New(table.WithColumns(slurm.SqueueTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),
