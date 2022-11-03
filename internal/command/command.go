@@ -147,7 +147,7 @@ type JobHistTabMsg struct {
 	slurm.SacctJobHist
 }
 
-func GetSacctHist(uaccs string, d uint, l *log.Logger) tea.Cmd {
+func GetSacctHist(uaccs string, d uint, t uint, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
 		var (
 			jht JobHistTabMsg
@@ -155,10 +155,10 @@ func GetSacctHist(uaccs string, d uint, l *log.Logger) tea.Cmd {
 
 		// TODO: Setup command line switch to pick how many days of sacct to fetch in case of massive runs.
 
-		l.Printf("GetSacctHist(%q) start\n", uaccs)
+		l.Printf("GetSacctHist(%q) start: days %d, timeout: %d\n", uaccs, d, t)
 
 		// setup context with 5 second timeout
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(t)*time.Second)
 		defer cancel()
 
 		// prepare command

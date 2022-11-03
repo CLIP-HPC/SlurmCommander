@@ -215,7 +215,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Now we trigger a sacctHist
 		//return m, nil
 		m.Log.Printf("Appended UserAssoc msg go Globals, calling GetSacctHist()\n")
-		return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Globals.JobHistStart, m.Log)
+		return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Globals.JobHistStart, m.Globals.JobHistTimeout, m.Log)
 
 	// UserName fetched
 	case command.UserName:

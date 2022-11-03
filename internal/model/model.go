@@ -70,7 +70,8 @@ type Globals struct {
 	UserName  string
 	UAccounts []string
 	config.ConfigContainer
-	JobHistStart uint
+	JobHistStart   uint
+	JobHistTimeout uint
 }
 
 // FilterSwitch == -1 if filter is off.
