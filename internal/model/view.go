@@ -293,7 +293,7 @@ func genTabHelp(t int) string {
 	case tabJobs:
 		th = "List of jobs in the queue"
 	case tabJobHist:
-		th = "Last 7 days job history"
+		th = "Job history"
 	case tabJobDetails:
 		th = "Job details, select a job from Job History tab"
 	case tabJobFromTemplate:
@@ -519,8 +519,9 @@ func (m Model) View() string {
 		// If sacct timed out/errored, instruct the user to reduce fetch period from default 7 days
 		m.Log.Printf("HistFetch: %t HistFetchFail: %t\n", m.JobHistTab.HistFetched, m.JobHistTab.HistFetchFail)
 		if m.JobHistTab.HistFetchFail {
-			MainWindow.WriteString("Fetching jobs history failed, perhaps too many jobs in the default 7 days.\n")
-			MainWindow.WriteString("Try reducing the period with -d N (days) switch.\n")
+			msg := fmt.Sprintf("Fetching jobs history timed out (-t %d seconds), probably too many jobs in the last -d %d days.\n", m.Globals.JobHistTimeout, m.Globals.JobHistStart)
+			MainWindow.WriteString(msg)
+			MainWindow.WriteString("You can reduce the history period with -d N (days) switch, or increase the history fetch timeout with -t N (seconds) switch.\n")
 			break
 		}
 
