@@ -94,9 +94,10 @@ func main() {
 			Filter:      ti,
 		},
 		JobHistTab: jobhisttab.JobHistTab{
-			SacctTable:  table.New(table.WithColumns(slurm.SacctTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),
-			Filter:      ti,
-			HistFetched: false,
+			SacctTable:    table.New(table.WithColumns(slurm.SacctTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),
+			Filter:        ti,
+			HistFetched:   false,
+			HistFetchFail: false,
 		},
 		JobFromTemplateTab: jobfromtemplate.JobFromTemplateTab{
 			EditTemplate: false,

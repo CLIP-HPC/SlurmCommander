@@ -2,6 +2,7 @@ package command
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"log"
 	"os/exec"
@@ -185,35 +186,51 @@ func QuickGetSacct() tea.Cmd {
 	return tea.Tick(0*time.Second, GetSacct)
 }
 
+type JobHistTabMsg struct {
+	HistFetchFail bool
+	slurm.SacctJobHist
+}
+
 func GetSacctHist(uaccs string, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
 		var (
-			sacctJobs slurm.SacctJobHist
-			sw        []string
+			jht JobHistTabMsg
+			sw  []string
 		)
 
-		// TODO: use https://pkg.go.dev/context#WithTimeout
-		// ...to limit the sacct runs. Flip bool switch in model to failed if it exceeds.
-		// Setup command line switch to pick how many days of sacct to fetch in case of massive runs.
+		// TODO: Setup command line switch to pick how many days of sacct to fetch in case of massive runs.
 
 		l.Printf("GetSacctHist(%q) start\n", uaccs)
+
+		// setup context with 5 second timeout
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		// prepare command
 		cmd := cc.Binpaths["sacct"]
 		sw = append(sacctHistCmdSwitches, "-A", uaccs)
+
 		l.Printf("EXEC: %q %q\n", cmd, sw)
-		out, err := exec.Command(cmd, sw...).CombinedOutput()
+		out, err := exec.CommandContext(ctx, cmd, sw...).CombinedOutput()
+		if err != nil {
+			l.Printf("Error exec sacct: %q\n", err)
+			// set error, return.
+			jht.HistFetchFail = true
+			return jht
+		}
 		l.Printf("EXEC returned: %d bytes\n", len(out))
+
+		err = json.Unmarshal(out, &jht.SacctJobHist)
 		if err != nil {
-			l.Fatalf("Error exec sacct: %q\n", err)
+			jht.HistFetchFail = true
+			l.Printf("Error unmarshall: %q\n", err)
+			return jht
 		}
 
-		err = json.Unmarshal(out, &sacctJobs)
-		if err != nil {
-			l.Fatalf("Error unmarshall: %q\n", err)
-		}
+		jht.HistFetchFail = false
+		l.Printf("Unmarshalled %d jobs from hist\n", len(jht.SacctJobHist.Jobs))
 
-		l.Printf("Unmarshalled %d jobs from hist\n", len(sacctJobs.Jobs))
-
-		return sacctJobs
+		return jht
 	}
 }
 

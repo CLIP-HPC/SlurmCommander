@@ -351,6 +351,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.JobDetailsTab.SacctSingleJobHist = msg
 		return m, nil
 
+	// Job History tab update - NEW, with wrapped failure message
+	case command.JobHistTabMsg:
+		m.Log.Printf("Got SacctJobHist len: %d\n", len(msg.Jobs))
+		m.JobHistTab.SacctHist = msg.SacctJobHist
+		m.JobHistTab.HistFetchFail = msg.HistFetchFail
+		// Filter and create filtered table
+		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
+		m.JobHistTab.SacctTable.SetRows(rows)
+		m.JobHistTab.SacctHistFiltered = saf
+		m.JobHistTab.GetStatsFiltered(m.Log)
+		m.JobHistTab.HistFetched = true
+		return m, nil
+
 	// Job History tab update
 	case slurm.SacctJobHist:
 		m.Log.Printf("Got SacctJobHist len: %d\n", len(msg.Jobs))
