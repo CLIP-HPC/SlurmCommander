@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -20,6 +19,7 @@ import (
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobhisttab"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
 	"github.com/pja237/slurmcommander-dev/internal/slurm"
+	"github.com/pja237/slurmcommander-dev/internal/table"
 	"github.com/pja237/slurmcommander-dev/internal/version"
 )
 

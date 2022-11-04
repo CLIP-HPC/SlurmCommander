@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/table"
 	"github.com/pja237/slurmcommander-dev/internal/openapi"
+	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
 type SinfoJSON struct {
