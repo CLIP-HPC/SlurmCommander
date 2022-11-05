@@ -22,6 +22,11 @@ type Model struct {
 	styles Styles
 
 	viewport viewport.Model
+	renderedLines
+}
+
+type renderedLines struct {
+	start, end int
 }
 
 // Row represents one line in the table.
@@ -243,18 +248,18 @@ func (m Model) View() string {
 // columns and rows.
 func (m *Model) UpdateViewport() {
 	renderedRows := make([]string, 0, len(m.rows))
-	// change this to iterate only over visible rows?
-	// m.viewport.Height is the table height
-	// m.cursor is the position
-	start := clamp(m.cursor-m.viewport.Height, 0, len(m.rows))
-	end := clamp(m.cursor+m.viewport.Height, m.cursor, len(m.rows))
-	log.Printf("rows: %d start: %d end: %d cursor: %d height: %d range: %d\n", len(m.rows), start, end, m.cursor, m.viewport.Height, end-start)
-	for i := start; i < end; i++ {
+
+	// Render only rows from: m.cursor-m.viewport.Height to: m.cursor+m.viewport.Height
+	// Constant runtime, independent of number of rows in a table.
+	// Limits the numer of renderedRows to a maximum of 2*m.viewport.Height
+	// TODO: bug: m.cursor=0, m.cusor-height==-1, clamp fails causes start to be -1
+	m.renderedLines.start = clamp(m.cursor-m.viewport.Height, 0, m.cursor)
+	m.renderedLines.end = clamp(m.cursor+m.viewport.Height, m.cursor, len(m.rows))
+	log.Printf("rows: %d start: %d end: %d cursor: %d height: %d yoffset: %d ypos: %d range: %d\n", len(m.rows), m.renderedLines.start, m.renderedLines.end, m.cursor, m.viewport.Height, m.viewport.YOffset, m.viewport.YPosition, m.renderedLines.end-m.renderedLines.start)
+	//log.Printf("viewport at top: %t bottom: %t", m.viewport.AtTop(), m.viewport.AtBottom())
+	for i := m.renderedLines.start; i < m.renderedLines.end; i++ {
 		renderedRows = append(renderedRows, m.renderRow(i))
 	}
-	//for i := range m.rows {
-	//	renderedRows = append(renderedRows, m.renderRow(i))
-	//}
 
 	m.viewport.SetContent(
 		lipgloss.JoinVertical(lipgloss.Left, renderedRows...),
@@ -310,11 +315,20 @@ func (m *Model) SetCursor(n int) {
 // It can not go above the first row.
 func (m *Model) MoveUp(n int) {
 	m.cursor = clamp(m.cursor-n, 0, len(m.rows)-1)
+	switch {
+	case m.renderedLines.start == 0:
+		m.viewport.SetYOffset(clamp(m.viewport.YOffset, 0, m.cursor))
+		log.Printf("start reached, offset = %d\n", m.viewport.YOffset)
+	case m.renderedLines.start < m.viewport.Height:
+		m.viewport.SetYOffset(clamp(m.viewport.YOffset+n, 0, m.cursor))
+		log.Printf("start about to be reached, offset = %d\n", m.viewport.YOffset)
+	case m.viewport.YOffset >= 1:
+		log.Printf("offset >=1 n=%d new offset = %d\n", n, m.viewport.YOffset)
+		m.viewport.YOffset = clamp(m.viewport.YOffset+n, 1, m.viewport.Height)
+		log.Printf("offset >=1 n=%d new offset = %d\n", n, m.viewport.YOffset)
+	}
 	m.UpdateViewport()
 
-	if m.cursor < m.viewport.YOffset {
-		m.viewport.SetYOffset(m.cursor)
-	}
 }
 
 // MoveDown moves the selection down by any number of row.
@@ -323,8 +337,18 @@ func (m *Model) MoveDown(n int) {
 	m.cursor = clamp(m.cursor+n, 0, len(m.rows)-1)
 	m.UpdateViewport()
 
-	if m.cursor > (m.viewport.YOffset + (m.viewport.Height - 1)) {
-		m.viewport.SetYOffset(m.cursor - (m.viewport.Height - 1))
+	switch {
+	case m.renderedLines.end == len(m.rows):
+		log.Printf("going down, at the end\n")
+		m.viewport.SetYOffset(clamp(m.viewport.YOffset-n, 1, m.viewport.Height))
+	case m.cursor > (m.renderedLines.end-m.renderedLines.start)/2:
+		log.Printf("going down, excess yoffset\n")
+		m.viewport.SetYOffset(clamp(m.viewport.YOffset-n, 1, m.cursor))
+	case m.viewport.YOffset > 1:
+		log.Printf("going down, yoffset>=1\n")
+	case m.cursor > m.viewport.YOffset+m.viewport.Height-1:
+		log.Printf("going down, last\n")
+		m.viewport.SetYOffset(clamp(m.viewport.YOffset+1, 0, 1))
 	}
 }
 

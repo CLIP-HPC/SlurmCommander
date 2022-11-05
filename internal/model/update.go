@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -391,9 +392,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// DOWN
 		case key.Matches(msg, keybindings.DefaultKeyMap.Down):
+			t := time.Now()
 			m.Log.Printf("Update: Move down\n")
 			activeTable.MoveDown(1)
-			m.Log.Printf("Update: Move down finished\n")
+			m.Log.Printf("Update: Move down finished in: %.3f sec\n", time.Since(t).Seconds())
 			m.lastKey = "down"
 
 		// PAGE DOWN
