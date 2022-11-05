@@ -253,7 +253,12 @@ func (m *Model) UpdateViewport() {
 	// Constant runtime, independent of number of rows in a table.
 	// Limits the numer of renderedRows to a maximum of 2*m.viewport.Height
 	// TODO: bug: m.cursor=0, m.cusor-height==-1, clamp fails causes start to be -1
-	m.renderedLines.start = clamp(m.cursor-m.viewport.Height, 0, m.cursor)
+	log.Printf("cursor: %d height: %d len(rows): %d\n", m.cursor, m.viewport.Height, len(m.rows))
+	if m.cursor >= 0 {
+		m.renderedLines.start = clamp(m.cursor-m.viewport.Height, 0, m.cursor)
+	} else {
+		m.renderedLines.start = 0
+	}
 	m.renderedLines.end = clamp(m.cursor+m.viewport.Height, m.cursor, len(m.rows))
 	log.Printf("rows: %d start: %d end: %d cursor: %d height: %d yoffset: %d ypos: %d range: %d\n", len(m.rows), m.renderedLines.start, m.renderedLines.end, m.cursor, m.viewport.Height, m.viewport.YOffset, m.viewport.YPosition, m.renderedLines.end-m.renderedLines.start)
 	//log.Printf("viewport at top: %t bottom: %t", m.viewport.AtTop(), m.viewport.AtBottom())
