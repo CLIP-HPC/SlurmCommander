@@ -1,7 +1,6 @@
 package table
 
 import (
-	"log"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -253,14 +252,14 @@ func (m *Model) UpdateViewport() {
 	// Constant runtime, independent of number of rows in a table.
 	// Limits the numer of renderedRows to a maximum of 2*m.viewport.Height
 	// TODO: bug: m.cursor=0, m.cusor-height==-1, clamp fails causes start to be -1
-	log.Printf("cursor: %d height: %d len(rows): %d\n", m.cursor, m.viewport.Height, len(m.rows))
+	//log.Printf("cursor: %d height: %d len(rows): %d\n", m.cursor, m.viewport.Height, len(m.rows))
 	if m.cursor >= 0 {
 		m.renderedLines.start = clamp(m.cursor-m.viewport.Height, 0, m.cursor)
 	} else {
 		m.renderedLines.start = 0
 	}
 	m.renderedLines.end = clamp(m.cursor+m.viewport.Height, m.cursor, len(m.rows))
-	log.Printf("rows: %d start: %d end: %d cursor: %d height: %d yoffset: %d ypos: %d range: %d\n", len(m.rows), m.renderedLines.start, m.renderedLines.end, m.cursor, m.viewport.Height, m.viewport.YOffset, m.viewport.YPosition, m.renderedLines.end-m.renderedLines.start)
+	//log.Printf("rows: %d start: %d end: %d cursor: %d height: %d yoffset: %d ypos: %d range: %d\n", len(m.rows), m.renderedLines.start, m.renderedLines.end, m.cursor, m.viewport.Height, m.viewport.YOffset, m.viewport.YPosition, m.renderedLines.end-m.renderedLines.start)
 	//log.Printf("viewport at top: %t bottom: %t", m.viewport.AtTop(), m.viewport.AtBottom())
 	for i := m.renderedLines.start; i < m.renderedLines.end; i++ {
 		renderedRows = append(renderedRows, m.renderRow(i))
@@ -323,14 +322,14 @@ func (m *Model) MoveUp(n int) {
 	switch {
 	case m.renderedLines.start == 0:
 		m.viewport.SetYOffset(clamp(m.viewport.YOffset, 0, m.cursor))
-		log.Printf("start reached, offset = %d\n", m.viewport.YOffset)
+		//log.Printf("start reached, offset = %d\n", m.viewport.YOffset)
 	case m.renderedLines.start < m.viewport.Height:
 		m.viewport.SetYOffset(clamp(m.viewport.YOffset+n, 0, m.cursor))
-		log.Printf("start about to be reached, offset = %d\n", m.viewport.YOffset)
+		//log.Printf("start about to be reached, offset = %d\n", m.viewport.YOffset)
 	case m.viewport.YOffset >= 1:
-		log.Printf("offset >=1 n=%d new offset = %d\n", n, m.viewport.YOffset)
+		//log.Printf("offset >=1 n=%d new offset = %d\n", n, m.viewport.YOffset)
 		m.viewport.YOffset = clamp(m.viewport.YOffset+n, 1, m.viewport.Height)
-		log.Printf("offset >=1 n=%d new offset = %d\n", n, m.viewport.YOffset)
+		//log.Printf("offset >=1 n=%d new offset = %d\n", n, m.viewport.YOffset)
 	}
 	m.UpdateViewport()
 
@@ -344,15 +343,15 @@ func (m *Model) MoveDown(n int) {
 
 	switch {
 	case m.renderedLines.end == len(m.rows):
-		log.Printf("going down, at the end\n")
+		//log.Printf("going down, at the end\n")
 		m.viewport.SetYOffset(clamp(m.viewport.YOffset-n, 1, m.viewport.Height))
 	case m.cursor > (m.renderedLines.end-m.renderedLines.start)/2:
-		log.Printf("going down, excess yoffset\n")
+		//log.Printf("going down, excess yoffset\n")
 		m.viewport.SetYOffset(clamp(m.viewport.YOffset-n, 1, m.cursor))
 	case m.viewport.YOffset > 1:
-		log.Printf("going down, yoffset>=1\n")
+		//log.Printf("going down, yoffset>=1\n")
 	case m.cursor > m.viewport.YOffset+m.viewport.Height-1:
-		log.Printf("going down, last\n")
+		//log.Printf("going down, last\n")
 		m.viewport.SetYOffset(clamp(m.viewport.YOffset+1, 0, 1))
 	}
 }
