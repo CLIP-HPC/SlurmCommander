@@ -166,51 +166,48 @@ func (m Model) tabJobFromTemplate() string {
 	}
 }
 
-func (m Model) tabCluster() string {
-
+func (m Model) tabClusterBars() string {
 	var (
 		scr     string = ""
 		cpuPerc float64
 		memPerc float64
 	)
 
-	// node info
-	// TODO: rework, doesn't work when table filtering is on
 	sel := m.SinfoTable.Cursor()
 	m.Log.Printf("ClusterTab Selected: %d\n", sel)
 	m.Log.Printf("ClusterTab len results: %d\n", len(m.JobClusterTab.SinfoFiltered.Nodes))
+	m.JobClusterTab.CpuBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
+	m.JobClusterTab.MemBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
 	if len(m.JobClusterTab.SinfoFiltered.Nodes) > 0 && sel != -1 {
-		m.CpuBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
 		cpuPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocCpus) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].Cpus)
-		//m.CpuBar.SetPercent(cpuPerc)
-		m.MemBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
 		memPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocMemory) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].RealMemory)
 
-		//scr += "Cpu and memory utilization:\n"
-		//scr += fmt.Sprintf("cpuPerc: %.2f ", cpuPerc)
 		scr += fmt.Sprintf("CPU used/total: %d/%d\n", *m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocCpus, *m.JobClusterTab.SinfoFiltered.Nodes[sel].Cpus)
 		scr += m.CpuBar.ViewAs(cpuPerc)
 		scr += "\n"
-		//scr += fmt.Sprintf("memPerc: %.2f ", memPerc)
 		scr += fmt.Sprintf("MEM used/total: %d/%d\n", *m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocMemory, *m.JobClusterTab.SinfoFiltered.Nodes[sel].RealMemory)
 		scr += m.MemBar.ViewAs(memPerc)
 		scr += "\n\n"
 	} else {
 		cpuPerc = 0
 		memPerc = 0
+		scr += fmt.Sprintf("CPU used/total: %d/%d\n", 0, 0)
+		scr += m.CpuBar.ViewAs(cpuPerc)
+		scr += "\n"
+		scr += fmt.Sprintf("MEM used/total: %d/%d\n", 0, 0)
+		scr += m.MemBar.ViewAs(memPerc)
+		scr += "\n\n"
+
 	}
 
+	return scr
+}
+func (m Model) tabCluster() string {
+
 	// table
-	scr += m.SinfoTable.View() + "\n"
+	scr := m.SinfoTable.View() + "\n"
 
 	return scr
-	//return m.SinfoTable.View()
-
-	//return "Cluster tab active"
-	// TODO: HEADER/FOOTER that shows details for selected node
-	// e.g. progress bars with cpu/mem usage (percentages)
-	// TODO: reselect table columns (move mem/cpu to header/footer above and pick others, e.g. partition? features? think... )
-	// TODO: rename to "Cluster Nodes", add "Cluster QoS/Partition" tab? OR find an elegant way to group those in one tab?
 }
 
 func (m Model) tabAbout() string {
@@ -583,6 +580,7 @@ func (m Model) View() string {
 		// Top Main
 		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobClusterTab.Filter.Value(), len(m.JobClusterTab.SinfoFiltered.Nodes)))
 		MainWindow.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))
+		MainWindow.WriteString(m.tabClusterBars())
 
 		// Mid Main: table || table+stats
 		switch {
