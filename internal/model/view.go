@@ -185,18 +185,20 @@ func (m Model) tabCluster() string {
 		//m.CpuBar.SetPercent(cpuPerc)
 		m.MemBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
 		memPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocMemory) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].RealMemory)
+
+		//scr += "Cpu and memory utilization:\n"
+		//scr += fmt.Sprintf("cpuPerc: %.2f ", cpuPerc)
+		scr += fmt.Sprintf("CPU used/total: %d/%d\n", *m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocCpus, *m.JobClusterTab.SinfoFiltered.Nodes[sel].Cpus)
+		scr += m.CpuBar.ViewAs(cpuPerc)
+		scr += "\n"
+		//scr += fmt.Sprintf("memPerc: %.2f ", memPerc)
+		scr += fmt.Sprintf("MEM used/total: %d/%d\n", *m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocMemory, *m.JobClusterTab.SinfoFiltered.Nodes[sel].RealMemory)
+		scr += m.MemBar.ViewAs(memPerc)
+		scr += "\n\n"
 	} else {
 		cpuPerc = 0
 		memPerc = 0
 	}
-
-	scr += "Cpu and memory utilization:\n"
-	scr += fmt.Sprintf("cpuPerc: %.2f ", cpuPerc)
-	scr += m.CpuBar.ViewAs(cpuPerc)
-	scr += "\n"
-	scr += fmt.Sprintf("memPerc: %.2f ", memPerc)
-	scr += m.MemBar.ViewAs(memPerc)
-	scr += "\n\n"
 
 	// table
 	scr += m.SinfoTable.View() + "\n"
@@ -383,15 +385,35 @@ func GenCountStrVert(cnt map[string]uint, l *log.Logger) string {
 }
 
 func (m Model) JobClusterTabStats() string {
+	var str string
 
 	m.Log.Printf("JobClusterTabStats called\n")
 
-	str := styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Nodes states (filtered):"))
-	str += "\n\n"
+	sel := m.JobClusterTab.SinfoTable.Cursor()
+	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Nodes states (filtered):"))
+	str += "\n"
 
-	//str += GenCountStrVert(m.JobClusterTab.Stats.StateCnt, m.Log)
-	str += GenCountStrVert(m.JobClusterTab.Stats.StateSimpleCnt, m.Log)
+	if len(m.JobClusterTab.SinfoFiltered.Nodes) > 0 {
+		//str += GenCountStrVert(m.JobClusterTab.Stats.StateCnt, m.Log)
+		str += GenCountStrVert(m.JobClusterTab.Stats.StateSimpleCnt, m.Log)
+	}
 
+	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Selected node:"))
+
+	if len(m.JobClusterTab.SinfoFiltered.Nodes) > 0 && sel != -1 {
+		str += "\n"
+		str += fmt.Sprintf("%-15s: %s\n", "Arch", *m.JobClusterTab.SinfoFiltered.Nodes[sel].Architecture)
+		str += fmt.Sprintf("%-15s: %s\n", "Features", *m.JobClusterTab.SinfoFiltered.Nodes[sel].ActiveFeatures)
+		str += fmt.Sprintf("%-15s: %s\n", "TRES", *m.JobClusterTab.SinfoFiltered.Nodes[sel].Tres)
+		if m.JobClusterTab.SinfoFiltered.Nodes[sel].TresUsed != nil {
+			str += fmt.Sprintf("%-15s: %s\n", "TRES Used", *m.JobClusterTab.SinfoFiltered.Nodes[sel].TresUsed)
+		} else {
+			str += fmt.Sprintf("%-15s: %s\n", "TRES Used", "")
+		}
+		str += fmt.Sprintf("%-15s: %s\n", "GRES", *m.JobClusterTab.SinfoFiltered.Nodes[sel].Gres)
+		str += fmt.Sprintf("%-15s: %s\n", "GRES Used", *m.JobClusterTab.SinfoFiltered.Nodes[sel].GresUsed)
+		str += fmt.Sprintf("%-15s: %s\n", "Partitions", strings.Join(*m.JobClusterTab.SinfoFiltered.Nodes[sel].Partitions, ","))
+	}
 	return str
 }
 
@@ -483,6 +505,7 @@ func (m Model) View() string {
 	// HEADER / TABS
 	scr.WriteString(m.genTabs())
 	scr.WriteString(genTabHelp(int(m.ActiveTab)))
+	scr.WriteString(fmt.Sprintf("Width: %d Height: %d\n", m.Globals.winW, m.Globals.winH))
 
 	// PICK and RENDER ACTIVE TAB
 
@@ -573,7 +596,7 @@ func (m Model) View() string {
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			// filter
-			MainWindow.WriteString(fmt.Sprintf("Filter value (search accross all fields!):\n%s\n%s", m.JobClusterTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+			MainWindow.WriteString(fmt.Sprintf("\nFilter value (search accross all fields!):\n%s\n%s", m.JobClusterTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		}
 	case tabAbout:
 		//MainWindow.WriteString(m.tabAbout())
