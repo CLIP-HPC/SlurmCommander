@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/table"
 	"github.com/pja237/slurmcommander-dev/internal/openapi"
+	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
 type SinfoJSON struct {
@@ -32,23 +32,27 @@ var SinfoTabCols = []table.Column{
 		Width: 15,
 	},
 	{
+		Title: "Part.",
+		Width: 5,
+	},
+	{
 		Title: "State",
 		Width: 10,
 	},
 	{
-		Title: "Cpus",
-		Width: 4,
-	},
-	{
-		Title: "Cpus Available",
-		Width: 4,
-	},
-	{
-		Title: "Memory Total",
+		Title: "CPUAvail",
 		Width: 10,
 	},
 	{
-		Title: "Memory Available",
+		Title: "CPUTotal",
+		Width: 10,
+	},
+	{
+		Title: "MEMAvail",
+		Width: 10,
+	},
+	{
+		Title: "MEMTotal",
 		Width: 10,
 	},
 	{
@@ -78,7 +82,7 @@ func (siJson *SinfoJSON) FilterSinfoTable(f string) (TableRows, SinfoJSON) {
 			app = true
 		}
 		if app {
-			siTabRows = append(siTabRows, table.Row{*v.Name, *v.State, strconv.Itoa(*v.Cpus), strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.RealMemory), strconv.Itoa(*v.FreeMemory), strings.Join(*v.StateFlags, ",")})
+			siTabRows = append(siTabRows, table.Row{*v.Name, strings.Join(*v.Partitions, ","), *v.State, strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.Cpus), strconv.Itoa(*v.FreeMemory), strconv.Itoa(*v.RealMemory), strings.Join(*v.StateFlags, ",")})
 			siJsonFiltered.Nodes = append(siJsonFiltered.Nodes, v)
 		}
 	}

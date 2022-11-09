@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/table"
 	"github.com/pja237/slurmcommander-dev/internal/openapidb"
+	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
 type SacctList []SacctEntry

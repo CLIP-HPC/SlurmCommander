@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -16,6 +16,7 @@ import (
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
 	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/styles"
+	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
 type errMsg error
@@ -391,9 +392,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// DOWN
 		case key.Matches(msg, keybindings.DefaultKeyMap.Down):
+			t := time.Now()
 			m.Log.Printf("Update: Move down\n")
 			activeTable.MoveDown(1)
-			m.Log.Printf("Update: Move down finished\n")
+			m.Log.Printf("Update: Move down finished in: %.3f sec\n", time.Since(t).Seconds())
 			m.lastKey = "down"
 
 		// PAGE DOWN
