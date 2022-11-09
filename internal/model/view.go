@@ -263,10 +263,15 @@ func (m Model) getJobInfo() string {
 
 	infoBoxMiddle := fmt.Sprintf(fmtStr, "Submit", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].SubmitTime, 0))
 	if *m.JobTab.SqueueFiltered.Jobs[n].StartTime != 0 {
-		infoBoxMiddle += fmt.Sprintf(fmtStrLast, "Start /expected", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].StartTime, 0))
+		infoBoxMiddle += fmt.Sprintf(fmtStr, "Start /expected", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].StartTime, 0))
 	} else {
-		infoBoxMiddle += fmt.Sprintf(fmtStrLast, "Start", "unknown")
+		infoBoxMiddle += fmt.Sprintf(fmtStr, "Start", "unknown")
 	}
+	// placeholder lines
+	infoBoxMiddle += "\n"
+	infoBoxMiddle += "\n"
+	// EO placeholder lines
+	infoBoxMiddle += fmt.Sprintf(fmtStrLast, "State reason", *m.JobTab.SqueueFiltered.Jobs[n].StateReason)
 
 	infoBoxWide := fmt.Sprintf(fmtStr, "Job Name", *m.JobTab.SqueueFiltered.Jobs[n].Name)
 	infoBoxWide += fmt.Sprintf(fmtStr, "Command", *m.JobTab.SqueueFiltered.Jobs[n].Command)
@@ -534,6 +539,7 @@ func (m Model) View() string {
 			MainWindow.WriteString(fmt.Sprintf("Filter value (search across: JobID, JobName, Account, UserName, JobState!):\n%s\n%s", m.JobTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		case m.JobTab.InfoOn:
 			// info
+			MainWindow.WriteString("\n")
 			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
 		}
 	case tabJobHist:
