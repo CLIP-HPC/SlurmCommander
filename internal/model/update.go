@@ -133,7 +133,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				i, ok := m.JobTab.Menu.SelectedItem().(jobtab.MenuItem)
 				if ok {
 					m.JobTab.MenuChoice = jobtab.MenuItem(i)
-					retCmd := m.JobTab.MenuChoice.ExecMenuItem(m.JobTab.SelectedJob, m.Log)
+					// host is needed for ssh command
+					host := m.JobTab.SqueueFiltered.Jobs[m.JobTab.SqueueTable.Cursor()].BatchHost
+					retCmd := m.JobTab.MenuChoice.ExecMenuItem(m.JobTab.SelectedJob, *host, m.Log)
 					return m, retCmd
 				}
 				//return m, tea.Quit
@@ -206,6 +208,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// TODO: https://pkg.go.dev/github.com/charmbracelet/bubbletea#WindowSizeMsg
 	// ToDo:
 	// prevent updates for non-selected tabs
+
+	// Ssh finished
+	case command.SshCompleted:
+		m.Log.Printf("Got SshCompleted msg, value: %#v\n", msg)
+		return m, nil
 
 	// UAccounts fetched
 	case command.UserAssoc:

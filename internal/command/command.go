@@ -318,3 +318,18 @@ func CallSbatch(jobfile string, l *log.Logger) tea.Cmd {
 		return scret
 	}
 }
+
+type SshCompleted struct {
+	SshErr error
+}
+
+func CallSsh(node string, l *log.Logger) tea.Cmd {
+	l.Printf("Start ssh to %s\n", node)
+	ssh := exec.Command("ssh", node)
+	return tea.ExecProcess(ssh, func(err error) tea.Msg {
+		l.Printf("End ssh with error: %s\n", err)
+		return SshCompleted{
+			SshErr: err,
+		}
+	})
+}
