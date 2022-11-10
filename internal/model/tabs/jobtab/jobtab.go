@@ -82,10 +82,10 @@ func (t *JobTab) GetStatsFiltered(l *log.Logger) {
 }
 
 // TODO: we don't need to return messages, we're called from update, just error and let update continue...
-func (m *MenuItem) ExecMenuItem(jobID string, l *log.Logger) tea.Cmd {
+func (m *MenuItem) ExecMenuItem(jobID string, node string, l *log.Logger) tea.Cmd {
 	//var msg tea.Msg
 
-	l.Printf("ExecMenuItem() jobID=%s m.action=%s\n", jobID, m.action)
+	l.Printf("ExecMenuItem() jobID=%s node=%s m.action=%s\n", jobID, node, m.action)
 
 	switch m.action {
 	case "CANCEL":
@@ -95,6 +95,8 @@ func (m *MenuItem) ExecMenuItem(jobID string, l *log.Logger) tea.Cmd {
 		return command.CallScontrolHold(jobID, l)
 	case "REQUEUE":
 		return command.CallScontrolRequeue(jobID, l)
+	case "SSH":
+		return command.CallSsh(node, l)
 	}
 
 	return nil
@@ -123,6 +125,10 @@ var MenuList = JobMenuOptions{
 		MenuItem{
 			action:      "CANCEL",
 			description: "Cancel the selected job",
+		},
+		MenuItem{
+			action:      "SSH",
+			description: "ssh connect to job batch node",
 		},
 		MenuItem{
 			action:      "REQUEUE",
