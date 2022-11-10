@@ -1,6 +1,8 @@
 package slurm
 
 import (
+	"log"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -61,21 +63,27 @@ var SinfoTabCols = []table.Column{
 	},
 }
 
-func (siJson *SinfoJSON) FilterSinfoTable(f string) (TableRows, SinfoJSON) {
+func (siJson *SinfoJSON) FilterSinfoTable(f string, l *log.Logger) (TableRows, SinfoJSON) {
 	var (
 		siTabRows      = TableRows{}
 		siJsonFiltered = SinfoJSON{}
 	)
 
+	l.Printf("FilterSinfoTable: rows %d", len(siJson.Nodes))
+	re, err := regexp.Compile(f)
+	if err != nil {
+		l.Printf("FAIL: compile regexp: %q with err: %s", f, err)
+		f = ""
+	}
 	for _, v := range siJson.Nodes {
 		app := false
 		if f != "" {
 			switch {
-			case strings.Contains(*v.Name, f):
+			case re.MatchString(*v.Name):
 				app = true
-			case strings.Contains(*v.State, f):
+			case re.MatchString(*v.State):
 				app = true
-			case strings.Contains(strings.Join(*v.StateFlags, ","), f):
+			case re.MatchString(strings.Join(*v.StateFlags, ",")):
 				app = true
 			}
 		} else {
