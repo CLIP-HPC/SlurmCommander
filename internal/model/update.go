@@ -330,7 +330,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			//for _, v := range msg.Nodes {
 			//	slurm.SinfoTabRows = append(slurm.SinfoTabRows, table.Row{*v.Name, *v.State, strconv.Itoa(*v.Cpus), strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.RealMemory), strconv.Itoa(*v.FreeMemory), strings.Join(*v.StateFlags, ",")})
 			//}
-			rows, sif := msg.FilterSinfoTable(m.JobClusterTab.Filter.Value())
+			rows, sif := msg.FilterSinfoTable(m.JobClusterTab.Filter.Value(), m.Log)
 			m.JobClusterTab.SinfoTable.SetRows(rows)
 			m.JobClusterTab.SinfoFiltered = sif
 			m.JobClusterTab.GetStatsFiltered(m.Log)

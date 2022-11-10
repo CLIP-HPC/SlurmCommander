@@ -2,8 +2,8 @@ package slurm
 
 import (
 	"log"
+	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/pja237/slurmcommander-dev/internal/openapidb"
 	"github.com/pja237/slurmcommander-dev/internal/table"
@@ -69,23 +69,28 @@ func (saList *SacctJobHist) FilterSacctTable(f string, l *log.Logger) (TableRows
 	)
 
 	l.Printf("FilterSacctTable: rows %d", len(saList.Jobs))
+	re, err := regexp.Compile(f)
+	if err != nil {
+		l.Printf("FAIL: compile regexp: %q with err: %s", f, err)
+		f = ""
+	}
 	for _, v := range saList.Jobs {
 		app := false
 		if f != "" {
 			switch {
-			case strings.Contains(strconv.Itoa(*v.JobId), f):
+			case re.MatchString(strconv.Itoa(*v.JobId)):
 				// Id
 				app = true
-			case strings.Contains(*v.Name, f):
+			case re.MatchString(*v.Name):
 				// Name
 				app = true
-			case strings.Contains(*v.Account, f):
+			case re.MatchString(*v.Account):
 				// State
 				app = true
-			case strings.Contains(*v.User, f):
+			case re.MatchString(*v.User):
 				// State
 				app = true
-			case strings.Contains(*v.State.Current, f):
+			case re.MatchString(*v.State.Current):
 				// State
 				app = true
 			}

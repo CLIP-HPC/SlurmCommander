@@ -561,7 +561,9 @@ func (m Model) View() string {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			// filter
 			MainWindow.WriteString("\n")
-			MainWindow.WriteString(fmt.Sprintf("Filter value (search across: JobID, JobName, Account, UserName, JobState!):\n%s\n%s", m.JobTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+			MainWindow.WriteString("Filter value (search across: JobID, JobName, Account, UserName, JobState!):\n")
+			MainWindow.WriteString(fmt.Sprintf("%s\n", m.JobTab.Filter.View()))
+			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
 		case m.JobTab.InfoOn:
 			// info
 			MainWindow.WriteString("\n")
@@ -603,7 +605,9 @@ func (m Model) View() string {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			// filter
 			MainWindow.WriteString("\n")
-			MainWindow.WriteString(fmt.Sprintf("Filter value (search across: JobID, JobName, AccountName, UserName, JobState):\n%s\n%s", m.JobHistTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+			MainWindow.WriteString("Filter value (search across: JobID, JobName, AccountName, UserName, JobState):\n")
+			MainWindow.WriteString(fmt.Sprintf("%s\n", m.JobHistTab.Filter.View()))
+			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
 		}
 	case tabJobDetails:
 		MainWindow.WriteString(m.tabJobDetails())
@@ -628,7 +632,11 @@ func (m Model) View() string {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			// filter
 			MainWindow.WriteString("\n")
-			MainWindow.WriteString(fmt.Sprintf("Filter value (search across: Name, State, StateFlags!):\n%s\n%s", m.JobClusterTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+			// filter
+			MainWindow.WriteString("\n")
+			MainWindow.WriteString("Filter value (search across: Name, State, StateFlags!):\n")
+			MainWindow.WriteString(fmt.Sprintf("%s\n", m.JobClusterTab.Filter.View()))
+			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
 		}
 	case tabAbout:
 		//MainWindow.WriteString(m.tabAbout())

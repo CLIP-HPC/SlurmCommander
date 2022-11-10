@@ -2,8 +2,8 @@ package slurm
 
 import (
 	"log"
+	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/pja237/slurmcommander-dev/internal/openapi"
@@ -73,20 +73,25 @@ func (sqJson *SqueueJSON) FilterSqueueTable(f string, l *log.Logger) (TableRows,
 	// TODO:  this is too slow, join & re2
 
 	l.Printf("Filter SQUEUE start.\n")
+	re, err := regexp.Compile(f)
+	if err != nil {
+		l.Printf("FAIL: compile regexp: %q with err: %s", f, err)
+		f = ""
+	}
 	t := time.Now()
 	for _, v := range sqJson.Jobs {
 		app := false
 		if f != "" {
 			switch {
-			case strings.Contains(strconv.Itoa(*v.JobId), f):
+			case re.MatchString(strconv.Itoa(*v.JobId)):
 				app = true
-			case strings.Contains(*v.Name, f):
+			case re.MatchString(*v.Name):
 				app = true
-			case strings.Contains(*v.Account, f):
+			case re.MatchString(*v.Account):
 				app = true
-			case strings.Contains(*v.UserName, f):
+			case re.MatchString(*v.UserName):
 				app = true
-			case strings.Contains(*v.JobState, f):
+			case re.MatchString(*v.JobState):
 				app = true
 			}
 		} else {
