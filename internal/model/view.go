@@ -291,13 +291,13 @@ func (m Model) getJobInfo() string {
 	return scr.String()
 }
 
-func genTabHelp(t int) string {
+func (m *Model) genTabHelp() string {
 	var th string
-	switch t {
+	switch m.ActiveTab {
 	case tabJobs:
 		th = "List of jobs in the queue"
 	case tabJobHist:
-		th = "Job history. List of all jobs from user associated accounts."
+		th = fmt.Sprintf("List of jobs in the last %d days from all user associated accounts. (timeout: %d seconds)", m.Globals.JobHistStart, m.Globals.JobHistTimeout)
 	case tabJobDetails:
 		th = "Job details, select a job from Job History tab"
 	case tabJobFromTemplate:
@@ -506,7 +506,7 @@ func (m Model) View() string {
 
 	// HEADER / TABS
 	scr.WriteString(m.genTabs())
-	scr.WriteString(genTabHelp(int(m.ActiveTab)))
+	scr.WriteString(m.genTabHelp())
 	scr.WriteString(fmt.Sprintf("Width: %d Height: %d\n", m.Globals.winW, m.Globals.winH))
 
 	// PICK and RENDER ACTIVE TAB
