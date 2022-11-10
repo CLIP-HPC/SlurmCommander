@@ -49,11 +49,15 @@ var SacctTabCols = []table.Column{
 		Width: 10,
 	},
 	{
-		Title: "State",
+		Title: "Account",
 		Width: 10,
 	},
 	{
-		Title: "Exit Code",
+		Title: "User",
+		Width: 10,
+	},
+	{
+		Title: "State",
 		Width: 10,
 	},
 }
@@ -75,6 +79,12 @@ func (saList *SacctJobHist) FilterSacctTable(f string, l *log.Logger) (TableRows
 			case strings.Contains(*v.Name, f):
 				// Name
 				app = true
+			case strings.Contains(*v.Account, f):
+				// State
+				app = true
+			case strings.Contains(*v.User, f):
+				// State
+				app = true
 			case strings.Contains(*v.State.Current, f):
 				// State
 				app = true
@@ -84,7 +94,7 @@ func (saList *SacctJobHist) FilterSacctTable(f string, l *log.Logger) (TableRows
 		}
 		if app {
 			//saTabRows = append(saTabRows, table.Row{v[0], v[1], v[2], v[3], v[4]})
-			saTabRows = append(saTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Partition, *v.State.Current, *v.ExitCode.Status})
+			saTabRows = append(saTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Partition, *v.Account, *v.User, *v.State.Current})
 			sacctHistFiltered.Jobs = append(sacctHistFiltered.Jobs, v)
 		}
 	}

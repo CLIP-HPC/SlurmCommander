@@ -297,7 +297,7 @@ func genTabHelp(t int) string {
 	case tabJobs:
 		th = "List of jobs in the queue"
 	case tabJobHist:
-		th = "Job history"
+		th = "Job history. List of all jobs from user associated accounts."
 	case tabJobDetails:
 		th = "Job details, select a job from Job History tab"
 	case tabJobFromTemplate:
@@ -578,7 +578,7 @@ func (m Model) View() string {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			// filter
 			MainWindow.WriteString("\n")
-			MainWindow.WriteString(fmt.Sprintf("Filter value (search across: JobID, JobName, JobState!):\n%s\n%s", m.JobHistTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
+			MainWindow.WriteString(fmt.Sprintf("Filter value (search across: JobID, JobName, AccountName, UserName, JobState):\n%s\n%s", m.JobHistTab.Filter.View(), "(Enter to finish, Esc to clear filter and abort)") + "\n")
 		}
 	case tabJobDetails:
 		MainWindow.WriteString(m.tabJobDetails())
