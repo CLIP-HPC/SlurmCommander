@@ -78,11 +78,16 @@ func (m Model) tabJobDetails() (scr string) {
 
 	// TODO: consider moving this to a table...
 
+	fmtStr := "%-20s : %-60s\n"
+	fmtStrX := "%-20s : %-60s"
+	//scr += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-20s : %-40s", "Job ID", strconv.Itoa(*job.JobId)))
+
 	head := ""
 	waitT := time.Unix(int64(*job.Time.Start), 0).Sub(time.Unix(int64(*job.Time.Submission), 0))
 	runT := time.Unix(int64(*job.Time.End), 0).Sub(time.Unix(int64(*job.Time.Start), 0))
-	fmtStr := "%-20s : %-40s\n"
-	head += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*job.JobId))
+	//head += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*job.JobId))
+	head += styles.StatsSeparatorTitle.Render(fmt.Sprintf(fmtStrX, "Job ID", strconv.Itoa(*job.JobId)))
+	head += "\n"
 	head += fmt.Sprintf(fmtStr, "Job Name", *job.Name)
 	head += fmt.Sprintf(fmtStr, "User", *job.User)
 	head += fmt.Sprintf(fmtStr, "Group", *job.Group)
@@ -97,20 +102,40 @@ func (m Model) tabJobDetails() (scr string) {
 	head += fmt.Sprintf(fmtStr, "QoS", *job.Qos)
 
 	//scr += styles.JobStepBoxStyle.Width(width).Render(head)
-	scr += styles.JobStepBoxStyle.Render(head)
-	scr += fmt.Sprintf("\n Steps count: %d", len(*job.Steps))
+	scr += styles.JobStepBoxStyle.Width(90).Render(head)
+	scr += "\n"
+
+	//scr += fmt.Sprintf("\n Steps count: %d", len(*job.Steps))
+	//scr += fmt.Sprintf("Steps count: %d", len(*job.Steps))
+	scr += styles.StatsSeparatorTitle.Render(fmt.Sprintf("Steps count: %d", len(*job.Steps)))
 
 	steps := ""
 	for i, v := range *job.Steps {
 
 		m.Log.Printf("Job Details, step: %d name: %s\n", i, *v.Step.Name)
-		step := fmt.Sprintf(fmtStr, "Name", *v.Step.Name)
+		step := styles.StatsSeparatorTitle.Render(fmt.Sprintf(fmtStrX, "Name", *v.Step.Name))
+		step += "\n"
 		step += fmt.Sprintf(fmtStr, "Nodes", *v.Nodes.Range)
-		step += fmt.Sprintf(fmtStr, "State", *v.State)
-		step += fmt.Sprintf(fmtStr, "ExitStatus", *v.ExitCode.Status)
+		if *v.State != "COMPLETED" {
+			step += styles.JobStepExitStatusRed.Render(fmt.Sprintf(fmtStrX, "State", *v.State))
+			step += "\n"
+		} else {
+			//step += fmt.Sprintf(fmtStr, "State", *v.State)
+			step += styles.JobStepExitStatusGreen.Render(fmt.Sprintf(fmtStrX, "State", *v.State))
+			step += "\n"
+		}
+		if *v.ExitCode.Status != "SUCCESS" {
+			step += styles.JobStepExitStatusRed.Render(fmt.Sprintf(fmtStrX, "ExitStatus", *v.ExitCode.Status))
+			step += "\n"
+		} else {
+			step += styles.JobStepExitStatusGreen.Render(fmt.Sprintf(fmtStrX, "ExitStatus", *v.ExitCode.Status))
+			step += "\n"
+		}
 		if *v.ExitCode.Status == "SIGNALED" {
-			step += fmt.Sprintf(fmtStr, "Signal ID", strconv.Itoa(*v.ExitCode.Signal.SignalId))
-			step += fmt.Sprintf(fmtStr, "SignalName", *v.ExitCode.Signal.Name)
+			step += styles.JobStepExitStatusRed.Render(fmt.Sprintf(fmtStrX, "Signal ID", strconv.Itoa(*v.ExitCode.Signal.SignalId)))
+			step += "\n"
+			step += styles.JobStepExitStatusRed.Render(fmt.Sprintf(fmtStrX, "SignalName", *v.ExitCode.Signal.Name))
+			step += "\n"
 		}
 		if v.KillRequestUser != nil {
 			step += fmt.Sprintf(fmtStr, "KillReqUser", *v.KillRequestUser)

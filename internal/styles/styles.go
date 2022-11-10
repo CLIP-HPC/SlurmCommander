@@ -10,7 +10,10 @@ var (
 	// Yellow
 	yellow = lipgloss.Color("#ffd700")
 	// Red
-	red = lipgloss.Color("#ff0000")
+	red = lipgloss.Color("#cc0000")
+	//red = lipgloss.Color("#b30000")
+	//green = lipgloss.Color("#009900")
+	green = lipgloss.Color("#00b300")
 
 	Tab = lipgloss.NewStyle().
 		Border(TabTabBorder, true).
@@ -75,4 +78,7 @@ var (
 
 	// Job steps
 	JobStepBoxStyle = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue)
+	//JobStepExitStatusRed = lipgloss.NewStyle().Padding(0, 0).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(red)
+	JobStepExitStatusRed   = lipgloss.NewStyle().Foreground(red)
+	JobStepExitStatusGreen = lipgloss.NewStyle().Foreground(green)
 )
