@@ -47,10 +47,6 @@ func max(a, b int) int {
 
 func (m Model) tabJobs() string {
 
-	// TODO: See what's more visually clear way to present info
-	// e.g. Show selected job info in:
-	// a) separate toggle-able window on the side OR
-	// b) header/footer (above/below) of the table, like `top` does
 	return m.SqueueTable.View() + "\n"
 }
 
@@ -74,18 +70,16 @@ func (m Model) tabJobDetails() (scr string) {
 	job := m.SacctSingleJobHist.Jobs[0]
 
 	m.Log.Printf("Job Details req %#v ,got: %#v\n", m.JobDetailsTab.SelJobID, job.JobId)
-	//scr = fmt.Sprintf("Job count: %d\n\n", len(m.SacctJob.Jobs))
 
-	// TODO: consider moving this to a table...
+	// TODO: consider moving this to a viewport...
 
 	fmtStr := "%-20s : %-60s\n"
 	fmtStrX := "%-20s : %-60s"
-	//scr += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-20s : %-40s", "Job ID", strconv.Itoa(*job.JobId)))
 
 	head := ""
 	waitT := time.Unix(int64(*job.Time.Start), 0).Sub(time.Unix(int64(*job.Time.Submission), 0))
 	runT := time.Unix(int64(*job.Time.End), 0).Sub(time.Unix(int64(*job.Time.Start), 0))
-	//head += fmt.Sprintf(fmtStr, "Job ID", strconv.Itoa(*job.JobId))
+
 	head += styles.StatsSeparatorTitle.Render(fmt.Sprintf(fmtStrX, "Job ID", strconv.Itoa(*job.JobId)))
 	head += "\n"
 	head += fmt.Sprintf(fmtStr, "Job Name", *job.Name)
@@ -101,13 +95,10 @@ func (m Model) tabJobDetails() (scr string) {
 	head += fmt.Sprintf(fmtStr, "Priority", strconv.Itoa(*job.Priority))
 	head += fmt.Sprintf(fmtStr, "QoS", *job.Qos)
 
-	//scr += styles.JobStepBoxStyle.Width(width).Render(head)
 	scr += styles.JobStepBoxStyle.Width(90).Render(head)
 	scr += "\n"
 
-	//scr += fmt.Sprintf("\n Steps count: %d", len(*job.Steps))
-	//scr += fmt.Sprintf("Steps count: %d", len(*job.Steps))
-	scr += styles.StatsSeparatorTitle.Render(fmt.Sprintf("Steps count: %d", len(*job.Steps)))
+	scr += styles.TextYellow.Render(fmt.Sprintf("Steps count: %d", len(*job.Steps)))
 
 	steps := ""
 	for i, v := range *job.Steps {
@@ -141,13 +132,9 @@ func (m Model) tabJobDetails() (scr string) {
 			step += fmt.Sprintf(fmtStr, "KillReqUser", *v.KillRequestUser)
 		}
 		step += fmt.Sprintf(fmtStr, "Tasks", strconv.Itoa(*v.Tasks.Count))
-		//steps += lipgloss.JoinVertical(lipgloss.Bottom, steps, styles.JobStepBoxStyle.Width(m.Globals.winW-10).Render(step))
-		//
-		//steps += "\n" + styles.JobStepBoxStyle.Width(width).Render(step)
+
+		// when the step is finished, append it to steps string
 		steps += "\n" + styles.JobStepBoxStyle.Render(step)
-		//
-		//m.Log.Printf("Step %d, VALUE: %q", i, steps)
-		//m.Log.Printf("================================================================================\n")
 	}
 	scr += steps
 
@@ -219,6 +206,7 @@ func (m Model) tabAbout() string {
 petar.jager@imba.oeaw.ac.at
 CLIP-HPC Team @ VBC
 
+Contributors:
 `
 
 	return s
@@ -503,15 +491,20 @@ func (m Model) View() string {
 	// HEADER / TABS
 	scr.WriteString(m.genTabs())
 	scr.WriteString(m.genTabHelp())
-	scr.WriteString(fmt.Sprintf("Width: %d Height: %d\n", m.Globals.winW, m.Globals.winH))
+
+	if m.Debug {
+		// One debug line
+		scr.WriteString(fmt.Sprintf("%s Width: %d Height: %d\n", styles.TextRed.Render("DEBUG ON:"), m.Globals.winW, m.Globals.winH))
+	}
 
 	// PICK and RENDER ACTIVE TAB
-
 	switch m.ActiveTab {
 	case tabJobs:
 		// Top Main
-		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
-		MainWindow.WriteString(GenCountStr(m.JobTab.Stats.StateCnt, m.Log))
+		MainWindow.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
+		// This is gone to Stats box
+		//MainWindow.WriteString(GenCountStr(m.JobTab.Stats.StateCnt, m.Log))
+		MainWindow.WriteString("\n")
 
 		// Mid Main: table || table+stats || table+menu
 		switch {
@@ -540,6 +533,7 @@ func (m Model) View() string {
 			MainWindow.WriteString("\n")
 			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
 		}
+
 	case tabJobHist:
 		// If sacct timed out/errored, instruct the user to reduce fetch period from default 7 days
 		m.Log.Printf("HistFetch: %t HistFetchFail: %t\n", m.JobHistTab.HistFetched, m.JobHistTab.HistFetchFail)
@@ -557,9 +551,12 @@ func (m Model) View() string {
 		}
 
 		// Top Main
-		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
-		MainWindow.WriteString(GenCountStr(m.JobHistTab.Stats.StateCnt, m.Log))
-		MainWindow.WriteString(fmt.Sprintf("AvgWait: %s MedianWait: %s MinWait: %s Maxwait: %s\n", m.JobHistTab.Stats.AvgWait.String(), m.JobHistTab.MedWait.String(), m.JobHistTab.MinWait.String(), m.JobHistTab.MaxWait.String()))
+		MainWindow.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
+		// Counters, moved to Stats box
+		//MainWindow.WriteString(GenCountStr(m.JobHistTab.Stats.StateCnt, m.Log))
+		MainWindow.WriteString("\n")
+		// Waiting times, also gone to Stats box
+		//MainWindow.WriteString(fmt.Sprintf("AvgWait: %s MedianWait: %s MinWait: %s Maxwait: %s\n", m.JobHistTab.Stats.AvgWait.String(), m.JobHistTab.MedWait.String(), m.JobHistTab.MinWait.String(), m.JobHistTab.MaxWait.String()))
 
 		// Mid Main: table || table+stats
 		switch {
@@ -580,14 +577,17 @@ func (m Model) View() string {
 			MainWindow.WriteString(fmt.Sprintf("%s\n", m.JobHistTab.Filter.View()))
 			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
 		}
+
 	case tabJobDetails:
 		MainWindow.WriteString(m.tabJobDetails())
+
 	case tabJobFromTemplate:
 		MainWindow.WriteString(m.tabJobFromTemplate())
+
 	case tabCluster:
 		// Top Main
-		MainWindow.WriteString(fmt.Sprintf("Filter: %10.10s\tItems: %d\n\n", m.JobClusterTab.Filter.Value(), len(m.JobClusterTab.SinfoFiltered.Nodes)))
-		MainWindow.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))
+		MainWindow.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n\n", m.JobClusterTab.Filter.Value(), len(m.JobClusterTab.SinfoFiltered.Nodes)))
+		//MainWindow.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))
 		MainWindow.WriteString(m.tabClusterBars())
 
 		// Mid Main: table || table+stats
@@ -608,9 +608,12 @@ func (m Model) View() string {
 			MainWindow.WriteString("Filter value (search across: Name, State, StateFlags!):\n")
 			MainWindow.WriteString(fmt.Sprintf("%s\n", m.JobClusterTab.Filter.View()))
 			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
+		default:
+			MainWindow.WriteString("\n")
+			MainWindow.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))
 		}
+
 	case tabAbout:
-		//MainWindow.WriteString(m.tabAbout())
 		MainWindow.WriteString(m.tabAbout())
 	}
 
