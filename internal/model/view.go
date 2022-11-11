@@ -151,30 +151,7 @@ func (m Model) tabJobDetails() (scr string) {
 	}
 	scr += steps
 
-	//// get Type of struct
-	//t := reflect.TypeOf(m.JobDetailsTab.Jobs[0])
-	//// get Value of struct
-	//v := reflect.ValueOf(m.JobDetailsTab.Jobs[0])
-	//// get struct fields from Type
-	//f := reflect.VisibleFields(t)
-	//scr += fmt.Sprintf("num. Fields = %d\n", len(f))
-	//for _, val := range f {
-	//	dv := v.FieldByName(val.Name).Elem()
-	//	switch dv.Kind() {
-	//	case reflect.String:
-	//		scr += fmt.Sprintf("*string FIELD: %-20s VALUE: %-20s\n", val.Name, dv.String())
-	//	case reflect.Int:
-	//		scr += fmt.Sprintf("*int FIELD: %-20s VALUE: %-20d\n", val.Name, dv.Int())
-	//	default:
-	//		scr += fmt.Sprintf("UnknownKind %v FIELD: %-20s VALUE: %-20v\n", v.FieldByName(val.Name).Kind(), val.Name, v.FieldByName(val.Name).String())
-
-	//	}
-	//}
-	//scr += fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID)
-	//m.LogF.WriteString(fmt.Sprintf("Job:\n\n%#v\n\nSelected job: %#v\n\n", m.JobDetailsTab.SacctJob, m.JobDetailsTab.SelJobID))
-
 	return scr
-	//return m.JobDetailsTab.SelJobID
 }
 
 func (m Model) tabJobFromTemplate() string {
@@ -182,7 +159,6 @@ func (m Model) tabJobFromTemplate() string {
 	if m.EditTemplate {
 		return m.TemplateEditor.View()
 	} else {
-		// TODO: if len(table)==0 return "no templates found"
 		if len(m.JobFromTemplateTab.TemplatesList) == 0 {
 			return styles.NotFound.Render("\nNo templates found!\n")
 		} else {
@@ -229,7 +205,6 @@ func (m Model) tabClusterBars() string {
 }
 func (m Model) tabCluster() string {
 
-	// table
 	scr := m.SinfoTable.View() + "\n"
 
 	return scr
@@ -246,10 +221,6 @@ CLIP-HPC Team @ VBC
 
 `
 
-	//st := styles.MainWindow.Copy().Height(m.Globals.winH - 10)
-
-	//return "About tab active" + s
-	//return styles.MainWindow.Render(styles.JobInfoBox.Render(s))
 	return s
 }
 
@@ -644,21 +615,6 @@ func (m Model) View() string {
 	}
 
 	// FOOTER
-	//MainWindow.WriteString("\n")
-	// Debug information:
-	//if m.Globals.Debug {
-	//	scr.WriteString("DEBUG:\n")
-	//	scr.WriteString(fmt.Sprintf("Last key pressed: %q\n", m.lastKey))
-	//	scr.WriteString(fmt.Sprintf("Window Width: %d\tHeight:%d\n", m.winW, m.winH))
-	//	scr.WriteString(fmt.Sprintf("Active tab: %d\t Active Filter value: TBD\t InfoOn: %v\n", m.ActiveTab, m.InfoOn))
-	//	scr.WriteString(fmt.Sprintf("Debug Msg: %q\n", m.DebugMsg))
-	//}
-
-	// TODO: Help doesn't split into multiple lines (e.g. when window too narrow)
-	//scr.WriteString(m.Help.View(keybindings.DefaultKeyMap))
-
-	//scr.WriteString(styles.MainWindow.Render(MainWindow.String()))
-	//scr.WriteString(styles.HelpWindow.Render(m.Help.View(keybindings.DefaultKeyMap)))
 	scr.WriteString(lipgloss.JoinVertical(lipgloss.Left, styles.MainWindow.Render(MainWindow.String()), styles.HelpWindow.Render(m.Help.View(keybindings.DefaultKeyMap))))
 
 	return scr.String()
