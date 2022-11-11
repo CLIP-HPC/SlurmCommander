@@ -15,6 +15,12 @@ var (
 	//green = lipgloss.Color("#009900")
 	green = lipgloss.Color("#00b300")
 
+	// Generic text color styles
+	TextRed    = lipgloss.NewStyle().Foreground(red)
+	TextYellow = lipgloss.NewStyle().Foreground(yellow)
+	TextGreen  = lipgloss.NewStyle().Foreground(green)
+	TextBlue   = lipgloss.NewStyle().Foreground(blue)
+
 	Tab = lipgloss.NewStyle().
 		Border(TabTabBorder, true).
 		BorderForeground(TabColor).

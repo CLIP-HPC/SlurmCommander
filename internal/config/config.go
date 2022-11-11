@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/BurntSushi/toml"
 )
@@ -17,10 +18,15 @@ import (
 type ConfigContainer struct {
 	Prefix   string            // if this is set, then we prepend this path to all commands
 	Binpaths map[string]string `json:"binpaths"` // else, we specify one by one
+	Tick     uint
 }
 
 func NewConfigContainer() *ConfigContainer {
 	return new(ConfigContainer)
+}
+
+func (cc *ConfigContainer) GetTick() time.Duration {
+	return time.Duration(cc.Tick)
 }
 
 // Read & unmarshall configuration from 'name' file into configContainer structure
@@ -48,6 +54,10 @@ func (cc *ConfigContainer) GetConfig() error {
 		if err != nil {
 			cc.testNsetBinPaths()
 			return err
+		}
+
+		if cc.Tick == 0 {
+			cc.Tick = 3
 		}
 
 	}

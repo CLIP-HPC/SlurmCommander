@@ -18,7 +18,6 @@ import (
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobfromtemplate"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobhisttab"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
-	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 	"github.com/pja237/slurmcommander-dev/internal/version"
 )
@@ -49,6 +48,9 @@ func main() {
 
 	log.Printf("INFO: %s\n", cc.DumpConfig())
 	command.NewCmdCC(*cc)
+	jobtab.NewCmdCC(*cc)
+	clustertab.NewCmdCC(*cc)
+	jobhisttab.NewCmdCC(*cc)
 
 	// TODO: move all this away to view somewhere...
 	s := table.DefaultStyles()
@@ -92,11 +94,11 @@ func main() {
 			JobHistTimeout:  *args.HistTimeout,
 		},
 		JobTab: jobtab.JobTab{
-			SqueueTable: table.New(table.WithColumns(slurm.SqueueTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),
+			SqueueTable: table.New(table.WithColumns(jobtab.SqueueTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
 			Filter:      ti,
 		},
 		JobHistTab: jobhisttab.JobHistTab{
-			SacctTable:    table.New(table.WithColumns(slurm.SacctTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),
+			SacctTable:    table.New(table.WithColumns(jobhisttab.SacctTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
 			Filter:        ti,
 			HistFetched:   false,
 			HistFetchFail: false,
@@ -111,7 +113,7 @@ func main() {
 			),
 		},
 		JobClusterTab: clustertab.JobClusterTab{
-			SinfoTable: table.New(table.WithColumns(slurm.SinfoTabCols), table.WithRows(slurm.TableRows{}), table.WithStyles(s)),
+			SinfoTable: table.New(table.WithColumns(clustertab.SinfoTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
 			Filter:     ti,
 		},
 	}

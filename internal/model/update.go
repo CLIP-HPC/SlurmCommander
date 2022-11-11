@@ -12,7 +12,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/pja237/slurmcommander-dev/internal/command"
 	"github.com/pja237/slurmcommander-dev/internal/keybindings"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/clustertab"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobfromtemplate"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobhisttab"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
 	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/styles"
@@ -96,7 +98,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				case tabCluster:
 					m.JobClusterTab.GetStatsFiltered(m.Log)
-					return m, command.QuickGetSinfo()
+					return m, clustertab.QuickGetSinfo(m.Log)
 				default:
 					return m, nil
 				}
@@ -223,7 +225,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Now we trigger a sacctHist
 		//return m, nil
 		m.Log.Printf("Appended UserAssoc msg go Globals, calling GetSacctHist()\n")
-		return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Globals.JobHistStart, m.Globals.JobHistTimeout, m.Log)
+		return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Globals.JobHistStart, m.Globals.JobHistTimeout, m.Log)
 
 	// UserName fetched
 	case command.UserName:
@@ -240,17 +242,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Shold executed
 	case command.SHoldSent:
 		m.Log.Printf("Got SHoldSent msg on job %q\n", msg.Jobid)
-		return m, command.TimedGetSqueue()
+		return m, jobtab.TimedGetSqueue(m.Log)
 
 	// Scancel executed
 	case command.ScancelSent:
 		m.Log.Printf("Got ScancelSent msg on job %q\n", msg.Jobid)
-		return m, command.TimedGetSqueue()
+		return m, jobtab.TimedGetSqueue(m.Log)
 
 	// Srequeue executed
 	case command.SRequeueSent:
 		m.Log.Printf("Got SRequeueSent msg on job %q\n", msg.Jobid)
-		return m, command.TimedGetSqueue()
+		return m, jobtab.TimedGetSqueue(m.Log)
 
 	// Get initial job template list
 	case jobfromtemplate.TemplatesListRows:
@@ -304,7 +306,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.SinfoTable.SetHeight(m.winH - 30)
 
 	// JobTab update
-	case slurm.SqueueJSON:
+	case jobtab.SqueueJSON:
 		m.Log.Printf("U(): got SqueueJSON\n")
 		if len(msg.Jobs) != 0 {
 			m.Squeue = msg
@@ -322,14 +324,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.DebugMsg += "J"
 		if m.ActiveTab == tabJobs {
 			m.DebugMsg += "2"
-			return m, command.TimedGetSqueue()
+			return m, jobtab.TimedGetSqueue(m.Log)
 		} else {
 			m.DebugMsg += "3"
 			return m, nil
 		}
 
 	// Cluster tab update
-	case slurm.SinfoJSON:
+	case clustertab.SinfoJSON:
 		m.Log.Printf("U(): got SinfoJSON\n")
 		if len(msg.Nodes) != 0 {
 			m.Sinfo = msg
@@ -347,7 +349,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.DebugMsg += "C"
 		if m.ActiveTab == tabCluster {
 			m.DebugMsg += "4"
-			return m, command.TimedGetSinfo()
+			return m, clustertab.TimedGetSinfo()
 		} else {
 			m.DebugMsg += "5"
 			return m, nil
@@ -360,9 +362,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	// Job History tab update - NEW, with wrapped failure message
-	case command.JobHistTabMsg:
+	case jobhisttab.JobHistTabMsg:
 		m.Log.Printf("Got SacctJobHist len: %d\n", len(msg.Jobs))
-		m.JobHistTab.SacctHist = msg.SacctJobHist
+		m.JobHistTab.SacctHist = msg.SacctJSON
 		m.JobHistTab.HistFetchFail = msg.HistFetchFail
 		// Filter and create filtered table
 		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
@@ -375,7 +377,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	// Job History tab update
-	case slurm.SacctJobHist:
+	case jobhisttab.SacctJSON:
 		m.Log.Printf("Got SacctJobHist len: %d\n", len(msg.Jobs))
 		m.JobHistTab.SacctHist = msg
 		// Filter and create filtered table
@@ -436,11 +438,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch m.ActiveTab {
 			case tabJobs:
 				m.DebugMsg += "Tj"
-				return m, command.TimedGetSqueue()
+				return m, jobtab.TimedGetSqueue(m.Log)
 
 			case tabCluster:
 				m.DebugMsg += "Tc"
-				return m, command.TimedGetSinfo()
+				return m, clustertab.TimedGetSinfo()
 			}
 
 		// SLASH

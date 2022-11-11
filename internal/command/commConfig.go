@@ -5,13 +5,10 @@ const (
 )
 
 var (
-	sinfoCmdSwitches       = []string{"-a", "--json"}
-	squeueCmdSwitches      = []string{"-a", "--json"}
-	sacctHistCmdSwitches   = []string{"-n", "--json"}
-	sacctJobCmdSwitches    = []string{"-n", "--json", "-j"}
-	scancelJobCmdSwitches  = []string{}
-	sholdJobCmdSwitches    = []string{"hold"}
-	srequeueJobCmdSwitches = []string{"requeue"}
-	sbatchCmdSwitches      = []string{}
-	sacctmgrCmdSwitches    = []string{"list", "Association", "format=account", "-P", "-n"}
+	SacctJobCmdSwitches    = []string{"-n", "--json", "-j"}
+	ScancelJobCmdSwitches  = []string{}
+	SholdJobCmdSwitches    = []string{"hold"}
+	SrequeueJobCmdSwitches = []string{"requeue"}
+	SbatchCmdSwitches      = []string{}
+	SacctmgrCmdSwitches    = []string{"list", "Association", "format=account", "-P", "-n"}
 )

@@ -4,11 +4,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/pja237/slurmcommander-dev/internal/keybindings"
-	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
@@ -17,8 +14,8 @@ type JobClusterTab struct {
 	SinfoTable    table.Model
 	CpuBar        progress.Model
 	MemBar        progress.Model
-	Sinfo         slurm.SinfoJSON
-	SinfoFiltered slurm.SinfoJSON
+	Sinfo         SinfoJSON
+	SinfoFiltered SinfoJSON
 	Filter        textinput.Model
 	Stats
 }
@@ -47,23 +44,4 @@ func (t *JobClusterTab) GetStatsFiltered(l *log.Logger) {
 		t.Stats.StateSimpleCnt[*v.State]++
 	}
 	l.Printf("GetStatsFiltered end\n")
-}
-
-type Keys map[*key.Binding]bool
-
-var KeyMap = Keys{
-	&keybindings.DefaultKeyMap.Up:       true,
-	&keybindings.DefaultKeyMap.Down:     true,
-	&keybindings.DefaultKeyMap.PageUp:   true,
-	&keybindings.DefaultKeyMap.PageDown: true,
-	&keybindings.DefaultKeyMap.Slash:    true,
-	&keybindings.DefaultKeyMap.Info:     false,
-	&keybindings.DefaultKeyMap.Enter:    false,
-	&keybindings.DefaultKeyMap.Stats:    true,
-}
-
-func (k *Keys) SetupKeys() {
-	for k, v := range KeyMap {
-		k.SetEnabled(v)
-	}
 }

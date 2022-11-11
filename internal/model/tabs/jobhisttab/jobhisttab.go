@@ -4,10 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/pja237/slurmcommander-dev/internal/keybindings"
-	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/stats"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
@@ -17,8 +14,8 @@ type JobHistTab struct {
 	HistFetched       bool // signals View() if sacct call is finished, to print "waiting for..." message
 	HistFetchFail     bool // if sacct call times out/errors, this is set to true
 	SacctTable        table.Model
-	SacctHist         slurm.SacctJobHist
-	SacctHistFiltered slurm.SacctJobHist
+	SacctHist         SacctJSON
+	SacctHistFiltered SacctJSON
 	Filter            textinput.Model
 	Stats
 }
@@ -52,23 +49,4 @@ func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
 	l.Printf("GetStatsFiltered avgwait: %d\n", t.AvgWait)
 	l.Printf("GetStatsFiltered medwait: %d\n", t.MedWait)
 	l.Printf("GetStatsFiltered end\n")
-}
-
-type Keys map[*key.Binding]bool
-
-var KeyMap = Keys{
-	&keybindings.DefaultKeyMap.Up:       true,
-	&keybindings.DefaultKeyMap.Down:     true,
-	&keybindings.DefaultKeyMap.PageUp:   true,
-	&keybindings.DefaultKeyMap.PageDown: true,
-	&keybindings.DefaultKeyMap.Slash:    true,
-	&keybindings.DefaultKeyMap.Info:     false,
-	&keybindings.DefaultKeyMap.Enter:    true,
-	&keybindings.DefaultKeyMap.Stats:    true,
-}
-
-func (k *Keys) SetupKeys() {
-	for k, v := range KeyMap {
-		k.SetEnabled(v)
-	}
 }
