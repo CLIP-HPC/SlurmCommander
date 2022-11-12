@@ -60,21 +60,16 @@ func (siJson *SinfoJSON) FilterSinfoTable(f string, l *log.Logger) (TableRows, S
 		l.Printf("FAIL: compile regexp: %q with err: %s", f, err)
 		f = ""
 	}
+
 	for _, v := range siJson.Nodes {
-		app := false
-		if f != "" {
-			switch {
-			case re.MatchString(*v.Name):
-				app = true
-			case re.MatchString(*v.State):
-				app = true
-			case re.MatchString(strings.Join(*v.StateFlags, ",")):
-				app = true
-			}
-		} else {
-			app = true
-		}
-		if app {
+
+		line := strings.Join([]string{
+			*v.Name,
+			*v.State,
+			strings.Join(*v.StateFlags, ","),
+		}, ".")
+
+		if re.MatchString(line) {
 			siTabRows = append(siTabRows, table.Row{*v.Name, strings.Join(*v.Partitions, ","), *v.State, strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.Cpus), strconv.Itoa(*v.FreeMemory), strconv.Itoa(*v.RealMemory), strings.Join(*v.StateFlags, ",")})
 			siJsonFiltered.Nodes = append(siJsonFiltered.Nodes, v)
 		}

@@ -4,6 +4,7 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pja237/slurmcommander-dev/internal/slurm"
@@ -54,26 +55,23 @@ func (sqJson *SqueueJSON) FilterSqueueTable(f string, l *log.Logger) (TableRows,
 	}
 	t := time.Now()
 
-	// TODO:  consider: 1. join &  2. re.Match
+	// NEW: Filter:
+	// 	1. join strings from job into one line
+	// 	2. re.MatchString(line)
+	// Allows doing matches across multiple columns, e.g.: "bash.*(als|gmi)" - "bash jobs BY als or gmi accounts"
 	for _, v := range sqJson.Jobs {
-		app := false
-		if f != "" {
-			switch {
-			case re.MatchString(strconv.Itoa(*v.JobId)):
-				app = true
-			case re.MatchString(*v.Name):
-				app = true
-			case re.MatchString(*v.Account):
-				app = true
-			case re.MatchString(*v.UserName):
-				app = true
-			case re.MatchString(*v.JobState):
-				app = true
-			}
-		} else {
-			app = true
-		}
-		if app {
+
+		// NEW: 1. JOIN
+		line := strings.Join([]string{
+			strconv.Itoa(*v.JobId),
+			*v.Name,
+			*v.Account,
+			*v.UserName,
+			*v.JobState,
+		}, ".")
+
+		// NEW: 2. MATCH
+		if re.MatchString(line) {
 			sqTabRows = append(sqTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Account, *v.UserName, *v.JobState, strconv.Itoa(*v.Priority)})
 			sqJsonFiltered.Jobs = append(sqJsonFiltered.Jobs, v)
 		}

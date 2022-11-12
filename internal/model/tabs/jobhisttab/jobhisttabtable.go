@@ -4,6 +4,7 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/table"
@@ -51,31 +52,18 @@ func (saList *SacctJSON) FilterSacctTable(f string, l *log.Logger) (TableRows, S
 		l.Printf("FAIL: compile regexp: %q with err: %s", f, err)
 		f = ""
 	}
+
 	for _, v := range saList.Jobs {
-		app := false
-		if f != "" {
-			switch {
-			case re.MatchString(strconv.Itoa(*v.JobId)):
-				// Id
-				app = true
-			case re.MatchString(*v.Name):
-				// Name
-				app = true
-			case re.MatchString(*v.Account):
-				// State
-				app = true
-			case re.MatchString(*v.User):
-				// State
-				app = true
-			case re.MatchString(*v.State.Current):
-				// State
-				app = true
-			}
-		} else {
-			app = true
-		}
-		if app {
-			//saTabRows = append(saTabRows, table.Row{v[0], v[1], v[2], v[3], v[4]})
+
+		line := strings.Join([]string{
+			strconv.Itoa(*v.JobId),
+			*v.Name,
+			*v.Account,
+			*v.User,
+			*v.State.Current,
+		}, ".")
+
+		if re.MatchString(line) {
 			saTabRows = append(saTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Partition, *v.Account, *v.User, *v.State.Current})
 			sacctHistFiltered.Jobs = append(sacctHistFiltered.Jobs, v)
 		}
