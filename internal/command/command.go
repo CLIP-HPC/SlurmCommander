@@ -83,6 +83,7 @@ func GetUserAssoc(u string, l *log.Logger) tea.Cmd {
 }
 
 func SingleJobGetSacct(jobid string, d uint, l *log.Logger) tea.Cmd {
+	// TODO: this we DO NOT need!
 	return func() tea.Msg {
 		var sacctJob slurm.SacctSingleJobHist
 

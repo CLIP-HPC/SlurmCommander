@@ -154,7 +154,14 @@ func (m Model) tabJobDetails() (scr string) {
 			if t.Count != nil {
 				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
 				tresAlloc += " "
-				tresAlloc += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+				if *t.Type == "gres" {
+					// TODO:
+					fmtStr := "%-20s : %-60s\n"
+					tresAlloc += fmt.Sprintf(fmtStr, *t.Type, strings.Join([]string{*t.Name, strconv.Itoa(*t.Count)}, ":"))
+				} else {
+					// TODO:
+					tresAlloc += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+				}
 			}
 		}
 		// REQUESTED:MIN
