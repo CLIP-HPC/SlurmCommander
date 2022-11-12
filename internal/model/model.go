@@ -72,6 +72,8 @@ type Globals struct {
 	config.ConfigContainer
 	JobHistStart   uint
 	JobHistTimeout uint
+	ErrorMsg       error
+	ErrorHelp      string
 }
 
 // FilterSwitch == -1 if filter is off.

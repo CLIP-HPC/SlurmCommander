@@ -211,6 +211,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// ToDo:
 	// prevent updates for non-selected tabs
 
+	// ERROR msg
+	case command.ErrorMsg:
+		m.Log.Printf("ERROR msg, from: %s\n", msg.From)
+		m.Log.Printf("ERROR msg, original error: %q\n", msg.OrigErr)
+		m.Globals.ErrorMsg = msg.OrigErr
+		m.Globals.ErrorHelp = msg.ErrHelp
+		// cases when this is BAD and we can't continue
+		switch msg.From {
+		case "GetUserName", "GetUserAssoc":
+			return m, tea.Quit
+		}
+		return m, nil
+
 	// Ssh finished
 	case command.SshCompleted:
 		m.Log.Printf("Got SshCompleted msg, value: %#v\n", msg)

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/pja237/slurmcommander-dev/internal/command"
 	"github.com/pja237/slurmcommander-dev/internal/config"
 )
 
@@ -51,6 +52,7 @@ func GetSacctHist(uaccs string, d uint, t uint, l *log.Logger) tea.Cmd {
 		if err != nil {
 			l.Printf("Error exec sacct: %q\n", err)
 			// set error, return.
+			// TODO: see how to fit this with the new commands-return-command.ErrorMsg pattern
 			jht.HistFetchFail = true
 			return jht
 		}
@@ -58,9 +60,14 @@ func GetSacctHist(uaccs string, d uint, t uint, l *log.Logger) tea.Cmd {
 
 		err = json.Unmarshal(out, &jht.SacctJSON)
 		if err != nil {
-			jht.HistFetchFail = true
+			//jht.HistFetchFail = true
 			l.Printf("Error unmarshall: %q\n", err)
-			return jht
+			return command.ErrorMsg{
+				From:    "GetSacctHist",
+				ErrHelp: "sacct JSON failed to parse, note your slurm version and open an issue with us here: https://github.com/pja237/SlurmCommander-dev/issues/new/choose",
+				OrigErr: err,
+			}
+			//return jht
 		}
 
 		jht.HistFetchFail = false

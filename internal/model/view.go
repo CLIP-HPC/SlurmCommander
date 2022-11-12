@@ -571,7 +571,7 @@ func (m Model) View() string {
 
 	if m.Debug {
 		// One debug line
-		scr.WriteString(fmt.Sprintf("%s Width: %d Height: %d\n", styles.TextRed.Render("DEBUG ON:"), m.Globals.winW, m.Globals.winH))
+		scr.WriteString(fmt.Sprintf("%s Width: %d Height: %d Error: %s\n", styles.TextRed.Render("DEBUG ON:"), m.Globals.winW, m.Globals.winH, m.Globals.ErrorHelp))
 	}
 
 	// PICK and RENDER ACTIVE TAB
