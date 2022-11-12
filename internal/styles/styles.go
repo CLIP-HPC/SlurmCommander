@@ -83,8 +83,9 @@ var (
 	JobInfoInBottomBox = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue).MaxHeight(7)
 
 	// Job steps
-	JobStepBoxStyle = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue)
+	JobStepBoxStyle = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
 	//JobStepExitStatusRed = lipgloss.NewStyle().Padding(0, 0).BorderStyle(lipgloss.RoundedBorder()).BorderForeground(red)
 	JobStepExitStatusRed   = lipgloss.NewStyle().Foreground(red)
 	JobStepExitStatusGreen = lipgloss.NewStyle().Foreground(green)
+	TresBox                = lipgloss.NewStyle().Border(lipgloss.NormalBorder()).BorderForeground(blue).Width(40)
 )

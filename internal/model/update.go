@@ -482,8 +482,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
-				m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
-				return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID, m.Globals.JobHistStart, m.Log)
+				// TODO: this we change to directly address data from SacctHistFiltered instead of
+				// calling another sacct Cmd
+				//m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
+				//return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID, m.Globals.JobHistStart, m.Log)
+				m.JobDetailsTab.SelJobIDNew = n
+				return m, nil
 
 			// Job from Template tab: Open template for editing
 			case tabJobFromTemplate:

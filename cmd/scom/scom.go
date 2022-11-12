@@ -15,6 +15,7 @@ import (
 	"github.com/pja237/slurmcommander-dev/internal/logger"
 	"github.com/pja237/slurmcommander-dev/internal/model"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/clustertab"
+	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobdetailstab"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobfromtemplate"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobhisttab"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
@@ -102,6 +103,9 @@ func main() {
 			Filter:        ti,
 			HistFetched:   false,
 			HistFetchFail: false,
+		},
+		JobDetailsTab: jobdetailstab.JobDetailsTab{
+			SelJobIDNew: -1,
 		},
 		JobFromTemplateTab: jobfromtemplate.JobFromTemplateTab{
 			EditTemplate: false,

@@ -59,15 +59,22 @@ func (m Model) tabJobDetails() (scr string) {
 
 	// race between View() call and command.SingleJobGetSacct(m.JobDetailsTab.SelJobID) call
 	switch {
-	case m.JobDetailsTab.SelJobID == "":
+	//case m.JobDetailsTab.SelJobID == "":
+	//	return "Select a job from the Job History tab.\n"
+	case m.JobDetailsTab.SelJobIDNew == -1:
 		return "Select a job from the Job History tab.\n"
-	case len(m.SacctSingleJobHist.Jobs) == 0:
-		return fmt.Sprintf("Waiting for job %s info...\n", m.JobDetailsTab.SelJobID)
-
+	//case len(m.SacctSingleJobHist.Jobs) == 0:
+	//	return fmt.Sprintf("Waiting for job %s info...\n", m.JobDetailsTab.SelJobID)
+	case len(m.JobHistTab.SacctHistFiltered.Jobs) == 0:
+		//return fmt.Sprintf("Waiting for job %s info...\n", m.JobDetailsTab.SelJobID)
+		return "Select a job from the Job History tab.\n"
 	}
 
 	//width := m.Globals.winW - 10
-	job := m.SacctSingleJobHist.Jobs[0]
+
+	//job := m.SacctSingleJobHist.Jobs[0]
+	// NEW:
+	job := m.JobHistTab.SacctHistFiltered.Jobs[m.JobDetailsTab.SelJobIDNew]
 
 	m.Log.Printf("Job Details req %#v ,got: %#v\n", m.JobDetailsTab.SelJobID, job.JobId)
 
@@ -132,6 +139,69 @@ func (m Model) tabJobDetails() (scr string) {
 			step += fmt.Sprintf(fmtStr, "KillReqUser", *v.KillRequestUser)
 		}
 		step += fmt.Sprintf(fmtStr, "Tasks", strconv.Itoa(*v.Tasks.Count))
+
+		tres := ""
+		tresAlloc := ""
+		tresReqMin := ""
+		tresReqMax := ""
+		tresReqAvg := ""
+		tresReqTotal := ""
+		tresConMax := ""
+		// TRES: allocated
+		tresAlloc += "ALLOCATED:\n"
+		m.Log.Printf("Dumping step allocation: %#v\n", *v.Tres.Allocated)
+		for i, t := range *v.Tres.Allocated {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresAlloc += " "
+				tresAlloc += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		// REQUESTED:MIN
+		tresReqMin += "REQUESTED:Min:\n"
+		for i, t := range *v.Tres.Requested.Min {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresReqMin += " "
+				tresReqMin += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		// REQUESTED:MAX
+		tresReqMax += "REQUESTED:Max:\n"
+		for i, t := range *v.Tres.Requested.Min {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresReqMax += " "
+				tresReqMax += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		// REQUESTED:AVG
+		tresReqAvg += "REQUESTED:Avg:\n"
+		for i, t := range *v.Tres.Requested.Average {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresReqAvg += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		// REQUESTED:TOT
+		tresReqAvg += "REQUESTED:Tot:\n"
+		for i, t := range *v.Tres.Requested.Total {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresReqTotal += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		// Consumed:Max
+		tresConMax += "CONSUMED:Max:\n"
+		for i, t := range *v.Tres.Consumed.Max {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresConMax += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		//tres = lipgloss.JoinHorizontal(lipgloss.Top, tresAlloc, tresReqMin, tresReqAvg, tresReqMax, tresReqTotal)
+		tres = lipgloss.JoinHorizontal(lipgloss.Top, styles.TresBox.Render(tresAlloc), styles.TresBox.Width(40).Render(tresConMax))
+		step += tres
 
 		// when the step is finished, append it to steps string
 		steps += "\n" + styles.JobStepBoxStyle.Render(step)

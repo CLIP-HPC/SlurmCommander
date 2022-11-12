@@ -5,6 +5,7 @@ import (
 )
 
 type JobDetailsTab struct {
-	SelJobID string
+	SelJobID    string
+	SelJobIDNew int
 	slurm.SacctSingleJobHist
 }
