@@ -370,7 +370,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.UpdateCnt++
 		// if active window != this, don't trigger new refresh
 		if m.ActiveTab == tabCluster {
-			return m, clustertab.TimedGetSinfo()
+			return m, clustertab.TimedGetSinfo(m.Log)
 		} else {
 			return m, nil
 		}
@@ -436,10 +436,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			k, _ := strconv.Atoi(msg.String())
 			m.ActiveTab = uint(k) - 1
 			tabKeys[m.ActiveTab].SetupKeys()
-			m.DebugMsg += "Ts"
 			m.lastKey = msg.String()
-			// TODO: needs triggering of the TimedGet*() like TAB key below
-			return m, nil
+
+			// clear error states
+			m.Globals.ErrorHelp = ""
+			m.Globals.ErrorMsg = nil
+
+			switch m.ActiveTab {
+			case tabJobs:
+				return m, jobtab.TimedGetSqueue(m.Log)
+			case tabCluster:
+				return m, clustertab.TimedGetSinfo(m.Log)
+			default:
+				return m, nil
+			}
 
 		// TAB
 		case key.Matches(msg, keybindings.DefaultKeyMap.Tab):
@@ -449,14 +459,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			tabKeys[m.ActiveTab].SetupKeys()
 			m.lastKey = "tab"
 
+			// clear error states
+			m.Globals.ErrorHelp = ""
+			m.Globals.ErrorMsg = nil
+
 			switch m.ActiveTab {
 			case tabJobs:
-				m.DebugMsg += "Tj"
 				return m, jobtab.TimedGetSqueue(m.Log)
-
 			case tabCluster:
-				m.DebugMsg += "Tc"
-				return m, clustertab.TimedGetSinfo()
+				return m, clustertab.TimedGetSinfo(m.Log)
+			default:
+				return m, nil
 			}
 
 		// SLASH
@@ -501,6 +514,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				//m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
 				//return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID, m.Globals.JobHistStart, m.Log)
 				m.JobDetailsTab.SelJobIDNew = n
+				// clear error states
+				m.Globals.ErrorHelp = ""
+				m.Globals.ErrorMsg = nil
 				return m, nil
 
 			// Job from Template tab: Open template for editing

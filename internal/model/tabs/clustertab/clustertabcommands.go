@@ -47,8 +47,8 @@ func GetSinfo(t time.Time) tea.Msg {
 
 }
 
-func TimedGetSinfo() tea.Cmd {
-	// TODO: make timers configurable
+func TimedGetSinfo(l *log.Logger) tea.Cmd {
+	l.Printf("TimedGetSinfo() start, tick: %d\n", cc.GetTick())
 	return tea.Tick(cc.GetTick()*time.Second, GetSinfo)
 }
 
