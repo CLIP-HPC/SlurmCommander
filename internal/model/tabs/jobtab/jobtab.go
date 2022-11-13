@@ -45,7 +45,7 @@ func (t *JobTab) GetStatsFiltered(l *log.Logger) {
 	t.AvgWait = 0
 	t.MedWait = 0
 
-	l.Printf("jobtab GetStatsFiltered start\n")
+	l.Printf("GetStatsFiltered start on %d rows\n", len(t.SqueueFiltered.Jobs))
 	for _, v := range t.SqueueFiltered.Jobs {
 		t.Stats.StateCnt[*v.JobState]++
 		switch *v.JobState {
@@ -55,14 +55,11 @@ func (t *JobTab) GetStatsFiltered(l *log.Logger) {
 			tmpRun = append(tmpRun, time.Since(time.Unix(int64(*v.StartTime), 0)))
 		}
 	}
-	l.Printf("jobtab GetStatsFiltered totalwait: %d\n", t.AvgWait)
-	l.Printf("jobtab GetStatsFiltered totalwait: %s\n", t.AvgWait.String())
+
 	t.MedWait, t.MinWait, t.MaxWait = stats.Median(tmp)
 	t.MedRun, t.MinRun, t.MaxRun = stats.Median(tmpRun)
 	t.AvgWait = stats.Avg(tmp)
 	t.AvgRun = stats.Avg(tmpRun)
-	l.Printf("jobtab GetStatsFiltered avgwait: %d\n", t.AvgWait)
-	l.Printf("jobtab GetStatsFiltered medwait: %d\n", t.MedWait)
-	l.Printf("jobtab GetStatsFiltered end\n")
+
 	l.Printf("jobtab GetStatsFiltered end\n")
 }
