@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pja237/slurmcommander-dev/internal/command"
 	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
@@ -48,10 +49,12 @@ var SinfoTabCols = []table.Column{
 type SinfoJSON slurm.SinfoJSON
 type TableRows []table.Row
 
-func (siJson *SinfoJSON) FilterSinfoTable(f string, l *log.Logger) (TableRows, SinfoJSON) {
+func (siJson *SinfoJSON) FilterSinfoTable(f string, l *log.Logger) (*TableRows, *SinfoJSON, *command.ErrorMsg) {
 	var (
 		siTabRows      = TableRows{}
 		siJsonFiltered = SinfoJSON{}
+		errMsg         *command.ErrorMsg
+		re             *regexp.Regexp
 	)
 
 	l.Printf("FilterSinfoTable: rows %d", len(siJson.Nodes))
@@ -59,6 +62,12 @@ func (siJson *SinfoJSON) FilterSinfoTable(f string, l *log.Logger) (TableRows, S
 	if err != nil {
 		l.Printf("FAIL: compile regexp: %q with err: %s", f, err)
 		f = ""
+		re, _ = regexp.Compile(f)
+		errMsg = &command.ErrorMsg{
+			From:    "FilterSinfoTable",
+			ErrHelp: "Regular expression failed to compile, please correct it (turn on DEBUG to see details)",
+			OrigErr: err,
+		}
 	}
 
 	for _, v := range siJson.Nodes {
@@ -75,7 +84,7 @@ func (siJson *SinfoJSON) FilterSinfoTable(f string, l *log.Logger) (TableRows, S
 		}
 	}
 
-	return siTabRows, siJsonFiltered
+	return &siTabRows, &siJsonFiltered, errMsg
 }
 
 // TODO: not sure what i was thinking, but this we really don't need, just inject in Update() directly to model!?

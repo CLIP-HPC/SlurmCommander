@@ -21,6 +21,10 @@ var (
 	TextGreen  = lipgloss.NewStyle().Foreground(green)
 	TextBlue   = lipgloss.NewStyle().Foreground(blue)
 
+	// ErrorHelp Box
+	//ErrorHelp = lipgloss.NewStyle().Foreground(red).Border(lipgloss.RoundedBorder()).BorderForeground(red)
+	ErrorHelp = lipgloss.NewStyle().Foreground(red)
+
 	Tab = lipgloss.NewStyle().
 		Border(TabTabBorder, true).
 		BorderForeground(TabColor).

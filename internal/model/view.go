@@ -383,7 +383,7 @@ func (m *Model) genTabHelp() string {
 	default:
 		th = "SlurmCommander"
 	}
-	return th + "\n\n"
+	return th + "\n"
 }
 
 // Generate statistics string, horizontal.
@@ -503,20 +503,16 @@ func HumanizeDuration(t time.Duration, l *log.Logger) string {
 	s := int64(t.Seconds())
 
 	// days
-	l.Printf("seconds: %d\n", s)
 	d := s / (24 * 60 * 60)
 	s = s % (24 * 60 * 60)
-	l.Printf("seconds: %d\n", s)
 
 	// hours
 	h := s / 3600
 	s = s % 3600
-	l.Printf("seconds: %d\n", s)
 
 	// minutes
 	m := s / 60
 	s = s % 60
-	l.Printf("seconds: %d\n", s)
 
 	ret += fmt.Sprintf("%.2d-%.2d:%.2d:%.2d", d, h, m, s)
 
@@ -595,7 +591,12 @@ func (m Model) View() string {
 
 	if m.Debug {
 		// One debug line
-		scr.WriteString(fmt.Sprintf("%s Width: %d Height: %d Error: %s\n", styles.TextRed.Render("DEBUG ON:"), m.Globals.winW, m.Globals.winH, m.Globals.ErrorHelp))
+		scr.WriteString(fmt.Sprintf("%s Width: %d Height: %d ErrorMsg: %s\n", styles.TextRed.Render("DEBUG ON:"), m.Globals.winW, m.Globals.winH, m.Globals.ErrorMsg))
+	}
+
+	if m.Globals.ErrorHelp != "" {
+		scr.WriteString(styles.ErrorHelp.Render(fmt.Sprintf("ERROR: %s", m.Globals.ErrorHelp)))
+		scr.WriteString("\n")
 	}
 
 	// PICK and RENDER ACTIVE TAB

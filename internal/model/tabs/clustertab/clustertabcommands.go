@@ -29,7 +29,7 @@ func GetSinfo(t time.Time) tea.Msg {
 	if err != nil {
 		return command.ErrorMsg{
 			From:    "GetSinfo",
-			ErrHelp: "Failed to run sinfo command, check your scom.conf and set the paths there.",
+			ErrHelp: "Failed to run sinfo command, check your scom.conf and set the correct paths there.",
 			OrigErr: err,
 		}
 	}

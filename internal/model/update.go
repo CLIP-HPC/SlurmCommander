@@ -78,23 +78,29 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Log.Printf("Update: Filter set, setcursor(0), activetable.Cursor==%d\n", activeTable.Cursor())
 				switch m.ActiveTab {
 				case tabJobs:
-					// TODO: change to immediate filtering, like for job hist
-					//return m, command.QuickGetSqueue()
-					rows, sqf := m.JobTab.Squeue.FilterSqueueTable(m.JobTab.Filter.Value(), m.Log)
-					m.JobTab.SqueueTable.SetRows(rows)
-					m.JobTab.SqueueFiltered = sqf
-					m.JobTab.GetStatsFiltered(m.Log)
+					rows, sqf, err := m.JobTab.Squeue.FilterSqueueTable(m.JobTab.Filter.Value(), m.Log)
+					if err != nil {
+						m.Globals.ErrorHelp = err.ErrHelp
+						m.Globals.ErrorMsg = err.OrigErr
+						m.JobTab.Filter.SetValue("")
+					} else {
+						m.JobTab.SqueueTable.SetRows(*rows)
+						m.JobTab.SqueueFiltered = *sqf
+						m.JobTab.GetStatsFiltered(m.Log)
+					}
 					return m, nil
 
 				case tabJobHist:
-					//return m, command.QuickGetSacct()
-					// this takes ~7 seconds on prod for 'als' 7 days ~3.7k jobs
-					// TODO: trigger filter on existing data?
-					//return m, command.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
-					rows, saf := m.JobHistTab.SacctHist.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
-					m.JobHistTab.SacctTable.SetRows(rows)
-					m.JobHistTab.SacctHistFiltered = saf
-					m.JobHistTab.GetStatsFiltered(m.Log)
+					rows, saf, err := m.JobHistTab.SacctHist.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
+					if err != nil {
+						m.Globals.ErrorHelp = err.ErrHelp
+						m.Globals.ErrorMsg = err.OrigErr
+						m.JobHistTab.Filter.SetValue("")
+					} else {
+						m.JobHistTab.SacctTable.SetRows(*rows)
+						m.JobHistTab.SacctHistFiltered = *saf
+						m.JobHistTab.GetStatsFiltered(m.Log)
+					}
 					return m, nil
 				case tabCluster:
 					m.JobClusterTab.GetStatsFiltered(m.Log)
@@ -326,20 +332,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// TODO:
 			// fix: if after filtering m.table.Cursor|SelectedRow > lines in table, Info crashes trying to fetch nonexistent row
-			rows, sqf := msg.FilterSqueueTable(m.JobTab.Filter.Value(), m.Log)
-			m.JobTab.SqueueTable.SetRows(rows)
-			m.JobTab.SqueueFiltered = sqf
-			m.JobTab.GetStatsFiltered(m.Log)
-			//m.SqueueTable.UpdateViewport()
+			rows, sqf, err := msg.FilterSqueueTable(m.JobTab.Filter.Value(), m.Log)
+			if err != nil {
+				m.Globals.ErrorHelp = err.ErrHelp
+				m.Globals.ErrorMsg = err.OrigErr
+				m.JobTab.Filter.SetValue("")
+			} else {
+				m.JobTab.SqueueTable.SetRows(*rows)
+				m.JobTab.SqueueFiltered = *sqf
+				m.JobTab.GetStatsFiltered(m.Log)
+			}
 		}
 		m.UpdateCnt++
 		// if active window != this, don't trigger new refresh
-		m.DebugMsg += "J"
 		if m.ActiveTab == tabJobs {
-			m.DebugMsg += "2"
 			return m, jobtab.TimedGetSqueue(m.Log)
 		} else {
-			m.DebugMsg += "3"
 			return m, nil
 		}
 
@@ -348,23 +356,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Log.Printf("U(): got SinfoJSON\n")
 		if len(msg.Nodes) != 0 {
 			m.Sinfo = msg
-			//slurm.SinfoTabRows = nil
-			//for _, v := range msg.Nodes {
-			//	slurm.SinfoTabRows = append(slurm.SinfoTabRows, table.Row{*v.Name, *v.State, strconv.Itoa(*v.Cpus), strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.RealMemory), strconv.Itoa(*v.FreeMemory), strings.Join(*v.StateFlags, ",")})
-			//}
-			rows, sif := msg.FilterSinfoTable(m.JobClusterTab.Filter.Value(), m.Log)
-			m.JobClusterTab.SinfoTable.SetRows(rows)
-			m.JobClusterTab.SinfoFiltered = sif
-			m.JobClusterTab.GetStatsFiltered(m.Log)
+			rows, sif, err := msg.FilterSinfoTable(m.JobClusterTab.Filter.Value(), m.Log)
+			if err != nil {
+				m.Globals.ErrorHelp = err.ErrHelp
+				m.Globals.ErrorMsg = err.OrigErr
+				m.JobClusterTab.Filter.SetValue("")
+			} else {
+				m.JobClusterTab.SinfoTable.SetRows(*rows)
+				m.JobClusterTab.SinfoFiltered = *sif
+				m.JobClusterTab.GetStatsFiltered(m.Log)
+			}
 		}
 		m.UpdateCnt++
 		// if active window != this, don't trigger new refresh
-		m.DebugMsg += "C"
 		if m.ActiveTab == tabCluster {
-			m.DebugMsg += "4"
 			return m, clustertab.TimedGetSinfo()
 		} else {
-			m.DebugMsg += "5"
 			return m, nil
 		}
 
@@ -380,28 +387,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.JobHistTab.SacctHist = msg.SacctJSON
 		m.JobHistTab.HistFetchFail = msg.HistFetchFail
 		// Filter and create filtered table
-		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
-		m.JobHistTab.SacctTable.SetRows(rows)
-		m.JobHistTab.SacctHistFiltered = saf
-		m.JobHistTab.GetStatsFiltered(m.Log)
+		rows, saf, err := msg.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
+		if err != nil {
+			m.Globals.ErrorHelp = err.ErrHelp
+			m.Globals.ErrorMsg = err.OrigErr
+			m.JobHistTab.Filter.SetValue("")
+		} else {
+			m.JobHistTab.SacctTable.SetRows(*rows)
+			m.JobHistTab.SacctHistFiltered = *saf
+			m.JobHistTab.GetStatsFiltered(m.Log)
+		}
 		if !m.JobHistTab.HistFetchFail {
 			m.JobHistTab.HistFetched = true
 		}
+		// TODO: Here we don't tick refresh, because of potentially long sacct calls, make it manually triggered
 		return m, nil
 
-	// Job History tab update
-	case jobhisttab.SacctJSON:
-		m.Log.Printf("Got SacctJobHist len: %d\n", len(msg.Jobs))
-		m.JobHistTab.SacctHist = msg
-		// Filter and create filtered table
-		rows, saf := msg.FilterSacctTable(m.JobHistTab.Filter.Value(), m.Log)
-		m.JobHistTab.SacctTable.SetRows(rows)
-		m.JobHistTab.SacctHistFiltered = saf
-		m.JobHistTab.GetStatsFiltered(m.Log)
-		m.JobHistTab.HistFetched = true
-		return m, nil
-
-	// TODO: find a way to simplify this mess below...
 	// Keys pressed
 	case tea.KeyMsg:
 		switch {

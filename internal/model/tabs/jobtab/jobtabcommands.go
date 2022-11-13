@@ -30,7 +30,7 @@ func GetSqueue(t time.Time) tea.Msg {
 	if err != nil {
 		return command.ErrorMsg{
 			From:    "GetSqueue",
-			ErrHelp: "Failed to run squeue command, check your scom.conf and set the paths there.",
+			ErrHelp: "Failed to run squeue command, check your scom.conf and set the correct paths there.",
 			OrigErr: err,
 		}
 	}

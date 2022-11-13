@@ -41,7 +41,7 @@ func GetUserName(l *log.Logger) tea.Cmd {
 			//l.Fatalf("GetUserName FAILED: %s", err)
 			return ErrorMsg{
 				From:    "GetUserName",
-				ErrHelp: "Failed to get username, hard to imagine why. Please open an issue",
+				ErrHelp: "Failed to get username, hard to imagine why. Please open an issue with us here: https://github.com/pja237/SlurmCommander-dev/issues/new/choose",
 				OrigErr: err,
 			}
 		}
@@ -126,7 +126,7 @@ func CallScancel(jobid string, l *log.Logger) tea.Cmd {
 			//l.Fatalf("Error exec scancel: %q\n", err)
 			return ErrorMsg{
 				From:    "CallScancel",
-				ErrHelp: "Failed to run scancel, check your scom.conf and set the paths there.",
+				ErrHelp: "Failed to run scancel: check command paths in scom.conf, check that you have permissions to cancel it",
 				OrigErr: err,
 			}
 		}
@@ -155,7 +155,7 @@ func CallScontrolHold(jobid string, l *log.Logger) tea.Cmd {
 			//l.Fatalf("Error exec hold: %q\n", err)
 			return ErrorMsg{
 				From:    "CallScontrolHold",
-				ErrHelp: "Failed to run scontrol hold, check your scom.conf and set the paths there.",
+				ErrHelp: "Failed to run scontrol hold : check command paths in scom.conf, check that you have permissions to hold it",
 				OrigErr: err,
 			}
 		}
@@ -187,7 +187,7 @@ func CallScontrolRequeue(jobid string, l *log.Logger) tea.Cmd {
 			l.Printf("Possible Reason: requeue can only be executed for batch jobs (e.g. won't work on srun --pty)\n")
 			return ErrorMsg{
 				From:    "CallScontrolRequeue",
-				ErrHelp: "Failed to run scontrol requeue, check scom.conf and the paths there. Or check that the job isn't of srun --pty type",
+				ErrHelp: "Failed to run scontrol requeue: check command paths in scom.conf, check that you have permissions to requeue it, check that it's not srun --pty type",
 				OrigErr: err,
 			}
 		}
@@ -238,7 +238,7 @@ func CallSsh(node string, l *log.Logger) tea.Cmd {
 		l.Printf("End ssh with error: %s\n", err)
 		return ErrorMsg{
 			From:    "CallSsh",
-			ErrHelp: fmt.Sprintf("Failed ssh to %s, possible reasons: you don't have a job on the node or ssh not allowed at all, etc.", node),
+			ErrHelp: fmt.Sprintf("Failed ssh to %s, possible reasons: you don't have a job on the node, ssh not allowed at all, etc.", node),
 			OrigErr: err,
 		}
 		//return SshCompleted{

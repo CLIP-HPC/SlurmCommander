@@ -44,8 +44,7 @@ func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
 
 	for _, v := range t.SacctHistFiltered.Jobs {
 		t.Stats.StateCnt[*v.State.Current]++
-		l.Printf("TIME: submit=%d, start=%d, end=%d\n", *v.Time.Submission, *v.Time.Start, *v.Time.End)
-		// TODO: handle running jobs
+		//l.Printf("TIME: submit=%d, start=%d, end=%d\n", *v.Time.Submission, *v.Time.Start, *v.Time.End)
 		if *v.State.Current != "RUNNING" {
 			tmp = append(tmp, time.Unix(int64(*v.Time.Start), 0).Sub(time.Unix(int64(*v.Time.Submission), 0)))
 			tmpRun = append(tmpRun, time.Unix(int64(*v.Time.End), 0).Sub(time.Unix(int64(*v.Time.Start), 0)))
