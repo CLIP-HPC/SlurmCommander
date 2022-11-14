@@ -1,0 +1,33 @@
+name: Build_on_tag
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.18
+
+    - name: Test
+      run: make test
+
+    - name: Build
+      run: make build -e version=${{ github.sha }}
+
+    - name: Install
+      run: make install -e version=${{ github.sha }}
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.3.1
+      with:
+        name: slurmcommander-${{ github.sha }}
+        path: build/slurmcommander-${{ github.sha }}/

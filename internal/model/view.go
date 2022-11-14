@@ -162,10 +162,11 @@ func (m Model) tabJobDetails() (scr string) {
 		tresReqAvg := ""
 		tresReqTotal := ""
 		tresConMax := ""
+		tresConMin := ""
 		// TRES: allocated
 		tresAlloc += "ALLOCATED:\n"
-		m.Log.Printf("ALLOCATED:\n")
 		m.Log.Printf("Dumping step allocation: %#v\n", *v.Tres.Allocated)
+		m.Log.Printf("ALLOCATED:\n")
 		for i, t := range *v.Tres.Allocated {
 			if t.Count != nil {
 				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
@@ -218,8 +219,18 @@ func (m Model) tabJobDetails() (scr string) {
 				tresReqTotal += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
 			}
 		}
+		// Consumed:Min
+		tresConMin += "CONSUMED:Min:\n"
+		m.Log.Printf("CONS:Min\n")
+		for i, t := range *v.Tres.Consumed.Min {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresConMin += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
 		// Consumed:Max
 		tresConMax += "CONSUMED:Max:\n"
+		m.Log.Printf("CONS:Max\n")
 		for i, t := range *v.Tres.Consumed.Max {
 			if t.Count != nil {
 				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)

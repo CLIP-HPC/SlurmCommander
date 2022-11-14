@@ -57,7 +57,8 @@ func (cc *ConfigContainer) GetConfig() error {
 		}
 	}
 
-	if cc.Tick == 0 {
+	// if unset (==0) or less then 3, set to default
+	if cc.Tick < 3 {
 		// set default Tick
 		cc.Tick = 3
 	}
