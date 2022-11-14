@@ -57,17 +57,29 @@ func (m Model) tabJobHist() string {
 
 func (m Model) tabJobDetails() (scr string) {
 
+	var (
+		runT  time.Duration
+		waitT time.Duration
+	)
+
 	// race between View() call and command.SingleJobGetSacct(m.JobDetailsTab.SelJobID) call
 	switch {
-	case m.JobDetailsTab.SelJobID == "":
+	//case m.JobDetailsTab.SelJobID == "":
+	//	return "Select a job from the Job History tab.\n"
+	case m.JobDetailsTab.SelJobIDNew == -1:
 		return "Select a job from the Job History tab.\n"
-	case len(m.SacctSingleJobHist.Jobs) == 0:
-		return fmt.Sprintf("Waiting for job %s info...\n", m.JobDetailsTab.SelJobID)
-
+	//case len(m.SacctSingleJobHist.Jobs) == 0:
+	//	return fmt.Sprintf("Waiting for job %s info...\n", m.JobDetailsTab.SelJobID)
+	case len(m.JobHistTab.SacctHistFiltered.Jobs) == 0:
+		//return fmt.Sprintf("Waiting for job %s info...\n", m.JobDetailsTab.SelJobID)
+		return "Select a job from the Job History tab.\n"
 	}
 
 	//width := m.Globals.winW - 10
-	job := m.SacctSingleJobHist.Jobs[0]
+
+	//job := m.SacctSingleJobHist.Jobs[0]
+	// NEW:
+	job := m.JobHistTab.SacctHistFiltered.Jobs[m.JobDetailsTab.SelJobIDNew]
 
 	m.Log.Printf("Job Details req %#v ,got: %#v\n", m.JobDetailsTab.SelJobID, job.JobId)
 
@@ -77,8 +89,13 @@ func (m Model) tabJobDetails() (scr string) {
 	fmtStrX := "%-20s : %-60s"
 
 	head := ""
-	waitT := time.Unix(int64(*job.Time.Start), 0).Sub(time.Unix(int64(*job.Time.Submission), 0))
-	runT := time.Unix(int64(*job.Time.End), 0).Sub(time.Unix(int64(*job.Time.Start), 0))
+	waitT = time.Unix(int64(*job.Time.Start), 0).Sub(time.Unix(int64(*job.Time.Submission), 0))
+	// If job is RUNNING, use Elapsed instead of Sub (because End=0)
+	if *job.State.Current == "RUNNING" {
+		runT = time.Duration(int64(*job.Time.Elapsed) * int64(time.Second))
+	} else {
+		runT = time.Unix(int64(*job.Time.End), 0).Sub(time.Unix(int64(*job.Time.Start), 0))
+	}
 
 	head += styles.StatsSeparatorTitle.Render(fmt.Sprintf(fmtStrX, "Job ID", strconv.Itoa(*job.JobId)))
 	head += "\n"
@@ -88,7 +105,12 @@ func (m Model) tabJobDetails() (scr string) {
 	head += fmt.Sprintf(fmtStr, "Job Account", *job.Account)
 	head += fmt.Sprintf(fmtStr, "Job Submission", time.Unix(int64(*job.Time.Submission), 0).String())
 	head += fmt.Sprintf(fmtStr, "Job Start", time.Unix(int64(*job.Time.Start), 0).String())
-	head += fmt.Sprintf(fmtStr, "Job End", time.Unix(int64(*job.Time.End), 0).String())
+	// Running jobs have End==0
+	if *job.State.Current == "RUNNING" {
+		head += fmt.Sprintf(fmtStr, "Job End", "RUNNING")
+	} else {
+		head += fmt.Sprintf(fmtStr, "Job End", time.Unix(int64(*job.Time.End), 0).String())
+	}
 	head += fmt.Sprintf(fmtStr, "Job Wait time", waitT.String())
 	head += fmt.Sprintf(fmtStr, "Job Run time", runT.String())
 	head += fmt.Sprintf(fmtStr, "Partition", *job.Partition)
@@ -132,6 +154,92 @@ func (m Model) tabJobDetails() (scr string) {
 			step += fmt.Sprintf(fmtStr, "KillReqUser", *v.KillRequestUser)
 		}
 		step += fmt.Sprintf(fmtStr, "Tasks", strconv.Itoa(*v.Tasks.Count))
+
+		tres := ""
+		tresAlloc := ""
+		tresReqMin := ""
+		tresReqMax := ""
+		tresReqAvg := ""
+		tresReqTotal := ""
+		tresConMax := ""
+		tresConMin := ""
+		// TRES: allocated
+		tresAlloc += "ALLOCATED:\n"
+		m.Log.Printf("Dumping step allocation: %#v\n", *v.Tres.Allocated)
+		m.Log.Printf("ALLOCATED:\n")
+		for i, t := range *v.Tres.Allocated {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresAlloc += " "
+				if *t.Type == "gres" {
+					// TODO:
+					fmtStr := "%-20s : %-60s\n"
+					tresAlloc += fmt.Sprintf(fmtStr, *t.Type, strings.Join([]string{*t.Name, strconv.Itoa(*t.Count)}, ":"))
+				} else {
+					// TODO:
+					tresAlloc += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+				}
+			}
+		}
+		// REQUESTED:MIN
+		tresReqMin += "REQUESTED:Min:\n"
+		m.Log.Printf("REQ:Min\n")
+		for i, t := range *v.Tres.Requested.Min {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresReqMin += " "
+				tresReqMin += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		// REQUESTED:MAX
+		m.Log.Printf("REQ:Max\n")
+		tresReqMax += "REQUESTED:Max:\n"
+		for i, t := range *v.Tres.Requested.Min {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresReqMax += " "
+				tresReqMax += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		// REQUESTED:AVG
+		m.Log.Printf("REQ:Avg\n")
+		tresReqAvg += "REQUESTED:Avg:\n"
+		for i, t := range *v.Tres.Requested.Average {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresReqAvg += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		// REQUESTED:TOT
+		tresReqAvg += "REQUESTED:Tot:\n"
+		m.Log.Printf("REQ:Tot\n")
+		for i, t := range *v.Tres.Requested.Total {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresReqTotal += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		// Consumed:Min
+		tresConMin += "CONSUMED:Min:\n"
+		m.Log.Printf("CONS:Min\n")
+		for i, t := range *v.Tres.Consumed.Min {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresConMin += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		// Consumed:Max
+		tresConMax += "CONSUMED:Max:\n"
+		m.Log.Printf("CONS:Max\n")
+		for i, t := range *v.Tres.Consumed.Max {
+			if t.Count != nil {
+				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+				tresConMax += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+			}
+		}
+		//tres = lipgloss.JoinHorizontal(lipgloss.Top, tresAlloc, tresReqMin, tresReqAvg, tresReqMax, tresReqTotal)
+		tres = lipgloss.JoinHorizontal(lipgloss.Top, styles.TresBox.Render(tresAlloc), styles.TresBox.Width(40).Render(tresConMax))
+		step += tres
 
 		// when the step is finished, append it to steps string
 		steps += "\n" + styles.JobStepBoxStyle.Render(step)
@@ -291,7 +399,7 @@ func (m *Model) genTabHelp() string {
 	default:
 		th = "SlurmCommander"
 	}
-	return th + "\n\n"
+	return th + "\n"
 }
 
 // Generate statistics string, horizontal.
@@ -351,7 +459,15 @@ func GenCountStrVert(cnt map[string]uint, l *log.Logger) string {
 		}{name: k, val: uint(v)})
 	}
 
-	// sort it
+	// sort first by name
+	sort.Slice(sm, func(i, j int) bool {
+		if sm[i].name < sm[j].name {
+			return true
+		} else {
+			return false
+		}
+	})
+	// then sort by numbers
 	sort.Slice(sm, func(i, j int) bool {
 		if sm[i].val > sm[j].val {
 			return true
@@ -411,20 +527,16 @@ func HumanizeDuration(t time.Duration, l *log.Logger) string {
 	s := int64(t.Seconds())
 
 	// days
-	l.Printf("seconds: %d\n", s)
 	d := s / (24 * 60 * 60)
 	s = s % (24 * 60 * 60)
-	l.Printf("seconds: %d\n", s)
 
 	// hours
 	h := s / 3600
 	s = s % 3600
-	l.Printf("seconds: %d\n", s)
 
 	// minutes
 	m := s / 60
 	s = s % 60
-	l.Printf("seconds: %d\n", s)
 
 	ret += fmt.Sprintf("%.2d-%.2d:%.2d:%.2d", d, h, m, s)
 
@@ -440,13 +552,22 @@ func (m Model) JobHistTabStats() string {
 	str += "\n\n"
 	str += GenCountStrVert(m.JobHistTab.Stats.StateCnt, m.Log)
 
-	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Waiting times:"))
+	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Waiting times (finished jobs):"))
 	str += "\n\n"
 	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
 	str += fmt.Sprintf("%-10s : %s\n", "MinWait", HumanizeDuration(m.JobHistTab.Stats.MinWait, m.Log))
 	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", HumanizeDuration(m.JobHistTab.Stats.AvgWait, m.Log))
 	str += fmt.Sprintf("%-10s : %s\n", "MedWait", HumanizeDuration(m.JobHistTab.Stats.MedWait, m.Log))
 	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", HumanizeDuration(m.JobHistTab.Stats.MaxWait, m.Log))
+
+	str += "\n"
+	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Run times (finished jobs):"))
+	str += "\n\n"
+	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
+	str += fmt.Sprintf("%-10s : %s\n", "MinRun", HumanizeDuration(m.JobHistTab.Stats.MinRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", HumanizeDuration(m.JobHistTab.Stats.AvgRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MedRun", HumanizeDuration(m.JobHistTab.Stats.MedRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MaxRun", HumanizeDuration(m.JobHistTab.Stats.MaxRun, m.Log))
 
 	return str
 }
@@ -494,7 +615,12 @@ func (m Model) View() string {
 
 	if m.Debug {
 		// One debug line
-		scr.WriteString(fmt.Sprintf("%s Width: %d Height: %d\n", styles.TextRed.Render("DEBUG ON:"), m.Globals.winW, m.Globals.winH))
+		scr.WriteString(fmt.Sprintf("%s Width: %d Height: %d ErrorMsg: %s\n", styles.TextRed.Render("DEBUG ON:"), m.Globals.winW, m.Globals.winH, m.Globals.ErrorMsg))
+	}
+
+	if m.Globals.ErrorHelp != "" {
+		scr.WriteString(styles.ErrorHelp.Render(fmt.Sprintf("ERROR: %s", m.Globals.ErrorHelp)))
+		scr.WriteString("\n")
 	}
 
 	// PICK and RENDER ACTIVE TAB

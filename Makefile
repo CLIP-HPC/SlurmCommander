@@ -11,13 +11,13 @@ buildCommitVar=github.com/pja237/slurmcommander-dev/internal/version.BuildCommit
 
 # various directories
 bindirs=$(wildcard ./cmd/*)
-installdir=build/slurmcommander-dev-$(version)
+installdir=build/slurmcommander-$(version)
 
 # list of files to include in build
 bins=$(notdir $(bindirs))
 readme=README.md
 templates=
-config=
+config=./cmd/scom/scom.conf
 
 # can be replaced with go test ./... construct
 testdirs=$(sort $(dir $(shell find ./ -name *_test.go)))
@@ -50,7 +50,7 @@ build:
 
 install:
 	mkdir -p $(installdir)
-	cp $(bins) $(readme) $(installdir)
+	cp $(bins) $(readme) $(config) $(installdir)
 
 test_new:
 	$(foreach dir, $(testdirs), go test -v -count=1 $(dir) || exit $$?;)

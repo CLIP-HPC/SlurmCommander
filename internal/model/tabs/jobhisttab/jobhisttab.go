@@ -26,12 +26,17 @@ type Stats struct {
 	MinWait  time.Duration
 	MaxWait  time.Duration
 	MedWait  time.Duration
+	AvgRun   time.Duration
+	MinRun   time.Duration
+	MaxRun   time.Duration
+	MedRun   time.Duration
 	SDWait   int
 }
 
 func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
 	t.Stats.StateCnt = map[string]uint{}
 	tmp := []time.Duration{}
+	tmpRun := []time.Duration{}
 	t.AvgWait = 0
 	t.MedWait = 0
 
@@ -39,14 +44,20 @@ func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
 
 	for _, v := range t.SacctHistFiltered.Jobs {
 		t.Stats.StateCnt[*v.State.Current]++
-		tmp = append(tmp, time.Unix(int64(*v.Time.Start), 0).Sub(time.Unix(int64(*v.Time.Submission), 0)))
+		//l.Printf("TIME: submit=%d, start=%d, end=%d\n", *v.Time.Submission, *v.Time.Start, *v.Time.End)
+		if *v.State.Current != "RUNNING" {
+			tmp = append(tmp, time.Unix(int64(*v.Time.Start), 0).Sub(time.Unix(int64(*v.Time.Submission), 0)))
+			tmpRun = append(tmpRun, time.Unix(int64(*v.Time.End), 0).Sub(time.Unix(int64(*v.Time.Start), 0)))
+		} else {
+			// TODO: Question, do we include RUNNING jobs in the calculation?
+			//tmpRun = append(tmpRun, time.Duration(*v.Time.Elapsed))
+		}
 	}
 
-	l.Printf("GetStatsFiltered totalwait: %d\n", t.AvgWait)
-	l.Printf("GetStatsFiltered totalwait: %s\n", t.AvgWait.String())
 	t.MedWait, t.MinWait, t.MaxWait = stats.Median(tmp)
+	t.MedRun, t.MinRun, t.MaxRun = stats.Median(tmpRun)
 	t.AvgWait = stats.Avg(tmp)
-	l.Printf("GetStatsFiltered avgwait: %d\n", t.AvgWait)
-	l.Printf("GetStatsFiltered medwait: %d\n", t.MedWait)
+	t.AvgRun = stats.Avg(tmpRun)
+
 	l.Printf("GetStatsFiltered end\n")
 }

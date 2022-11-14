@@ -7,6 +7,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/pja237/slurmcommander-dev/internal/command"
 	"github.com/pja237/slurmcommander-dev/internal/config"
 )
 
@@ -27,12 +28,20 @@ func GetSqueue(t time.Time) tea.Msg {
 	cmd := cc.Binpaths["squeue"]
 	out, err := exec.Command(cmd, SqueueCmdSwitches...).CombinedOutput()
 	if err != nil {
-		log.Fatalf("Error exec squeue: %s : %q\n", cmd, err)
+		return command.ErrorMsg{
+			From:    "GetSqueue",
+			ErrHelp: "Failed to run squeue command, check your scom.conf and set the correct paths there.",
+			OrigErr: err,
+		}
 	}
 
 	err = json.Unmarshal(out, &sqJson)
 	if err != nil {
-		log.Fatalf("Error unmarshall: %q\n", err)
+		return command.ErrorMsg{
+			From:    "GetSqueue",
+			ErrHelp: "squeue JSON failed to parse, note your slurm version and open an issue with us here: https://github.com/pja237/SlurmCommander-dev/issues/new/choose",
+			OrigErr: err,
+		}
 	}
 
 	return sqJson

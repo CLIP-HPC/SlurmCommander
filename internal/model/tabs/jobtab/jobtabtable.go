@@ -4,8 +4,10 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/pja237/slurmcommander-dev/internal/command"
 	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
@@ -40,45 +42,51 @@ var SqueueTabCols = []table.Column{
 type SqueueJSON slurm.SqueueJSON
 type TableRows []table.Row
 
-func (sqJson *SqueueJSON) FilterSqueueTable(f string, l *log.Logger) (TableRows, SqueueJSON) {
+func (sqJson *SqueueJSON) FilterSqueueTable(f string, l *log.Logger) (*TableRows, *SqueueJSON, *command.ErrorMsg) {
 	var (
 		sqTabRows      = TableRows{}
 		sqJsonFiltered = SqueueJSON{}
+		errMsg         *command.ErrorMsg
+		re             *regexp.Regexp
 	)
 
 	l.Printf("Filter SQUEUE start.\n")
 	re, err := regexp.Compile(f)
 	if err != nil {
+		// User entered bad regexp, return error and set empty re (filter.value() will be zeroed in update())
 		l.Printf("FAIL: compile regexp: %q with err: %s", f, err)
 		f = ""
+		re, _ = regexp.Compile(f)
+		errMsg = &command.ErrorMsg{
+			From:    "FilterSqueueTable",
+			ErrHelp: "Regular expression failed to compile, please correct it (turn on DEBUG to see details)",
+			OrigErr: err,
+		}
 	}
 	t := time.Now()
 
-	// TODO:  consider: 1. join &  2. re.Match
+	// NEW: Filter:
+	// 	1. join strings from job into one line
+	// 	2. re.MatchString(line)
+	// Allows doing matches across multiple columns, e.g.: "bash.*(als|gmi)" - "bash jobs BY als or gmi accounts"
 	for _, v := range sqJson.Jobs {
-		app := false
-		if f != "" {
-			switch {
-			case re.MatchString(strconv.Itoa(*v.JobId)):
-				app = true
-			case re.MatchString(*v.Name):
-				app = true
-			case re.MatchString(*v.Account):
-				app = true
-			case re.MatchString(*v.UserName):
-				app = true
-			case re.MatchString(*v.JobState):
-				app = true
-			}
-		} else {
-			app = true
-		}
-		if app {
+
+		// NEW: 1. JOIN
+		line := strings.Join([]string{
+			strconv.Itoa(*v.JobId),
+			*v.Name,
+			*v.Account,
+			*v.UserName,
+			*v.JobState,
+		}, ".")
+
+		// NEW: 2. MATCH
+		if re.MatchString(line) {
 			sqTabRows = append(sqTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Account, *v.UserName, *v.JobState, strconv.Itoa(*v.Priority)})
 			sqJsonFiltered.Jobs = append(sqJsonFiltered.Jobs, v)
 		}
 	}
 	l.Printf("Filter SQUEUE end in %.3f seconds\n", time.Since(t).Seconds())
 
-	return sqTabRows, sqJsonFiltered
+	return &sqTabRows, &sqJsonFiltered, errMsg
 }
