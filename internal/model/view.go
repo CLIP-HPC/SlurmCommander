@@ -448,8 +448,15 @@ func GenCountStrVert(cnt map[string]uint, l *log.Logger) string {
 		}{name: k, val: uint(v)})
 	}
 
-	// sort it
-	// TODO: replace with sort.SliceStable
+	// sort first by name
+	sort.Slice(sm, func(i, j int) bool {
+		if sm[i].name < sm[j].name {
+			return true
+		} else {
+			return false
+		}
+	})
+	// then sort by numbers
 	sort.Slice(sm, func(i, j int) bool {
 		if sm[i].val > sm[j].val {
 			return true
