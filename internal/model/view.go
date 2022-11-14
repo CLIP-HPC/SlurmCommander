@@ -155,25 +155,27 @@ func (m Model) tabJobDetails() (scr string) {
 		}
 		step += fmt.Sprintf(fmtStr, "Tasks", strconv.Itoa(*v.Tasks.Count))
 
+		// TODO: TRES part needs quite some love...
 		tres := ""
 		tresAlloc := ""
-		tresReqMin := ""
-		tresReqMax := ""
-		tresReqAvg := ""
-		tresReqTotal := ""
-		tresConMax := ""
-		tresConMin := ""
+
+		//tresReqMin := ""
+		//tresReqMax := ""
+		//tresReqAvg := ""
+		//tresReqTotal := ""
+		//tresConMax := ""
+		//tresConMin := ""
 		// TRES: allocated
-		tresAlloc += "ALLOCATED:\n"
+		tresAlloc += "\nALLOCATED:\n"
 		m.Log.Printf("Dumping step allocation: %#v\n", *v.Tres.Allocated)
 		m.Log.Printf("ALLOCATED:\n")
 		for i, t := range *v.Tres.Allocated {
 			if t.Count != nil {
 				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
-				tresAlloc += " "
+				tresAlloc += "* "
 				if *t.Type == "gres" {
 					// TODO:
-					fmtStr := "%-20s : %-60s\n"
+					//fmtStr := "%-20s : %-60s\n"
 					tresAlloc += fmt.Sprintf(fmtStr, *t.Type, strings.Join([]string{*t.Name, strconv.Itoa(*t.Count)}, ":"))
 				} else {
 					// TODO:
@@ -181,64 +183,67 @@ func (m Model) tabJobDetails() (scr string) {
 				}
 			}
 		}
-		// REQUESTED:MIN
-		tresReqMin += "REQUESTED:Min:\n"
-		m.Log.Printf("REQ:Min\n")
-		for i, t := range *v.Tres.Requested.Min {
-			if t.Count != nil {
-				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
-				tresReqMin += " "
-				tresReqMin += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
-			}
-		}
-		// REQUESTED:MAX
-		m.Log.Printf("REQ:Max\n")
-		tresReqMax += "REQUESTED:Max:\n"
-		for i, t := range *v.Tres.Requested.Min {
-			if t.Count != nil {
-				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
-				tresReqMax += " "
-				tresReqMax += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
-			}
-		}
-		// REQUESTED:AVG
-		m.Log.Printf("REQ:Avg\n")
-		tresReqAvg += "REQUESTED:Avg:\n"
-		for i, t := range *v.Tres.Requested.Average {
-			if t.Count != nil {
-				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
-				tresReqAvg += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
-			}
-		}
-		// REQUESTED:TOT
-		tresReqAvg += "REQUESTED:Tot:\n"
-		m.Log.Printf("REQ:Tot\n")
-		for i, t := range *v.Tres.Requested.Total {
-			if t.Count != nil {
-				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
-				tresReqTotal += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
-			}
-		}
-		// Consumed:Min
-		tresConMin += "CONSUMED:Min:\n"
-		m.Log.Printf("CONS:Min\n")
-		for i, t := range *v.Tres.Consumed.Min {
-			if t.Count != nil {
-				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
-				tresConMin += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
-			}
-		}
-		// Consumed:Max
-		tresConMax += "CONSUMED:Max:\n"
-		m.Log.Printf("CONS:Max\n")
-		for i, t := range *v.Tres.Consumed.Max {
-			if t.Count != nil {
-				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
-				tresConMax += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
-			}
-		}
-		//tres = lipgloss.JoinHorizontal(lipgloss.Top, tresAlloc, tresReqMin, tresReqAvg, tresReqMax, tresReqTotal)
-		tres = lipgloss.JoinHorizontal(lipgloss.Top, styles.TresBox.Render(tresAlloc), styles.TresBox.Width(40).Render(tresConMax))
+		//// REQUESTED:MIN
+		//tresReqMin += "REQUESTED:Min:\n"
+		//m.Log.Printf("REQ:Min\n")
+		//for i, t := range *v.Tres.Requested.Min {
+		//	if t.Count != nil {
+		//		m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+		//		tresReqMin += " "
+		//		tresReqMin += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+		//	}
+		//}
+		//// REQUESTED:MAX
+		//m.Log.Printf("REQ:Max\n")
+		//tresReqMax += "REQUESTED:Max:\n"
+		//for i, t := range *v.Tres.Requested.Min {
+		//	if t.Count != nil {
+		//		m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+		//		tresReqMax += " "
+		//		tresReqMax += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+		//	}
+		//}
+		//// REQUESTED:AVG
+		//m.Log.Printf("REQ:Avg\n")
+		//tresReqAvg += "REQUESTED:Avg:\n"
+		//for i, t := range *v.Tres.Requested.Average {
+		//	if t.Count != nil {
+		//		m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+		//		tresReqAvg += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+		//	}
+		//}
+		//// REQUESTED:TOT
+		//tresReqAvg += "REQUESTED:Tot:\n"
+		//m.Log.Printf("REQ:Tot\n")
+		//for i, t := range *v.Tres.Requested.Total {
+		//	if t.Count != nil {
+		//		m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+		//		tresReqTotal += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+		//	}
+		//}
+		//// Consumed:Min
+		//tresConMin += "CONSUMED:Min:\n"
+		//m.Log.Printf("CONS:Min\n")
+		//for i, t := range *v.Tres.Consumed.Min {
+		//	if t.Count != nil {
+		//		m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+		//		tresConMin += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+		//	}
+		//}
+		//// Consumed:Max
+		//tresConMax += "CONSUMED:Max:\n"
+		//m.Log.Printf("CONS:Max\n")
+		//for i, t := range *v.Tres.Consumed.Max {
+		//	if t.Count != nil {
+		//		m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
+		//		tresConMax += fmt.Sprintf(fmtStr, *t.Type, strconv.Itoa(*t.Count))
+		//	}
+		//}
+		//tres = lipgloss.JoinHorizontal(lipgloss.Top, styles.TresBox.Render(tresAlloc), styles.TresBox.Width(40).Render(tresConMax))
+
+		// For now, show just allocated, later rework this whole part
+		tres = styles.TresBox.Render(tresAlloc)
+
 		step += tres
 
 		// when the step is finished, append it to steps string

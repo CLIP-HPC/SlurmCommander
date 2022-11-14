@@ -1,12 +1,18 @@
 
-## SlurmCommander
+# SlurmCommander
 
-In development.
+## Intro
 
-![demo](./sc-demo.gif)
-
-## Run
+## Usage
 
 ```
 TERM=xterm-256color ./scom
 ```
+
+## Demo
+
+![demo](./sc-demo.gif)
+
+## Feedback
+
+## Acknowledgments

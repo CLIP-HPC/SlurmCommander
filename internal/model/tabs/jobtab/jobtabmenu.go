@@ -100,9 +100,7 @@ func NewMenu(selJobState string, l *log.Logger) list.Model {
 	lm.SetFilteringEnabled(false)
 	lm.SetShowHelp(false)
 	lm.SetShowPagination(false)
-	lm.SetHeight(30)
-	lm.SetWidth(30)
-	lm.SetSize(30, 30)
+	lm.SetSize(30, 25)
 	lm.Styles.Title = styles.MenuTitleStyle
 
 	return lm

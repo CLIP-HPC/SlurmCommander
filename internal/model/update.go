@@ -298,6 +298,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Windows resize
 	case tea.WindowSizeMsg:
+		m.Log.Printf("Update: got WindowSizeMsg: %d %d\n", msg.Width, msg.Height)
+		// TODO: if W<195 || H<60 we can't really run without breaking view, so quit and inform user
+		if msg.Height < 60 || msg.Width < 195 {
+			m.Log.Printf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 195x60.\n", msg.Width, msg.Height)
+			m.Globals.SizeErr = fmt.Sprintf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 195x60.\nIncrease your terminal window and/or decrease font size.", msg.Width, msg.Height)
+			return m, tea.Quit
+		}
 		m.winW = msg.Width
 		m.winH = msg.Height
 		// TODO: set also maxheight/width here on change?
@@ -311,7 +318,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		styles.JobInfoInBottomBox = styles.JobInfoInBottomBox.Width(w + 4).Height(5)
 		//s = styles.JobInfoInBox.Copy().Width(w + 4)
 
-		m.Log.Printf("Update: got WindowSizeMsg: %d %d\n", msg.Width, msg.Height)
 		// Tabs :  3
 		// Header  3
 		// TABLE:  X

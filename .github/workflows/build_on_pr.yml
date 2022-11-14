@@ -1,4 +1,4 @@
-name: Build_on_tag
+name: Build_on_PR
 
 on:
   pull_request:

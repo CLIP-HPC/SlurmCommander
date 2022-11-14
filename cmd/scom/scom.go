@@ -29,7 +29,7 @@ func main() {
 		debugSet bool = false
 	)
 
-	fmt.Println("Welcome to Slurm Commander!")
+	fmt.Printf("Welcome to Slurm Commander!\n\n")
 
 	args, err := cmdline.NewCmdArgs()
 	if err != nil {
@@ -122,9 +122,23 @@ func main() {
 		},
 	}
 
-	//m.SqTable.SetStyles(s)
+	// OLD: bubbletea@v0.22.1
+	//p := tea.NewProgram(tea.Model(m), tea.WithAltScreen())
+	//if err := p.Start(); err != nil {
+	//	log.Fatalf("ERROR: starting tea program: %q\n", err)
+	//}
+
+	// NEW: bubbletea@v0.23.0
+	// Run returns the model as a tea.Model.
 	p := tea.NewProgram(tea.Model(m), tea.WithAltScreen())
-	if err := p.Start(); err != nil {
-		log.Fatalf("ERROR: starting tea program: %q\n", err)
+	ret, err := p.Run()
+	if err != nil {
+		fmt.Printf("Error starting program: %s", err)
+		os.Exit(1)
 	}
+
+	if retMod, ok := ret.(model.Model); ok && retMod.Globals.SizeErr != "" {
+		fmt.Printf("%s\n", retMod.Globals.SizeErr)
+	}
+	fmt.Printf("Goodbye!\n")
 }

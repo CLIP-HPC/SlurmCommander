@@ -74,6 +74,7 @@ type Globals struct {
 	JobHistTimeout uint
 	ErrorMsg       error
 	ErrorHelp      string
+	SizeErr        string
 }
 
 // FilterSwitch == -1 if filter is off.
