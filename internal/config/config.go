@@ -55,11 +55,11 @@ func (cc *ConfigContainer) GetConfig() error {
 			cc.testNsetBinPaths()
 			return err
 		}
+	}
 
-		if cc.Tick == 0 {
-			cc.Tick = 3
-		}
-
+	if cc.Tick == 0 {
+		// set default Tick
+		cc.Tick = 3
 	}
 	cc.testNsetBinPaths()
 

@@ -164,6 +164,7 @@ func (m Model) tabJobDetails() (scr string) {
 		tresConMax := ""
 		// TRES: allocated
 		tresAlloc += "ALLOCATED:\n"
+		m.Log.Printf("ALLOCATED:\n")
 		m.Log.Printf("Dumping step allocation: %#v\n", *v.Tres.Allocated)
 		for i, t := range *v.Tres.Allocated {
 			if t.Count != nil {
@@ -181,6 +182,7 @@ func (m Model) tabJobDetails() (scr string) {
 		}
 		// REQUESTED:MIN
 		tresReqMin += "REQUESTED:Min:\n"
+		m.Log.Printf("REQ:Min\n")
 		for i, t := range *v.Tres.Requested.Min {
 			if t.Count != nil {
 				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
@@ -189,6 +191,7 @@ func (m Model) tabJobDetails() (scr string) {
 			}
 		}
 		// REQUESTED:MAX
+		m.Log.Printf("REQ:Max\n")
 		tresReqMax += "REQUESTED:Max:\n"
 		for i, t := range *v.Tres.Requested.Min {
 			if t.Count != nil {
@@ -198,6 +201,7 @@ func (m Model) tabJobDetails() (scr string) {
 			}
 		}
 		// REQUESTED:AVG
+		m.Log.Printf("REQ:Avg\n")
 		tresReqAvg += "REQUESTED:Avg:\n"
 		for i, t := range *v.Tres.Requested.Average {
 			if t.Count != nil {
@@ -207,6 +211,7 @@ func (m Model) tabJobDetails() (scr string) {
 		}
 		// REQUESTED:TOT
 		tresReqAvg += "REQUESTED:Tot:\n"
+		m.Log.Printf("REQ:Tot\n")
 		for i, t := range *v.Tres.Requested.Total {
 			if t.Count != nil {
 				m.Log.Printf("Dumping type %d : %s - %d\n", i, *t.Type, *t.Count)
@@ -444,6 +449,7 @@ func GenCountStrVert(cnt map[string]uint, l *log.Logger) string {
 	}
 
 	// sort it
+	// TODO: replace with sort.SliceStable
 	sort.Slice(sm, func(i, j int) bool {
 		if sm[i].val > sm[j].val {
 			return true

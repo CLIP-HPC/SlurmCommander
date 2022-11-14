@@ -9,3 +9,4 @@
 * UI table responsiveness when len(rows)>1++k
 * terminal columns ~150 breaks stats windows
 * on low number of rows (<60), on jobtab, stats and info overlap, messing up screen (laptops)
+* make sorting of boxes static! otherwise flapping in display happens on same number items
