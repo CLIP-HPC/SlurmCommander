@@ -316,7 +316,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		w := ((m.Globals.winW - 25) / 3) * 3
 		styles.JobInfoInBox = styles.JobInfoInBox.Width(w / 3).Height(5)
 		styles.JobInfoInBottomBox = styles.JobInfoInBottomBox.Width(w + 4).Height(5)
-		//s = styles.JobInfoInBox.Copy().Width(w + 4)
 
 		// Tabs :  3
 		// Header  3

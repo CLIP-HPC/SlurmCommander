@@ -19,6 +19,7 @@ import (
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobfromtemplate"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobhisttab"
 	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
+	"github.com/pja237/slurmcommander-dev/internal/styles"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 	"github.com/pja237/slurmcommander-dev/internal/version"
 )
@@ -53,39 +54,37 @@ func main() {
 	clustertab.NewCmdCC(*cc)
 	jobhisttab.NewCmdCC(*cc)
 
-	// TODO: move all this away to view somewhere...
+	// TODO: move all this away to view/styles somewhere...
 	s := table.DefaultStyles()
 	s.Header = s.Header.
 		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("240")).
+		BorderForeground(styles.Bluegrey).
 		BorderBottom(true).
 		Bold(false)
 	s.Selected = s.Selected.
-		Background(lipgloss.Color("#0057B8")).
-		Foreground(lipgloss.Color("#FFD700")).
+		Background(styles.Blue).
+		Foreground(styles.Yellow).
 		Bold(false)
-	//s.Selected = s.Selected.
-	//	Background(lipgloss.Color("#277BC0")).
-	//	Foreground(lipgloss.Color("#FFCB42")).
-	//	Bold(false)
-	//
-	//s.Selected = s.Selected.
-	//	Foreground(lipgloss.Color("229")).
-	//	Background(lipgloss.Color("57")).
-	//	Bold(false)
+
 	// Filter TextInput
 	ti := textinput.New()
 	ti.Placeholder = ""
 	ti.Focus()
-	ti.CharLimit = 20
-	ti.Width = 20
+	ti.CharLimit = 30
+	ti.Width = 30
 
 	// logging
 	debugSet, l := logger.SetupLogger()
 
+	// setup help
+	hlp := help.New()
+	hlp.Styles.ShortKey = styles.TextYellow
+	hlp.Styles.ShortDesc = styles.TextBlue
+	hlp.Styles.ShortSeparator = styles.TextBlueGrey
+
 	m := model.Model{
 		Globals: model.Globals{
-			Help:            help.New(),
+			Help:            hlp,
 			ActiveTab:       0,
 			Log:             l,
 			FilterSwitch:    -1,

@@ -764,9 +764,7 @@ func (m Model) View() string {
 	switch m.ActiveTab {
 	case tabJobs:
 		// Top Main
-		MainWindow.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
-		// This is gone to Stats box
-		//MainWindow.WriteString(GenCountStr(m.JobTab.Stats.StateCnt, m.Log))
+		MainWindow.WriteString(fmt.Sprintf("Filter: %10.30s\tItems: %d\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
 		MainWindow.WriteString("\n")
 
 		// Mid Main: table || table+stats || table+menu
@@ -854,7 +852,6 @@ func (m Model) View() string {
 	case tabCluster:
 		// Top Main
 		MainWindow.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n\n", m.JobClusterTab.Filter.Value(), len(m.JobClusterTab.SinfoFiltered.Nodes)))
-		//MainWindow.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))
 		MainWindow.WriteString(m.tabClusterBars())
 
 		// Mid Main: table || table+stats
