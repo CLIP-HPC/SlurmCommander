@@ -16,6 +16,7 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.Info:     false,
 	&keybindings.DefaultKeyMap.Enter:    false,
 	&keybindings.DefaultKeyMap.Stats:    false,
+	&keybindings.DefaultKeyMap.Count:    false,
 }
 
 func (k *Keys) SetupKeys() {

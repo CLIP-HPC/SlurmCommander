@@ -18,6 +18,7 @@ type KeyMap struct {
 	SaveSubmitJob key.Binding
 	Escape        key.Binding
 	Stats         key.Binding
+	Count         key.Binding
 }
 
 // TODO: add shift+tab
@@ -26,6 +27,10 @@ var DefaultKeyMap = KeyMap{
 	TtabSel: key.NewBinding(
 		key.WithKeys("1", "2", "3", "4", "5", "6"),
 		key.WithHelp("1-6", "GoTo Tab"),
+	),
+	Count: key.NewBinding(
+		key.WithKeys("c"),
+		key.WithHelp("c", "Show Counters"),
 	),
 	Stats: key.NewBinding(
 		key.WithKeys("s"),
@@ -90,6 +95,7 @@ func (km KeyMap) ShortHelp() []key.Binding {
 		km.Slash,
 		km.Info,
 		km.Stats,
+		km.Count,
 		km.Enter,
 		km.Quit,
 		km.SaveSubmitJob,

@@ -21,6 +21,7 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.SaveSubmitJob: false,
 	&keybindings.DefaultKeyMap.Escape:        false,
 	&keybindings.DefaultKeyMap.Stats:         false,
+	&keybindings.DefaultKeyMap.Count:         false,
 }
 
 var EditorKeyMap = Keys{
@@ -37,6 +38,7 @@ var EditorKeyMap = Keys{
 	&keybindings.DefaultKeyMap.SaveSubmitJob: true,
 	&keybindings.DefaultKeyMap.Escape:        true,
 	&keybindings.DefaultKeyMap.Stats:         false,
+	&keybindings.DefaultKeyMap.Count:         false,
 }
 
 func (k *Keys) SetupKeys() {

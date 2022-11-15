@@ -16,10 +16,11 @@ var (
 	green = lipgloss.Color("#00b300")
 
 	// Generic text color styles
-	TextRed    = lipgloss.NewStyle().Foreground(red)
-	TextYellow = lipgloss.NewStyle().Foreground(yellow)
-	TextGreen  = lipgloss.NewStyle().Foreground(green)
-	TextBlue   = lipgloss.NewStyle().Foreground(blue)
+	TextRed          = lipgloss.NewStyle().Foreground(red)
+	TextYellow       = lipgloss.NewStyle().Foreground(yellow)
+	TextGreen        = lipgloss.NewStyle().Foreground(green)
+	TextBlue         = lipgloss.NewStyle().Foreground(blue)
+	TextYellowOnBlue = lipgloss.NewStyle().Foreground(yellow).Background(blue).Underline(true)
 
 	// ErrorHelp Box
 	//ErrorHelp = lipgloss.NewStyle().Foreground(red).Border(lipgloss.RoundedBorder()).BorderForeground(red)
@@ -64,6 +65,8 @@ var (
 
 	StatsSeparatorTitle = lipgloss.NewStyle().Foreground(yellow).Background(blue)
 
+	// JobQueue tab
+
 	//MenuTitleStyle    = lipgloss.NewStyle().Background(blue).Foreground(yellow)
 	MenuBoxStyle      = lipgloss.NewStyle().Padding(1, 2).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(blue)
 	MenuTitleStyle    = lipgloss.NewStyle().Foreground(yellow)
@@ -71,6 +74,8 @@ var (
 	MenuSelectedTitle = lipgloss.NewStyle().Foreground(yellow).Background(blue)
 	MenuNormalDesc    = lipgloss.NewStyle().Foreground(yellow).Background(blue)
 	MenuSelectedDesc  = lipgloss.NewStyle().Foreground(yellow)
+
+	CountsBox = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(0, 0).BorderForeground(blue)
 
 	// Main Window area
 	//MainWindow = lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder()).BorderForeground(blue).MaxHeight(80)

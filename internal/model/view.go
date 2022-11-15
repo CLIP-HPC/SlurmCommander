@@ -325,6 +325,52 @@ Contributors:
 	return s
 }
 
+func (m Model) getJobCounts() string {
+	var (
+		ret   string
+		top5u string
+		top5a string
+		jpp   string
+		jpq   string
+	)
+
+	fmtStr := "%-20s : %6d\n"
+	fmtTitle := "%-29s"
+
+	top5u += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Top 5 User"))
+	top5u += "\n"
+	for _, v := range m.JobTab.Breakdowns.Top5user {
+		top5u += fmt.Sprintf(fmtStr, v.Name, v.Count)
+	}
+
+	top5a += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Top 5 Accounts"))
+	top5a += "\n"
+	for _, v := range m.JobTab.Breakdowns.Top5acc {
+		top5a += fmt.Sprintf(fmtStr, v.Name, v.Count)
+	}
+
+	jpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Jobs per Partition"))
+	jpp += "\n"
+	for _, v := range m.JobTab.Breakdowns.JobPerPart {
+		jpp += fmt.Sprintf(fmtStr, v.Name, v.Count)
+	}
+
+	jpq += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Jobs per QoS"))
+	jpq += "\n"
+	for _, v := range m.JobTab.Breakdowns.JobPerQos {
+		jpq += fmt.Sprintf(fmtStr, v.Name, v.Count)
+	}
+
+	top5u = styles.CountsBox.Render(top5u)
+	top5a = styles.CountsBox.Render(top5a)
+	jpq = styles.CountsBox.Render(jpq)
+	jpp = styles.CountsBox.Render(jpp)
+
+	ret = lipgloss.JoinHorizontal(lipgloss.Top, top5u, top5a, jpp, jpq)
+
+	return ret
+}
+
 func (m Model) getJobInfo() string {
 	var scr strings.Builder
 
@@ -380,6 +426,7 @@ func (m Model) getJobInfo() string {
 	//w := ((m.Globals.winW - 10) / 3) * 3
 	//s := styles.JobInfoInBox.Copy().Width(w / 3).Height(5)
 	////top := lipgloss.JoinHorizontal(lipgloss.Top, styles.JobInfoInBox.Render(infoBoxLeft), styles.JobInfoInBox.Render(infoBoxMiddle), styles.JobInfoInBox.Render(infoBoxRight))
+	// TODO: use builder here
 	top := lipgloss.JoinHorizontal(lipgloss.Top, styles.JobInfoInBox.Render(infoBoxLeft), styles.JobInfoInBox.Render(infoBoxMiddle), styles.JobInfoInBox.Render(infoBoxRight))
 	//s = styles.JobInfoInBox.Copy().Width(w + 4)
 	scr.WriteString(lipgloss.JoinVertical(lipgloss.Left, top, styles.JobInfoInBottomBox.Render(infoBoxWide)))
@@ -527,7 +574,6 @@ func (m Model) JobClusterTabStats() string {
 func HumanizeDuration(t time.Duration, l *log.Logger) string {
 	var ret string
 
-	l.Printf("Humanizing %f seconds to:\n", t.Seconds())
 	// total seconds
 	s := int64(t.Seconds())
 
@@ -545,7 +591,7 @@ func HumanizeDuration(t time.Duration, l *log.Logger) string {
 
 	ret += fmt.Sprintf("%.2d-%.2d:%.2d:%.2d", d, h, m, s)
 
-	l.Printf("Humanized %q\n", ret)
+	l.Printf("Humanized %f to %q\n", t.Seconds(), ret)
 	return ret
 }
 
@@ -663,6 +709,10 @@ func (m Model) View() string {
 			// info
 			MainWindow.WriteString("\n")
 			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
+		case m.JobTab.CountsOn:
+			// Counts on
+			MainWindow.WriteString("\n")
+			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobCounts()))
 		}
 
 	case tabJobHist:

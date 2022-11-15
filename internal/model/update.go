@@ -413,6 +413,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 
+		// Counters
+		case key.Matches(msg, keybindings.DefaultKeyMap.Count):
+			// Depends at which tab we're at
+			m.Log.Printf("Toggle Counters pressed, old: %t\n", m.JobTab.CountsOn)
+			switch m.ActiveTab {
+			case tabJobs:
+				m.JobTab.InfoOn = false
+				toggleSwitch(&m.JobTab.CountsOn)
+			}
+			m.Log.Printf("Toggle Counters pressed, new: %t\n", m.JobTab.CountsOn)
+			return m, nil
+
 		// UP
 		// TODO: what if it's a list?
 		case key.Matches(msg, keybindings.DefaultKeyMap.Up):
@@ -538,12 +550,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Info - toggle on/off
 		case key.Matches(msg, keybindings.DefaultKeyMap.Info):
-			if m.InfoOn {
-				m.InfoOn = false
-			} else {
-				m.InfoOn = true
-			}
-			m.DebugMsg += "I"
+			m.Log.Printf("Toggle InfoBox\n")
+			m.JobTab.CountsOn = false
+			toggleSwitch(&m.JobTab.InfoOn)
 			return m, nil
 
 		// Stats - toggle on/off
