@@ -5,12 +5,14 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/pja237/slurmcommander-dev/internal/generic"
 	"github.com/pja237/slurmcommander-dev/internal/stats"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
 type JobHistTab struct {
 	StatsOn           bool
+	CountsOn          bool
 	HistFetched       bool // signals View() if sacct call is finished, to print "waiting for..." message
 	HistFetchFail     bool // if sacct call times out/errors, this is set to true
 	SacctTable        table.Model
@@ -18,6 +20,7 @@ type JobHistTab struct {
 	SacctHistFiltered SacctJSON
 	Filter            textinput.Model
 	Stats
+	Breakdowns
 }
 
 type Stats struct {
@@ -33,7 +36,19 @@ type Stats struct {
 	SDWait   int
 }
 
+type Breakdowns struct {
+	Top5user   generic.CountItemSlice
+	Top5acc    generic.CountItemSlice
+	JobPerQos  generic.CountItemSlice
+	JobPerPart generic.CountItemSlice
+}
+
 func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
+	top5user := generic.CountItemMap{}
+	top5acc := generic.CountItemMap{}
+	jpq := generic.CountItemMap{}
+	jpp := generic.CountItemMap{}
+
 	t.Stats.StateCnt = map[string]uint{}
 	tmp := []time.Duration{}
 	tmpRun := []time.Duration{}
@@ -52,7 +67,19 @@ func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
 			// TODO: Question, do we include RUNNING jobs in the calculation?
 			//tmpRun = append(tmpRun, time.Duration(*v.Time.Elapsed))
 		}
+
+		// Breakdowns:
+		top5acc[*v.Account]++
+		top5user[*v.User]++
+		jpp[*v.Partition]++
+		jpq[*v.Qos]++
 	}
+
+	// sort & filter breakdowns
+	t.Breakdowns.Top5user = generic.Top5(generic.SortItemMap(&top5user))
+	t.Breakdowns.Top5acc = generic.Top5(generic.SortItemMap(&top5acc))
+	t.Breakdowns.JobPerPart = generic.SortItemMap(&jpp)
+	t.Breakdowns.JobPerQos = generic.SortItemMap(&jpq)
 
 	t.MedWait, t.MinWait, t.MaxWait = stats.Median(tmp)
 	t.MedRun, t.MinRun, t.MaxRun = stats.Median(tmpRun)

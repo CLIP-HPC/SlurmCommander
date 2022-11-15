@@ -325,6 +325,52 @@ Contributors:
 	return s
 }
 
+func (m Model) getJobHistCounts() string {
+	var (
+		ret   string
+		top5u string
+		top5a string
+		jpp   string
+		jpq   string
+	)
+
+	fmtStr := "%-20s : %6d\n"
+	fmtTitle := "%-29s"
+
+	top5u += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Top 5 User"))
+	top5u += "\n"
+	for _, v := range m.JobHistTab.Breakdowns.Top5user {
+		top5u += fmt.Sprintf(fmtStr, v.Name, v.Count)
+	}
+
+	top5a += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Top 5 Accounts"))
+	top5a += "\n"
+	for _, v := range m.JobHistTab.Breakdowns.Top5acc {
+		top5a += fmt.Sprintf(fmtStr, v.Name, v.Count)
+	}
+
+	jpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Jobs per Partition"))
+	jpp += "\n"
+	for _, v := range m.JobHistTab.Breakdowns.JobPerPart {
+		jpp += fmt.Sprintf(fmtStr, v.Name, v.Count)
+	}
+
+	jpq += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Jobs per QoS"))
+	jpq += "\n"
+	for _, v := range m.JobHistTab.Breakdowns.JobPerQos {
+		jpq += fmt.Sprintf(fmtStr, v.Name, v.Count)
+	}
+
+	top5u = styles.CountsBox.Render(top5u)
+	top5a = styles.CountsBox.Render(top5a)
+	jpq = styles.CountsBox.Render(jpq)
+	jpp = styles.CountsBox.Render(jpp)
+
+	ret = lipgloss.JoinHorizontal(lipgloss.Top, top5u, top5a, jpp, jpq)
+
+	return ret
+}
+
 func (m Model) getJobCounts() string {
 	var (
 		ret   string
@@ -697,7 +743,7 @@ func (m Model) View() string {
 			MainWindow.WriteString(m.tabJobs())
 		}
 
-		// Low Main: nil || info || filter
+		// Low Main: nil || info || filter || counts
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			// filter
@@ -733,11 +779,7 @@ func (m Model) View() string {
 
 		// Top Main
 		MainWindow.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
-		// Counters, moved to Stats box
-		//MainWindow.WriteString(GenCountStr(m.JobHistTab.Stats.StateCnt, m.Log))
 		MainWindow.WriteString("\n")
-		// Waiting times, also gone to Stats box
-		//MainWindow.WriteString(fmt.Sprintf("AvgWait: %s MedianWait: %s MinWait: %s Maxwait: %s\n", m.JobHistTab.Stats.AvgWait.String(), m.JobHistTab.MedWait.String(), m.JobHistTab.MinWait.String(), m.JobHistTab.MaxWait.String()))
 
 		// Mid Main: table || table+stats
 		switch {
@@ -749,7 +791,7 @@ func (m Model) View() string {
 			MainWindow.WriteString(m.tabJobHist())
 		}
 
-		// Low Main: nil || filter
+		// Low Main: nil || filter || counts
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			// filter
@@ -757,6 +799,10 @@ func (m Model) View() string {
 			MainWindow.WriteString("Filter value (search across: JobID, JobName, AccountName, UserName, JobState):\n")
 			MainWindow.WriteString(fmt.Sprintf("%s\n", m.JobHistTab.Filter.View()))
 			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
+		case m.JobHistTab.CountsOn:
+			// Counts on
+			MainWindow.WriteString("\n")
+			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobHistCounts()))
 		}
 
 	case tabJobDetails:

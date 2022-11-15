@@ -416,13 +416,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Counters
 		case key.Matches(msg, keybindings.DefaultKeyMap.Count):
 			// Depends at which tab we're at
-			m.Log.Printf("Toggle Counters pressed, old: %t\n", m.JobTab.CountsOn)
+			m.Log.Printf("Toggle Counters pressed at %d\n", m.ActiveTab)
 			switch m.ActiveTab {
 			case tabJobs:
 				m.JobTab.InfoOn = false
 				toggleSwitch(&m.JobTab.CountsOn)
+			case tabJobHist:
+				toggleSwitch(&m.JobHistTab.CountsOn)
 			}
-			m.Log.Printf("Toggle Counters pressed, new: %t\n", m.JobTab.CountsOn)
 			return m, nil
 
 		// UP

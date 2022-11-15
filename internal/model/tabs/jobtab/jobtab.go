@@ -2,11 +2,11 @@ package jobtab
 
 import (
 	"log"
-	"sort"
 	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/pja237/slurmcommander-dev/internal/generic"
 	"github.com/pja237/slurmcommander-dev/internal/stats"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
@@ -42,58 +42,18 @@ type Stats struct {
 }
 
 type Breakdowns struct {
-	Top5user   CountItemSlice
-	Top5acc    CountItemSlice
-	JobPerQos  CountItemSlice
-	JobPerPart CountItemSlice
-}
-
-type CountItemSlice []CountItem
-
-type CountItem struct {
-	Name  string
-	Count uint
-}
-
-type CountItemMap map[string]uint
-
-func sortItemMap(m *CountItemMap) CountItemSlice {
-	var ret = CountItemSlice{}
-	//ret := make(CountItemSlice, len(*m))
-	for k, v := range *m {
-		ret = append(ret, CountItem{
-			Name:  k,
-			Count: v,
-		})
-	}
-
-	sort.Slice(ret, func(i, j int) bool {
-		if ret[i].Count > ret[j].Count {
-			return true
-		} else {
-			return false
-		}
-	})
-
-	return ret
-}
-
-func top5(src CountItemSlice) CountItemSlice {
-	var ret CountItemSlice
-	for i, v := range src {
-		if i < 5 {
-			ret = append(ret, v)
-		}
-	}
-	return ret
+	Top5user   generic.CountItemSlice
+	Top5acc    generic.CountItemSlice
+	JobPerQos  generic.CountItemSlice
+	JobPerPart generic.CountItemSlice
 }
 
 func (t *JobTab) GetStatsFiltered(l *log.Logger) {
 
-	top5user := CountItemMap{}
-	top5acc := CountItemMap{}
-	jpq := CountItemMap{}
-	jpp := CountItemMap{}
+	top5user := generic.CountItemMap{}
+	top5acc := generic.CountItemMap{}
+	jpq := generic.CountItemMap{}
+	jpp := generic.CountItemMap{}
 
 	t.Stats.StateCnt = map[string]uint{}
 	tmp := []time.Duration{}
@@ -119,10 +79,10 @@ func (t *JobTab) GetStatsFiltered(l *log.Logger) {
 	}
 
 	// sort & filter breakdowns
-	t.Breakdowns.Top5user = top5(sortItemMap(&top5user))
-	t.Breakdowns.Top5acc = top5(sortItemMap(&top5acc))
-	t.Breakdowns.JobPerPart = sortItemMap(&jpp)
-	t.Breakdowns.JobPerQos = sortItemMap(&jpq)
+	t.Breakdowns.Top5user = generic.Top5(generic.SortItemMap(&top5user))
+	t.Breakdowns.Top5acc = generic.Top5(generic.SortItemMap(&top5acc))
+	t.Breakdowns.JobPerPart = generic.SortItemMap(&jpp)
+	t.Breakdowns.JobPerQos = generic.SortItemMap(&jpq)
 
 	//l.Printf("TOP5USER: %#v\n", t.Breakdowns.Top5user)
 	//l.Printf("TOP5ACC: %#v\n", t.Breakdowns.Top5acc)
