@@ -228,21 +228,24 @@ func CallSbatch(jobfile string, l *log.Logger) tea.Cmd {
 }
 
 type SshCompleted struct {
-	SshErr error
+	SshNode string
 }
 
 func CallSsh(node string, l *log.Logger) tea.Cmd {
 	l.Printf("Start ssh to %s\n", node)
 	ssh := exec.Command("ssh", node)
 	return tea.ExecProcess(ssh, func(err error) tea.Msg {
-		l.Printf("End ssh with error: %s\n", err)
-		return ErrorMsg{
-			From:    "CallSsh",
-			ErrHelp: fmt.Sprintf("Failed ssh to %s, possible reasons: you don't have a job on the node, ssh not allowed at all, etc.", node),
-			OrigErr: err,
+		if err != nil {
+			l.Printf("End ssh with error: %s\n", err)
+			return ErrorMsg{
+				From:    "CallSsh",
+				ErrHelp: fmt.Sprintf("Failed ssh to %s, possible reasons: you don't have a job on the node, ssh not allowed at all, etc.", node),
+				OrigErr: err,
+			}
+		} else {
+			return SshCompleted{
+				SshNode: node,
+			}
 		}
-		//return SshCompleted{
-		//	SshErr: err,
-		//}
 	})
 }

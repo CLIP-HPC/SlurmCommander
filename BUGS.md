@@ -3,12 +3,4 @@
 * jobfromtemplate tab, panic on select/enter if empty list
 * ~~jobwait time from job details, shows 0?~~
 * ~~cluster: blocks of nodes on prod sometime show weird same percentages? double-check~~ display ok, was wrong
-
-*
-```
-Job details, select a job from Job History tab
-
-Waiting for job 47083933 info...
-
-2022/10/13 14:49:30 Error unmarshall: "json: cannot unmarshal number into Go struct field .Jobs.steps.step.id of type string"
-```
+* ~~ssh to node after success returns error message:~~
