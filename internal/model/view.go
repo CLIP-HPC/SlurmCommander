@@ -333,20 +333,21 @@ func (m Model) getClusterCounts() string {
 		nps string
 	)
 
-	fmtStr := "%-20s : %6d/%d\n"
-	fmtStrNPS := "%-20s : %6d\n"
+	fmtStrCpu := "%-10s : %4d / %4d %2.0f%%\n"
+	fmtStrMem := "%-10s : %8d / %8d %2.0f%%\n"
+	fmtStrNPS := "%-15s : %4d\n"
 	fmtTitle := "%-40s"
 
 	cpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "CPUs per Partition (used/total)"))
 	cpp += "\n"
 	for _, v := range m.JobClusterTab.Breakdowns.CpuPerPart {
-		cpp += fmt.Sprintf(fmtStr, v.Name, v.Count, v.Total)
+		cpp += fmt.Sprintf(fmtStrCpu, v.Name, v.Count, v.Total, float32(v.Count)/float32(v.Total)*100)
 	}
 
 	mpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Mem per Partition (used/total)"))
 	mpp += "\n"
 	for _, v := range m.JobClusterTab.Breakdowns.MemPerPart {
-		mpp += fmt.Sprintf(fmtStr, v.Name, v.Count, v.Total)
+		mpp += fmt.Sprintf(fmtStrMem, v.Name, v.Count, v.Total, float32(v.Count)/float32(v.Total)*100)
 	}
 
 	nps += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Nodes per State"))

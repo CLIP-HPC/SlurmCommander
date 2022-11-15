@@ -82,9 +82,9 @@ func (t *JobClusterTab) GetStatsFiltered(l *log.Logger) {
 	}
 
 	// sort & filter breakdowns
-	t.Breakdowns.CpuPerPart = generic.SortItemMapByCount(&cpp)
-	t.Breakdowns.MemPerPart = generic.SortItemMapByCount(&mpp)
-	t.Breakdowns.NodesPerState = generic.SortItemMapByCount(&nps)
+	t.Breakdowns.CpuPerPart = generic.SortItemMapBySel("Name", &cpp)
+	t.Breakdowns.MemPerPart = generic.SortItemMapBySel("Name", &mpp)
+	t.Breakdowns.NodesPerState = generic.SortItemMapBySel("Count", &nps)
 
 	l.Printf("GetStatsFiltered end\n")
 }

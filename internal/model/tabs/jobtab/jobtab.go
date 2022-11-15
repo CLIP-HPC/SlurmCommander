@@ -91,10 +91,10 @@ func (t *JobTab) GetStatsFiltered(l *log.Logger) {
 	}
 
 	// sort & filter breakdowns
-	t.Breakdowns.Top5user = generic.Top5(generic.SortItemMapByCount(&top5user))
-	t.Breakdowns.Top5acc = generic.Top5(generic.SortItemMapByCount(&top5acc))
-	t.Breakdowns.JobPerPart = generic.SortItemMapByCount(&jpp)
-	t.Breakdowns.JobPerQos = generic.SortItemMapByCount(&jpq)
+	t.Breakdowns.Top5user = generic.Top5(generic.SortItemMapBySel("Count", &top5user))
+	t.Breakdowns.Top5acc = generic.Top5(generic.SortItemMapBySel("Count", &top5acc))
+	t.Breakdowns.JobPerPart = generic.SortItemMapBySel("Count", &jpp)
+	t.Breakdowns.JobPerQos = generic.SortItemMapBySel("Count", &jpq)
 
 	//l.Printf("TOP5USER: %#v\n", t.Breakdowns.Top5user)
 	//l.Printf("TOP5ACC: %#v\n", t.Breakdowns.Top5acc)

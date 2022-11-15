@@ -88,10 +88,10 @@ func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
 	}
 
 	// sort & filter breakdowns
-	t.Breakdowns.Top5user = generic.Top5(generic.SortItemMapByCount(&top5user))
-	t.Breakdowns.Top5acc = generic.Top5(generic.SortItemMapByCount(&top5acc))
-	t.Breakdowns.JobPerPart = generic.SortItemMapByCount(&jpp)
-	t.Breakdowns.JobPerQos = generic.SortItemMapByCount(&jpq)
+	t.Breakdowns.Top5user = generic.Top5(generic.SortItemMapBySel("Count", &top5user))
+	t.Breakdowns.Top5acc = generic.Top5(generic.SortItemMapBySel("Count", &top5acc))
+	t.Breakdowns.JobPerPart = generic.SortItemMapBySel("Count", &jpp)
+	t.Breakdowns.JobPerQos = generic.SortItemMapBySel("Count", &jpq)
 
 	t.MedWait, t.MinWait, t.MaxWait = stats.Median(tmp)
 	t.MedRun, t.MinRun, t.MaxRun = stats.Median(tmpRun)

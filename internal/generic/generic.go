@@ -13,7 +13,7 @@ type CountItem struct {
 //type CountItemMap map[string]uint
 type CountItemMap map[string]*CountItem
 
-func SortItemMapByCount(m *CountItemMap) CountItemSlice {
+func SortItemMapBySel(what string, m *CountItemMap) CountItemSlice {
 	var ret = CountItemSlice{}
 	//ret := make(CountItemSlice, len(*m))
 	for k, v := range *m {
@@ -25,11 +25,17 @@ func SortItemMapByCount(m *CountItemMap) CountItemSlice {
 	}
 
 	sort.Slice(ret, func(i, j int) bool {
-		if ret[i].Count > ret[j].Count {
-			return true
-		} else {
-			return false
+		switch what {
+		case "Count":
+			if ret[i].Count > ret[j].Count {
+				return true
+			}
+		case "Name":
+			if ret[i].Name < ret[j].Name {
+				return true
+			}
 		}
+		return false
 	})
 
 	return ret
