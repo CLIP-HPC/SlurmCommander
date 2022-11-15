@@ -325,6 +325,45 @@ Contributors:
 	return s
 }
 
+func (m Model) getClusterCounts() string {
+	var (
+		ret string
+		cpp string
+		mpp string
+		nps string
+	)
+
+	fmtStr := "%-20s : %6d/%d\n"
+	fmtStrNPS := "%-20s : %6d\n"
+	fmtTitle := "%-40s"
+
+	cpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "CPUs per Partition (used/total)"))
+	cpp += "\n"
+	for _, v := range m.JobClusterTab.Breakdowns.CpuPerPart {
+		cpp += fmt.Sprintf(fmtStr, v.Name, v.Count, v.Total)
+	}
+
+	mpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Mem per Partition (used/total)"))
+	mpp += "\n"
+	for _, v := range m.JobClusterTab.Breakdowns.MemPerPart {
+		mpp += fmt.Sprintf(fmtStr, v.Name, v.Count, v.Total)
+	}
+
+	nps += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Nodes per State"))
+	nps += "\n"
+	for _, v := range m.JobClusterTab.Breakdowns.NodesPerState {
+		nps += fmt.Sprintf(fmtStrNPS, v.Name, v.Count)
+	}
+
+	cpp = styles.CountsBox.Render(cpp)
+	mpp = styles.CountsBox.Render(mpp)
+	nps = styles.CountsBox.Render(nps)
+
+	ret = lipgloss.JoinHorizontal(lipgloss.Top, cpp, mpp, nps)
+
+	return ret
+}
+
 func (m Model) getJobHistCounts() string {
 	var (
 		ret   string
@@ -825,7 +864,7 @@ func (m Model) View() string {
 			MainWindow.WriteString(m.tabCluster())
 		}
 
-		// Low Main: nil || filter
+		// Low Main: nil || filter || counts
 		switch {
 		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
 			// filter
@@ -835,6 +874,10 @@ func (m Model) View() string {
 			MainWindow.WriteString("Filter value (search across: Name, State, StateFlags!):\n")
 			MainWindow.WriteString(fmt.Sprintf("%s\n", m.JobClusterTab.Filter.View()))
 			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
+		case m.JobClusterTab.CountsOn:
+			MainWindow.WriteString("\n")
+			MainWindow.WriteString(styles.JobInfoBox.Render(m.getClusterCounts()))
+
 		default:
 			MainWindow.WriteString("\n")
 			MainWindow.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))

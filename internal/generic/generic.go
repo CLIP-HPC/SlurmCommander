@@ -7,17 +7,20 @@ type CountItemSlice []CountItem
 type CountItem struct {
 	Name  string
 	Count uint
+	Total uint
 }
 
-type CountItemMap map[string]uint
+//type CountItemMap map[string]uint
+type CountItemMap map[string]*CountItem
 
-func SortItemMap(m *CountItemMap) CountItemSlice {
+func SortItemMapByCount(m *CountItemMap) CountItemSlice {
 	var ret = CountItemSlice{}
 	//ret := make(CountItemSlice, len(*m))
 	for k, v := range *m {
 		ret = append(ret, CountItem{
 			Name:  k,
-			Count: v,
+			Count: v.Count,
+			Total: v.Total,
 		})
 	}
 

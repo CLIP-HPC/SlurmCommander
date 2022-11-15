@@ -423,6 +423,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				toggleSwitch(&m.JobTab.CountsOn)
 			case tabJobHist:
 				toggleSwitch(&m.JobHistTab.CountsOn)
+			case tabCluster:
+				toggleSwitch(&m.JobClusterTab.CountsOn)
 			}
 			return m, nil
 

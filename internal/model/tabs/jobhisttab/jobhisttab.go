@@ -69,17 +69,29 @@ func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
 		}
 
 		// Breakdowns:
-		top5acc[*v.Account]++
-		top5user[*v.User]++
-		jpp[*v.Partition]++
-		jpq[*v.Qos]++
+		if _, ok := top5acc[*v.Account]; !ok {
+			top5acc[*v.Account] = &generic.CountItem{}
+		}
+		if _, ok := top5user[*v.User]; !ok {
+			top5user[*v.User] = &generic.CountItem{}
+		}
+		if _, ok := jpp[*v.Partition]; !ok {
+			jpp[*v.Partition] = &generic.CountItem{}
+		}
+		if _, ok := jpq[*v.Qos]; !ok {
+			jpq[*v.Qos] = &generic.CountItem{}
+		}
+		top5acc[*v.Account].Count++
+		top5user[*v.User].Count++
+		jpp[*v.Partition].Count++
+		jpq[*v.Qos].Count++
 	}
 
 	// sort & filter breakdowns
-	t.Breakdowns.Top5user = generic.Top5(generic.SortItemMap(&top5user))
-	t.Breakdowns.Top5acc = generic.Top5(generic.SortItemMap(&top5acc))
-	t.Breakdowns.JobPerPart = generic.SortItemMap(&jpp)
-	t.Breakdowns.JobPerQos = generic.SortItemMap(&jpq)
+	t.Breakdowns.Top5user = generic.Top5(generic.SortItemMapByCount(&top5user))
+	t.Breakdowns.Top5acc = generic.Top5(generic.SortItemMapByCount(&top5acc))
+	t.Breakdowns.JobPerPart = generic.SortItemMapByCount(&jpp)
+	t.Breakdowns.JobPerQos = generic.SortItemMapByCount(&jpq)
 
 	t.MedWait, t.MinWait, t.MaxWait = stats.Median(tmp)
 	t.MedRun, t.MinRun, t.MaxRun = stats.Median(tmpRun)
