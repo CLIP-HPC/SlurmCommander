@@ -26,9 +26,10 @@ type errMsg error
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var (
-		brk          bool = false
-		activeTable  *table.Model
-		activeFilter *textinput.Model
+		brk            bool = false
+		activeTable    *table.Model
+		activeFilter   *textinput.Model
+		activeFilterOn *bool
 	)
 
 	// This shortens the testing for table movement keys
@@ -36,21 +37,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tabJobs:
 		activeTable = &m.JobTab.SqueueTable
 		activeFilter = &m.JobTab.Filter
+		activeFilterOn = &m.JobTab.FilterOn
 	case tabJobHist:
 		activeTable = &m.JobHistTab.SacctTable
 		activeFilter = &m.JobHistTab.Filter
+		activeFilterOn = &m.JobHistTab.FilterOn
 	case tabJobFromTemplate:
 		activeTable = &m.JobFromTemplateTab.TemplatesTable
 	case tabCluster:
 		activeTable = &m.JobClusterTab.SinfoTable
 		activeFilter = &m.JobClusterTab.Filter
+		activeFilterOn = &m.JobClusterTab.FilterOn
 	}
 
 	// Filter is turned on, take care of this first
 	// TODO: revisit this for filtering on multiple tabs
 	switch {
-	case m.FilterSwitch != -1:
-		m.Log.Printf("Update: In filter %d\n", m.FilterSwitch)
+	case activeFilterOn != nil && *activeFilterOn:
+		m.Log.Printf("Filter is ON")
 		switch msg := msg.(type) {
 
 		case tea.KeyMsg:
@@ -58,14 +62,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// TODO: when filter is set/cleared, trigger refresh with new filtered data
 			case tea.KeyEnter:
 				// finish & apply entering filter
-				m.FilterSwitch = -1
-				m.lastKey = "ENTER"
+				*activeFilterOn = false
 				brk = true
 			case tea.KeyEsc:
 				// abort entering filter
-				m.FilterSwitch = -1
+				*activeFilterOn = false
 				activeFilter.SetValue("")
-				m.lastKey = "ESC"
 				brk = true
 			}
 			if brk {
@@ -111,7 +113,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		m.DebugMsg += "f"
 		tmp, cmd := activeFilter.Update(msg)
 		*activeFilter = tmp
 		return m, cmd
@@ -302,8 +303,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// TODO: if W<195 || H<60 we can't really run without breaking view, so quit and inform user
 		if msg.Height < 60 || msg.Width < 195 {
 			m.Log.Printf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 195x60.\n", msg.Width, msg.Height)
-			m.Globals.SizeErr = fmt.Sprintf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 195x60.\nIncrease your terminal window and/or decrease font size.", msg.Width, msg.Height)
-			return m, tea.Quit
+			//m.Globals.SizeErr = fmt.Sprintf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 195x60.\nIncrease your terminal window and/or decrease font size.", msg.Width, msg.Height)
+			//return m, tea.Quit
 		}
 		m.winW = msg.Width
 		m.winH = msg.Height
@@ -494,8 +495,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// SLASH
 		case key.Matches(msg, keybindings.DefaultKeyMap.Slash):
-			m.FilterSwitch = FilterSwitch(m.ActiveTab)
-			m.DebugMsg += "/"
+			switch {
+			case m.ActiveTab == tabJobs:
+				m.JobTab.FilterOn = true
+			case m.ActiveTab == tabJobHist:
+				m.JobHistTab.FilterOn = true
+			case m.ActiveTab == tabCluster:
+				m.JobClusterTab.FilterOn = true
+			}
 			return m, nil
 
 		// ENTER

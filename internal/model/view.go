@@ -10,6 +10,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/pja237/slurmcommander-dev/internal/generic"
 	"github.com/pja237/slurmcommander-dev/internal/keybindings"
 	"github.com/pja237/slurmcommander-dev/internal/styles"
 	"github.com/pja237/slurmcommander-dev/internal/version"
@@ -43,11 +44,6 @@ func max(a, b int) int {
 		return a
 	}
 	return b
-}
-
-func (m Model) tabJobs() string {
-
-	return m.SqueueTable.View() + "\n"
 }
 
 func (m Model) tabJobHist() string {
@@ -411,116 +407,6 @@ func (m Model) getJobHistCounts() string {
 	return ret
 }
 
-func (m Model) getJobCounts() string {
-	var (
-		ret   string
-		top5u string
-		top5a string
-		jpp   string
-		jpq   string
-	)
-
-	fmtStr := "%-20s : %6d\n"
-	fmtTitle := "%-29s"
-
-	top5u += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Top 5 User"))
-	top5u += "\n"
-	for _, v := range m.JobTab.Breakdowns.Top5user {
-		top5u += fmt.Sprintf(fmtStr, v.Name, v.Count)
-	}
-
-	top5a += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Top 5 Accounts"))
-	top5a += "\n"
-	for _, v := range m.JobTab.Breakdowns.Top5acc {
-		top5a += fmt.Sprintf(fmtStr, v.Name, v.Count)
-	}
-
-	jpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Jobs per Partition"))
-	jpp += "\n"
-	for _, v := range m.JobTab.Breakdowns.JobPerPart {
-		jpp += fmt.Sprintf(fmtStr, v.Name, v.Count)
-	}
-
-	jpq += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Jobs per QoS"))
-	jpq += "\n"
-	for _, v := range m.JobTab.Breakdowns.JobPerQos {
-		jpq += fmt.Sprintf(fmtStr, v.Name, v.Count)
-	}
-
-	top5u = styles.CountsBox.Render(top5u)
-	top5a = styles.CountsBox.Render(top5a)
-	jpq = styles.CountsBox.Render(jpq)
-	jpp = styles.CountsBox.Render(jpp)
-
-	ret = lipgloss.JoinHorizontal(lipgloss.Top, top5u, top5a, jpp, jpq)
-
-	return ret
-}
-
-func (m Model) getJobInfo() string {
-	var scr strings.Builder
-
-	n := m.JobTab.SqueueTable.Cursor()
-	m.Log.Printf("getJobInfo: cursor at %d table rows: %d\n", n, len(m.JobTab.SqueueFiltered.Jobs))
-	if len(m.JobTab.SqueueFiltered.Jobs) == 0 || n == -1 {
-		return "Select a job"
-	}
-
-	fmtStr := "%-15s : %-30s\n"
-	fmtStrLast := "%-15s : %-30s"
-	//ibFmt := "Job Name: %s\nJob Command: %s\nOutput: %s\nError: %s\n"
-	infoBoxLeft := fmt.Sprintf(fmtStr, "Partition", *m.JobTab.SqueueFiltered.Jobs[n].Partition)
-	infoBoxLeft += fmt.Sprintf(fmtStr, "QoS", *m.JobTab.SqueueFiltered.Jobs[n].Qos)
-	infoBoxLeft += fmt.Sprintf(fmtStr, "TRES", *m.JobTab.SqueueFiltered.Jobs[n].TresReqStr)
-	infoBoxLeft += fmt.Sprintf(fmtStr, "Batch Host", *m.JobTab.SqueueFiltered.Jobs[n].BatchHost)
-	if m.JobTab.SqueueFiltered.Jobs[n].JobResources.Nodes != nil {
-		infoBoxLeft += fmt.Sprintf(fmtStrLast, "AllocNodes", *m.JobTab.SqueueFiltered.Jobs[n].JobResources.Nodes)
-	} else {
-		infoBoxLeft += fmt.Sprintf(fmtStrLast, "AllocNodes", "none")
-
-	}
-
-	infoBoxRight := fmt.Sprintf(fmtStr, "Array Job ID", strconv.Itoa(*m.JobTab.SqueueFiltered.Jobs[n].ArrayJobId))
-	if m.JobTab.SqueueFiltered.Jobs[n].ArrayTaskId != nil {
-		infoBoxRight += fmt.Sprintf(fmtStr, "Array Task ID", strconv.Itoa(*m.JobTab.SqueueFiltered.Jobs[n].ArrayTaskId))
-	} else {
-		infoBoxRight += fmt.Sprintf(fmtStr, "Array Task ID", "NoTaskID")
-	}
-	infoBoxRight += fmt.Sprintf(fmtStr, "Gres Details", strings.Join(*m.JobTab.SqueueFiltered.Jobs[n].GresDetail, ","))
-	infoBoxRight += fmt.Sprintf(fmtStr, "Features", *m.JobTab.SqueueFiltered.Jobs[n].Features)
-	infoBoxRight += fmt.Sprintf(fmtStrLast, "wckey", *m.JobTab.SqueueFiltered.Jobs[n].Wckey)
-
-	infoBoxMiddle := fmt.Sprintf(fmtStr, "Submit", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].SubmitTime, 0))
-	if *m.JobTab.SqueueFiltered.Jobs[n].StartTime != 0 {
-		infoBoxMiddle += fmt.Sprintf(fmtStr, "Start /expected", time.Unix(*m.JobTab.SqueueFiltered.Jobs[n].StartTime, 0))
-	} else {
-		infoBoxMiddle += fmt.Sprintf(fmtStr, "Start", "unknown")
-	}
-	// placeholder lines
-	infoBoxMiddle += "\n"
-	infoBoxMiddle += "\n"
-	// EO placeholder lines
-	infoBoxMiddle += fmt.Sprintf(fmtStrLast, "State reason", *m.JobTab.SqueueFiltered.Jobs[n].StateReason)
-
-	infoBoxWide := fmt.Sprintf(fmtStr, "Job Name", *m.JobTab.SqueueFiltered.Jobs[n].Name)
-	infoBoxWide += fmt.Sprintf(fmtStr, "Command", *m.JobTab.SqueueFiltered.Jobs[n].Command)
-	infoBoxWide += fmt.Sprintf(fmtStr, "StdOut", *m.JobTab.SqueueFiltered.Jobs[n].StandardOutput)
-	infoBoxWide += fmt.Sprintf(fmtStr, "StdErr", *m.JobTab.SqueueFiltered.Jobs[n].StandardError)
-	infoBoxWide += fmt.Sprintf(fmtStrLast, "Working Dir", *m.JobTab.SqueueFiltered.Jobs[n].CurrentWorkingDirectory)
-
-	// 8 for borders (~10 extra)
-	//w := ((m.Globals.winW - 10) / 3) * 3
-	//s := styles.JobInfoInBox.Copy().Width(w / 3).Height(5)
-	////top := lipgloss.JoinHorizontal(lipgloss.Top, styles.JobInfoInBox.Render(infoBoxLeft), styles.JobInfoInBox.Render(infoBoxMiddle), styles.JobInfoInBox.Render(infoBoxRight))
-	// TODO: use builder here
-	top := lipgloss.JoinHorizontal(lipgloss.Top, styles.JobInfoInBox.Render(infoBoxLeft), styles.JobInfoInBox.Render(infoBoxMiddle), styles.JobInfoInBox.Render(infoBoxRight))
-	//s = styles.JobInfoInBox.Copy().Width(w + 4)
-	scr.WriteString(lipgloss.JoinVertical(lipgloss.Left, top, styles.JobInfoInBottomBox.Render(infoBoxWide)))
-
-	//return infoBox
-	return scr.String()
-}
-
 func (m *Model) genTabHelp() string {
 	var th string
 	switch m.ActiveTab {
@@ -578,52 +464,6 @@ func GenCountStr(cnt map[string]uint, l *log.Logger) string {
 	return scr
 }
 
-// Generate statistics string, vertical.
-func GenCountStrVert(cnt map[string]uint, l *log.Logger) string {
-	var (
-		scr string
-	)
-
-	sm := make([]struct {
-		name string
-		val  uint
-	}, 0)
-
-	// place map to slice
-	for k, v := range cnt {
-		sm = append(sm, struct {
-			name string
-			val  uint
-		}{name: k, val: uint(v)})
-	}
-
-	// sort first by name
-	sort.Slice(sm, func(i, j int) bool {
-		if sm[i].name < sm[j].name {
-			return true
-		} else {
-			return false
-		}
-	})
-	// then sort by numbers
-	sort.Slice(sm, func(i, j int) bool {
-		if sm[i].val > sm[j].val {
-			return true
-		} else {
-			return false
-		}
-	})
-
-	// print it out
-	//scr = "Count: "
-	for _, v := range sm {
-		scr += fmt.Sprintf("%-15s: %d\n", v.name, v.val)
-	}
-	scr += "\n\n"
-
-	return scr
-}
-
 func (m Model) JobClusterTabStats() string {
 	var str string
 
@@ -634,8 +474,8 @@ func (m Model) JobClusterTabStats() string {
 	str += "\n"
 
 	if len(m.JobClusterTab.SinfoFiltered.Nodes) > 0 {
-		//str += GenCountStrVert(m.JobClusterTab.Stats.StateCnt, m.Log)
-		str += GenCountStrVert(m.JobClusterTab.Stats.StateSimpleCnt, m.Log)
+		//str += generic.GenCountStrVert(m.JobClusterTab.Stats.StateCnt, m.Log)
+		str += generic.GenCountStrVert(m.JobClusterTab.Stats.StateSimpleCnt, m.Log)
 	}
 
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Selected node:"))
@@ -657,54 +497,30 @@ func (m Model) JobClusterTabStats() string {
 	return str
 }
 
-func HumanizeDuration(t time.Duration, l *log.Logger) string {
-	var ret string
-
-	// total seconds
-	s := int64(t.Seconds())
-
-	// days
-	d := s / (24 * 60 * 60)
-	s = s % (24 * 60 * 60)
-
-	// hours
-	h := s / 3600
-	s = s % 3600
-
-	// minutes
-	m := s / 60
-	s = s % 60
-
-	ret += fmt.Sprintf("%.2d-%.2d:%.2d:%.2d", d, h, m, s)
-
-	l.Printf("Humanized %f to %q\n", t.Seconds(), ret)
-	return ret
-}
-
 func (m Model) JobHistTabStats() string {
 
 	m.Log.Printf("JobHistTabStats called\n")
 
 	str := styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Historical job states (filtered):"))
 	str += "\n\n"
-	str += GenCountStrVert(m.JobHistTab.Stats.StateCnt, m.Log)
+	str += generic.GenCountStrVert(m.JobHistTab.Stats.StateCnt, m.Log)
 
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Waiting times (finished jobs):"))
 	str += "\n\n"
 	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
-	str += fmt.Sprintf("%-10s : %s\n", "MinWait", HumanizeDuration(m.JobHistTab.Stats.MinWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", HumanizeDuration(m.JobHistTab.Stats.AvgWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MedWait", HumanizeDuration(m.JobHistTab.Stats.MedWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", HumanizeDuration(m.JobHistTab.Stats.MaxWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MinWait", generic.HumanizeDuration(m.JobHistTab.Stats.MinWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", generic.HumanizeDuration(m.JobHistTab.Stats.AvgWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MedWait", generic.HumanizeDuration(m.JobHistTab.Stats.MedWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", generic.HumanizeDuration(m.JobHistTab.Stats.MaxWait, m.Log))
 
 	str += "\n"
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Run times (finished jobs):"))
 	str += "\n\n"
 	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
-	str += fmt.Sprintf("%-10s : %s\n", "MinRun", HumanizeDuration(m.JobHistTab.Stats.MinRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", HumanizeDuration(m.JobHistTab.Stats.AvgRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MedRun", HumanizeDuration(m.JobHistTab.Stats.MedRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MaxRun", HumanizeDuration(m.JobHistTab.Stats.MaxRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MinRun", generic.HumanizeDuration(m.JobHistTab.Stats.MinRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", generic.HumanizeDuration(m.JobHistTab.Stats.AvgRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MedRun", generic.HumanizeDuration(m.JobHistTab.Stats.MedRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MaxRun", generic.HumanizeDuration(m.JobHistTab.Stats.MaxRun, m.Log))
 
 	return str
 }
@@ -717,24 +533,24 @@ func (m Model) JobTabStats() string {
 	str := styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Job states (filtered):"))
 	str += "\n\n"
 
-	str += GenCountStrVert(m.JobTab.Stats.StateCnt, m.Log)
+	str += generic.GenCountStrVert(m.JobTab.Stats.StateCnt, m.Log)
 
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Pending jobs:"))
 	str += "\n\n"
 	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
-	str += fmt.Sprintf("%-10s : %s\n", "MinWait", HumanizeDuration(m.JobTab.Stats.MinWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", HumanizeDuration(m.JobTab.Stats.AvgWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MedWait", HumanizeDuration(m.JobTab.Stats.MedWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", HumanizeDuration(m.JobTab.Stats.MaxWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MinWait", generic.HumanizeDuration(m.JobTab.Stats.MinWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", generic.HumanizeDuration(m.JobTab.Stats.AvgWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MedWait", generic.HumanizeDuration(m.JobTab.Stats.MedWait, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", generic.HumanizeDuration(m.JobTab.Stats.MaxWait, m.Log))
 
 	str += "\n"
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Running jobs:"))
 	str += "\n\n"
 	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
-	str += fmt.Sprintf("%-10s : %s\n", "MinRun", HumanizeDuration(m.JobTab.Stats.MinRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", HumanizeDuration(m.JobTab.Stats.AvgRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MedRun", HumanizeDuration(m.JobTab.Stats.MedRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MaxRun", HumanizeDuration(m.JobTab.Stats.MaxRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MinRun", generic.HumanizeDuration(m.JobTab.Stats.MinRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", generic.HumanizeDuration(m.JobTab.Stats.AvgRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MedRun", generic.HumanizeDuration(m.JobTab.Stats.MedRun, m.Log))
+	str += fmt.Sprintf("%-10s : %s\n", "MaxRun", generic.HumanizeDuration(m.JobTab.Stats.MaxRun, m.Log))
 
 	return str
 }
@@ -763,41 +579,8 @@ func (m Model) View() string {
 	// PICK and RENDER ACTIVE TAB
 	switch m.ActiveTab {
 	case tabJobs:
-		// Top Main
-		MainWindow.WriteString(fmt.Sprintf("Filter: %10.30s\tItems: %d\n", m.JobTab.Filter.Value(), len(m.JobTab.SqueueFiltered.Jobs)))
-		MainWindow.WriteString("\n")
-
-		// Mid Main: table || table+stats || table+menu
-		switch {
-		case m.JobTab.MenuOn:
-			// table + menu
-			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.MenuBoxStyle.Render(m.JobTab.Menu.View())))
-			m.Log.Printf("\nITEMS LIST: %#v\n", m.JobTab.Menu.Items())
-		case m.JobTab.StatsOn:
-			// table + stats
-			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.MenuBoxStyle.Render(m.JobTabStats())))
-		default:
-			// table
-			MainWindow.WriteString(m.tabJobs())
-		}
-
-		// Low Main: nil || info || filter || counts
-		switch {
-		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
-			// filter
-			MainWindow.WriteString("\n")
-			MainWindow.WriteString("Filter value (search across: JobID, JobName, Account, UserName, JobState!):\n")
-			MainWindow.WriteString(fmt.Sprintf("%s\n", m.JobTab.Filter.View()))
-			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
-		case m.JobTab.InfoOn:
-			// info
-			MainWindow.WriteString("\n")
-			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobInfo()))
-		case m.JobTab.CountsOn:
-			// Counts on
-			MainWindow.WriteString("\n")
-			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobCounts()))
-		}
+		m.Log.Printf("CALL JobTab.View()\n")
+		MainWindow.WriteString(m.JobTab.View(m.Log))
 
 	case tabJobHist:
 		// If sacct timed out/errored, instruct the user to reduce fetch period from default 7 days
@@ -831,7 +614,7 @@ func (m Model) View() string {
 
 		// Low Main: nil || filter || counts
 		switch {
-		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
+		case m.JobHistTab.FilterOn:
 			// filter
 			MainWindow.WriteString("\n")
 			MainWindow.WriteString("Filter value (search across: JobID, JobName, AccountName, UserName, JobState):\n")
@@ -864,7 +647,7 @@ func (m Model) View() string {
 
 		// Low Main: nil || filter || counts
 		switch {
-		case m.FilterSwitch == FilterSwitch(m.ActiveTab):
+		case m.JobClusterTab.FilterOn:
 			// filter
 			MainWindow.WriteString("\n")
 			// filter

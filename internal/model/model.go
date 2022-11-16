@@ -66,7 +66,6 @@ type Globals struct {
 	winH      int
 	Log       *log.Logger
 	Help      help.Model
-	FilterSwitch
 	UserName  string
 	UAccounts []string
 	config.ConfigContainer
@@ -76,7 +75,3 @@ type Globals struct {
 	ErrorHelp      string
 	SizeErr        string
 }
-
-// FilterSwitch == -1 if filter is off.
-// == N where N == tabNumber
-type FilterSwitch int

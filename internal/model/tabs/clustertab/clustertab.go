@@ -13,6 +13,7 @@ import (
 type JobClusterTab struct {
 	StatsOn       bool
 	CountsOn      bool
+	FilterOn      bool
 	SinfoTable    table.Model
 	CpuBar        progress.Model
 	MemBar        progress.Model

@@ -19,7 +19,7 @@ var SqueueTabCols = []table.Column{
 	},
 	{
 		Title: "Job Name",
-		Width: 20,
+		Width: 60,
 	},
 	{
 		Title: "Account",

@@ -87,7 +87,6 @@ func main() {
 			Help:            hlp,
 			ActiveTab:       0,
 			Log:             l,
-			FilterSwitch:    -1,
 			Debug:           debugSet,
 			ConfigContainer: *cc,
 			JobHistStart:    *args.HistDays,
