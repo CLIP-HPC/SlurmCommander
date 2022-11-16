@@ -53,7 +53,7 @@ type Model struct {
 	jobhisttab.JobHistTab
 	jobdetailstab.JobDetailsTab
 	jobfromtemplate.JobFromTemplateTab
-	clustertab.JobClusterTab
+	clustertab.ClusterTab
 }
 
 type Globals struct {
@@ -66,17 +66,10 @@ type Globals struct {
 	winH      int
 	Log       *log.Logger
 	Help      help.Model
-	FilterSwitch
 	UserName  string
 	UAccounts []string
 	config.ConfigContainer
-	JobHistStart   uint
-	JobHistTimeout uint
-	ErrorMsg       error
-	ErrorHelp      string
-	SizeErr        string
+	ErrorMsg  error
+	ErrorHelp string
+	SizeErr   string
 }
-
-// FilterSwitch == -1 if filter is off.
-// == N where N == tabNumber
-type FilterSwitch int

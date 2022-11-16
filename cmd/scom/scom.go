@@ -87,21 +87,20 @@ func main() {
 			Help:            hlp,
 			ActiveTab:       0,
 			Log:             l,
-			FilterSwitch:    -1,
 			Debug:           debugSet,
 			ConfigContainer: *cc,
-			JobHistStart:    *args.HistDays,
-			JobHistTimeout:  *args.HistTimeout,
 		},
 		JobTab: jobtab.JobTab{
 			SqueueTable: table.New(table.WithColumns(jobtab.SqueueTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
 			Filter:      ti,
 		},
 		JobHistTab: jobhisttab.JobHistTab{
-			SacctTable:    table.New(table.WithColumns(jobhisttab.SacctTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
-			Filter:        ti,
-			HistFetched:   false,
-			HistFetchFail: false,
+			SacctTable:     table.New(table.WithColumns(jobhisttab.SacctTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
+			Filter:         ti,
+			HistFetched:    false,
+			HistFetchFail:  false,
+			JobHistStart:   *args.HistDays,
+			JobHistTimeout: *args.HistTimeout,
 		},
 		JobDetailsTab: jobdetailstab.JobDetailsTab{
 			SelJobIDNew: -1,
@@ -115,7 +114,7 @@ func main() {
 				table.WithStyles(s),
 			),
 		},
-		JobClusterTab: clustertab.JobClusterTab{
+		ClusterTab: clustertab.ClusterTab{
 			SinfoTable: table.New(table.WithColumns(clustertab.SinfoTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
 			Filter:     ti,
 		},

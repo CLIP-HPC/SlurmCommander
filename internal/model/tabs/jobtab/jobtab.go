@@ -15,6 +15,7 @@ type JobTab struct {
 	InfoOn           bool
 	CountsOn         bool
 	StatsOn          bool
+	FilterOn         bool
 	SqueueTable      table.Model
 	Squeue           SqueueJSON
 	SqueueFiltered   SqueueJSON

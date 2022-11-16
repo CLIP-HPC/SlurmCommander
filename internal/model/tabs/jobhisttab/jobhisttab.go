@@ -13,8 +13,11 @@ import (
 type JobHistTab struct {
 	StatsOn           bool
 	CountsOn          bool
+	FilterOn          bool
 	HistFetched       bool // signals View() if sacct call is finished, to print "waiting for..." message
 	HistFetchFail     bool // if sacct call times out/errors, this is set to true
+	JobHistStart      uint
+	JobHistTimeout    uint
 	SacctTable        table.Model
 	SacctHist         SacctJSON
 	SacctHistFiltered SacctJSON
