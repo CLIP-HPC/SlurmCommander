@@ -69,9 +69,7 @@ type Globals struct {
 	UserName  string
 	UAccounts []string
 	config.ConfigContainer
-	JobHistStart   uint
-	JobHistTimeout uint
-	ErrorMsg       error
-	ErrorHelp      string
-	SizeErr        string
+	ErrorMsg  error
+	ErrorHelp string
+	SizeErr   string
 }

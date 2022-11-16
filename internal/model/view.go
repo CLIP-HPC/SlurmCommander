@@ -46,11 +46,6 @@ func max(a, b int) int {
 	return b
 }
 
-func (m Model) tabJobHist() string {
-
-	return m.JobHistTab.SacctTable.View() + "\n"
-}
-
 func (m Model) tabJobDetails() (scr string) {
 
 	var (
@@ -361,59 +356,13 @@ func (m Model) getClusterCounts() string {
 	return ret
 }
 
-func (m Model) getJobHistCounts() string {
-	var (
-		ret   string
-		top5u string
-		top5a string
-		jpp   string
-		jpq   string
-	)
-
-	fmtStr := "%-20s : %6d\n"
-	fmtTitle := "%-29s"
-
-	top5u += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Top 5 User"))
-	top5u += "\n"
-	for _, v := range m.JobHistTab.Breakdowns.Top5user {
-		top5u += fmt.Sprintf(fmtStr, v.Name, v.Count)
-	}
-
-	top5a += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Top 5 Accounts"))
-	top5a += "\n"
-	for _, v := range m.JobHistTab.Breakdowns.Top5acc {
-		top5a += fmt.Sprintf(fmtStr, v.Name, v.Count)
-	}
-
-	jpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Jobs per Partition"))
-	jpp += "\n"
-	for _, v := range m.JobHistTab.Breakdowns.JobPerPart {
-		jpp += fmt.Sprintf(fmtStr, v.Name, v.Count)
-	}
-
-	jpq += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Jobs per QoS"))
-	jpq += "\n"
-	for _, v := range m.JobHistTab.Breakdowns.JobPerQos {
-		jpq += fmt.Sprintf(fmtStr, v.Name, v.Count)
-	}
-
-	top5u = styles.CountsBox.Render(top5u)
-	top5a = styles.CountsBox.Render(top5a)
-	jpq = styles.CountsBox.Render(jpq)
-	jpp = styles.CountsBox.Render(jpp)
-
-	ret = lipgloss.JoinHorizontal(lipgloss.Top, top5u, top5a, jpp, jpq)
-
-	return ret
-}
-
 func (m *Model) genTabHelp() string {
 	var th string
 	switch m.ActiveTab {
 	case tabJobs:
 		th = "List of jobs in the queue"
 	case tabJobHist:
-		th = fmt.Sprintf("List of jobs in the last %d days from all user associated accounts. (timeout: %d seconds)", m.Globals.JobHistStart, m.Globals.JobHistTimeout)
+		th = fmt.Sprintf("List of jobs in the last %d days from all user associated accounts. (timeout: %d seconds)", m.JobHistTab.JobHistStart, m.JobHistTab.JobHistTimeout)
 	case tabJobDetails:
 		th = "Job details, select a job from Job History tab"
 	case tabJobFromTemplate:
@@ -497,34 +446,6 @@ func (m Model) JobClusterTabStats() string {
 	return str
 }
 
-func (m Model) JobHistTabStats() string {
-
-	m.Log.Printf("JobHistTabStats called\n")
-
-	str := styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Historical job states (filtered):"))
-	str += "\n\n"
-	str += generic.GenCountStrVert(m.JobHistTab.Stats.StateCnt, m.Log)
-
-	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Waiting times (finished jobs):"))
-	str += "\n\n"
-	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
-	str += fmt.Sprintf("%-10s : %s\n", "MinWait", generic.HumanizeDuration(m.JobHistTab.Stats.MinWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", generic.HumanizeDuration(m.JobHistTab.Stats.AvgWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MedWait", generic.HumanizeDuration(m.JobHistTab.Stats.MedWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", generic.HumanizeDuration(m.JobHistTab.Stats.MaxWait, m.Log))
-
-	str += "\n"
-	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Run times (finished jobs):"))
-	str += "\n\n"
-	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
-	str += fmt.Sprintf("%-10s : %s\n", "MinRun", generic.HumanizeDuration(m.JobHistTab.Stats.MinRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", generic.HumanizeDuration(m.JobHistTab.Stats.AvgRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MedRun", generic.HumanizeDuration(m.JobHistTab.Stats.MedRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MaxRun", generic.HumanizeDuration(m.JobHistTab.Stats.MaxRun, m.Log))
-
-	return str
-}
-
 func (m Model) JobTabStats() string {
 
 	m.Log.Printf("JobTabStats called\n")
@@ -583,48 +504,8 @@ func (m Model) View() string {
 		MainWindow.WriteString(m.JobTab.View(m.Log))
 
 	case tabJobHist:
-		// If sacct timed out/errored, instruct the user to reduce fetch period from default 7 days
-		m.Log.Printf("HistFetch: %t HistFetchFail: %t\n", m.JobHistTab.HistFetched, m.JobHistTab.HistFetchFail)
-		if m.JobHistTab.HistFetchFail {
-			msg := fmt.Sprintf("Fetching jobs history timed out (-t %d seconds), probably too many jobs in the last -d %d days.\n", m.Globals.JobHistTimeout, m.Globals.JobHistStart)
-			MainWindow.WriteString(msg)
-			MainWindow.WriteString("You can reduce the history period with -d N (days) switch, or increase the history fetch timeout with -t N (seconds) switch.\n")
-			break
-		}
-
-		// Check if history is here, if not, return "Waiting for sacct..."
-		if !m.JobHistTab.HistFetched {
-			MainWindow.WriteString("Waiting for job history...\n")
-			break
-		}
-
-		// Top Main
-		MainWindow.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n", m.JobHistTab.Filter.Value(), len(m.JobHistTab.SacctHistFiltered.Jobs)))
-		MainWindow.WriteString("\n")
-
-		// Mid Main: table || table+stats
-		switch {
-		case m.JobHistTab.StatsOn:
-			// table + stats
-			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobHist(), styles.MenuBoxStyle.Render(m.JobHistTabStats())))
-		default:
-			// table
-			MainWindow.WriteString(m.tabJobHist())
-		}
-
-		// Low Main: nil || filter || counts
-		switch {
-		case m.JobHistTab.FilterOn:
-			// filter
-			MainWindow.WriteString("\n")
-			MainWindow.WriteString("Filter value (search across: JobID, JobName, AccountName, UserName, JobState):\n")
-			MainWindow.WriteString(fmt.Sprintf("%s\n", m.JobHistTab.Filter.View()))
-			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
-		case m.JobHistTab.CountsOn:
-			// Counts on
-			MainWindow.WriteString("\n")
-			MainWindow.WriteString(styles.JobInfoBox.Render(m.getJobHistCounts()))
-		}
+		m.Log.Printf("CALL JobHistTab.View()\n")
+		MainWindow.WriteString(m.JobHistTab.View(m.Log))
 
 	case tabJobDetails:
 		MainWindow.WriteString(m.tabJobDetails())
