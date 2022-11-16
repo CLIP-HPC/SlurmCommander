@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/pja237/slurmcommander-dev/internal/generic"
 	"github.com/pja237/slurmcommander-dev/internal/keybindings"
 	"github.com/pja237/slurmcommander-dev/internal/styles"
 	"github.com/pja237/slurmcommander-dev/internal/version"
@@ -41,19 +40,6 @@ func max(a, b int) int {
 	return b
 }
 
-func (m Model) tabJobFromTemplate() string {
-
-	if m.EditTemplate {
-		return m.TemplateEditor.View()
-	} else {
-		if len(m.JobFromTemplateTab.TemplatesList) == 0 {
-			return styles.NotFound.Render("\nNo templates found!\n")
-		} else {
-			return m.TemplatesTable.View()
-		}
-	}
-}
-
 func (m Model) tabAbout() string {
 
 	s := "Version: " + version.BuildVersion + "\n"
@@ -86,36 +72,6 @@ func (m *Model) genTabHelp() string {
 		th = "SlurmCommander"
 	}
 	return th + "\n"
-}
-
-func (m Model) JobTabStats() string {
-
-	m.Log.Printf("JobTabStats called\n")
-
-	//str := "Queue statistics (filtered):\n\n"
-	str := styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Job states (filtered):"))
-	str += "\n\n"
-
-	str += generic.GenCountStrVert(m.JobTab.Stats.StateCnt, m.Log)
-
-	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Pending jobs:"))
-	str += "\n\n"
-	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
-	str += fmt.Sprintf("%-10s : %s\n", "MinWait", generic.HumanizeDuration(m.JobTab.Stats.MinWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", generic.HumanizeDuration(m.JobTab.Stats.AvgWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MedWait", generic.HumanizeDuration(m.JobTab.Stats.MedWait, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MaxWait", generic.HumanizeDuration(m.JobTab.Stats.MaxWait, m.Log))
-
-	str += "\n"
-	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Running jobs:"))
-	str += "\n\n"
-	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
-	str += fmt.Sprintf("%-10s : %s\n", "MinRun", generic.HumanizeDuration(m.JobTab.Stats.MinRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", generic.HumanizeDuration(m.JobTab.Stats.AvgRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MedRun", generic.HumanizeDuration(m.JobTab.Stats.MedRun, m.Log))
-	str += fmt.Sprintf("%-10s : %s\n", "MaxRun", generic.HumanizeDuration(m.JobTab.Stats.MaxRun, m.Log))
-
-	return str
 }
 
 func (m Model) View() string {
@@ -154,7 +110,8 @@ func (m Model) View() string {
 		MainWindow.WriteString(m.JobDetailsTab.View(&m.JobHistTab, m.Log))
 
 	case tabJobFromTemplate:
-		MainWindow.WriteString(m.tabJobFromTemplate())
+		m.Log.Printf("CALL JobFromTemplate.View()\n")
+		MainWindow.WriteString(m.JobFromTemplateTab.View(m.Log))
 
 	case tabCluster:
 		m.Log.Printf("CALL ClusterTab.View()\n")
