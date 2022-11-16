@@ -12,6 +12,7 @@ import (
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
+// TODO: we have 34 characters available for this table to add/resize columns
 var SqueueTabCols = []table.Column{
 	{
 		Title: "Job ID",

@@ -91,6 +91,7 @@ func (jh *JobHistTab) getJobHistCounts() string {
 
 func (jh *JobHistTab) View(l *log.Logger) string {
 	var (
+		Header     strings.Builder
 		MainWindow strings.Builder
 	)
 
@@ -98,37 +99,30 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 	l.Printf("HistFetch: %t HistFetchFail: %t\n", jh.HistFetched, jh.HistFetchFail)
 	if jh.HistFetchFail {
 		msg := fmt.Sprintf("Fetching jobs history timed out (-t %d seconds), probably too many jobs in the last -d %d days.\n", jh.JobHistTimeout, jh.JobHistStart)
-		MainWindow.WriteString(msg)
-		MainWindow.WriteString("You can reduce the history period with -d N (days) switch, or increase the history fetch timeout with -t N (seconds) switch.\n")
-		return MainWindow.String()
+		Header.WriteString(msg)
+		Header.WriteString("You can reduce the history period with -d N (days) switch, or increase the history fetch timeout with -t N (seconds) switch.\n")
+		return Header.String()
 	}
 
 	// Check if history is here, if not, return "Waiting for sacct..."
 	if !jh.HistFetched {
-		MainWindow.WriteString("Waiting for job history...\n")
-		return MainWindow.String()
+		Header.WriteString("Waiting for job history...\n")
+		return Header.String()
 	}
 
 	// Top Main
-	MainWindow.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n", jh.Filter.Value(), len(jh.SacctHistFiltered.Jobs)))
-	MainWindow.WriteString("\n")
+	Header.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n", jh.Filter.Value(), len(jh.SacctHistFiltered.Jobs)))
+	Header.WriteString("\n")
 
-	// Mid Main: table || table+stats
-	switch {
-	case jh.StatsOn:
-		// table + stats
-		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, jh.tabJobHist(), styles.StatsBoxStyle.Render(jh.JobHistTabStats(l))))
-	default:
-		// table
-		MainWindow.WriteString(jh.tabJobHist())
-	}
+	// Table is always here
+	MainWindow.WriteString(jh.tabJobHist())
 
-	// Low Main: nil || filter || counts
+	// Next we join table Vertically with: nil || filter || counts
 	switch {
 	case jh.FilterOn:
 		// filter
 		MainWindow.WriteString("\n")
-		MainWindow.WriteString("Filter value (search across: JobID, JobName, AccountName, UserName, JobState):\n")
+		MainWindow.WriteString("Filter value (search in joined: JobID + JobName + AccountName + UserName + JobState):\n")
 		MainWindow.WriteString(fmt.Sprintf("%s\n", jh.Filter.View()))
 		MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
 	case jh.CountsOn:
@@ -136,5 +130,15 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 		MainWindow.WriteString("\n")
 		MainWindow.WriteString(styles.JobInfoBox.Render(jh.getJobHistCounts()))
 	}
-	return MainWindow.String()
+
+	// Last, if needed we join Stats Horizontally with Main
+	switch {
+	case jh.StatsOn:
+		// table + stats
+		X := MainWindow.String()
+		MainWindow.Reset()
+		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, X, styles.StatsBoxStyle.Render(jh.JobHistTabStats(l))))
+	}
+
+	return Header.String() + MainWindow.String()
 }
