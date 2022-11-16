@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -23,10 +24,15 @@ import (
 
 type errMsg error
 
+type activeTabType interface {
+	AdjTableHeight(int, *log.Logger)
+}
+
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var (
 		brk            bool = false
+		activeTab      activeTabType
 		activeTable    *table.Model
 		activeFilter   *textinput.Model
 		activeFilterOn *bool
@@ -35,16 +41,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// This shortens the testing for table movement keys
 	switch m.ActiveTab {
 	case tabJobs:
+		activeTab = &m.JobTab
 		activeTable = &m.JobTab.SqueueTable
 		activeFilter = &m.JobTab.Filter
 		activeFilterOn = &m.JobTab.FilterOn
 	case tabJobHist:
+		activeTab = &m.JobHistTab
 		activeTable = &m.JobHistTab.SacctTable
 		activeFilter = &m.JobHistTab.Filter
 		activeFilterOn = &m.JobHistTab.FilterOn
 	case tabJobFromTemplate:
 		activeTable = &m.JobFromTemplateTab.TemplatesTable
 	case tabCluster:
+		activeTab = &m.ClusterTab
 		activeTable = &m.ClusterTab.SinfoTable
 		activeFilter = &m.ClusterTab.Filter
 		activeFilterOn = &m.ClusterTab.FilterOn
@@ -76,6 +85,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// NOTE: This doesn't do what i image it should, cursor remains -1 when table is empty situation?
 				// Explanation in clamp function: https://github.com/charmbracelet/bubbles/blob/13f52d678d315676568a656b5211b8a24a54a885/table/table.go#L296
 				activeTable.SetCursor(0)
+				activeTab.AdjTableHeight(m.winH, m.Log)
 				//m.Log.Printf("ActiveTable = %v\n", activeTable)
 				m.Log.Printf("Update: Filter set, setcursor(0), activetable.Cursor==%d\n", activeTable.Cursor())
 				switch m.ActiveTab {
@@ -151,6 +161,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						}
 					}
 					// host is needed for ssh command
+					activeTab.AdjTableHeight(m.winH, m.Log)
 					host := m.JobTab.SqueueFiltered.Jobs[m.JobTab.SqueueTable.Cursor()].BatchHost
 					retCmd := m.JobTab.MenuChoice.ExecMenuItem(m.JobTab.SelectedJob, *host, m.Log)
 					return m, retCmd
@@ -335,9 +346,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Help :  1
 		// ---
 		// TOTAL:  15
-		m.SqueueTable.SetHeight(m.winH - 30)
-		m.SacctTable.SetHeight(m.winH - 30)
-		m.SinfoTable.SetHeight(m.winH - 30)
+		//
+		// TODO: if there are no Info||Count||Filter boxes below, stretch the table to go to the bottom of the screen
+		//m.SqueueTable.SetHeight(m.winH - 30)
+		m.JobTab.AdjTableHeight(m.winH, m.Log)
+		//m.SacctTable.SetHeight(m.winH - 30)
+		m.JobHistTab.AdjTableHeight(m.winH, m.Log)
+		//m.SinfoTable.SetHeight(m.winH - 30)
+		m.ClusterTab.AdjTableHeight(m.winH, m.Log)
 
 	// JobTab update
 	case jobtab.SqueueJSON:
@@ -435,6 +451,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case tabCluster:
 				toggleSwitch(&m.ClusterTab.CountsOn)
 			}
+			activeTab.AdjTableHeight(m.winH, m.Log)
 			return m, nil
 
 		// UP
@@ -512,6 +529,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case m.ActiveTab == tabCluster:
 				m.ClusterTab.FilterOn = true
 			}
+			activeTab.AdjTableHeight(m.winH, m.Log)
 			return m, nil
 
 		// ENTER
@@ -585,6 +603,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.JobTab.CountsOn = false
 			toggleSwitch(&m.JobTab.InfoOn)
+			m.JobTab.AdjTableHeight(m.Globals.winH, m.Log)
 			return m, nil
 
 		// Stats - toggle on/off

@@ -49,6 +49,16 @@ type Breakdowns struct {
 	JobPerPart generic.CountItemSlice
 }
 
+func (t *JobTab) AdjTableHeight(h int, l *log.Logger) {
+	l.Printf("FixTableHeight(%d) from %d\n", h, t.SqueueTable.Height())
+	if t.InfoOn || t.CountsOn || t.FilterOn {
+		t.SqueueTable.SetHeight(h - 30)
+	} else {
+		t.SqueueTable.SetHeight(h - 15)
+	}
+	l.Printf("FixTableHeight to %d\n", t.SqueueTable.Height())
+}
+
 func (t *JobTab) GetStatsFiltered(l *log.Logger) {
 
 	top5user := generic.CountItemMap{}

@@ -36,6 +36,16 @@ type Breakdowns struct {
 	NodesPerState generic.CountItemSlice
 }
 
+func (t *ClusterTab) AdjTableHeight(h int, l *log.Logger) {
+	l.Printf("FixTableHeight(%d) from %d\n", h, t.SinfoTable.Height())
+	if t.CountsOn || t.FilterOn {
+		t.SinfoTable.SetHeight(h - 35)
+	} else {
+		t.SinfoTable.SetHeight(h - 25)
+	}
+	l.Printf("FixTableHeight to %d\n", t.SinfoTable.Height())
+}
+
 func (t *ClusterTab) GetStatsFiltered(l *log.Logger) {
 	var key string
 
