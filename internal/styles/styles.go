@@ -52,10 +52,9 @@ var (
 		BorderLeft(false).
 		BorderRight(false)
 
-	// TODO: overused, separate
+	// (S)tats Box Style
+	StatsBoxStyle       = lipgloss.NewStyle().Padding(0, 1).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(Blue)
 	StatsSeparatorTitle = lipgloss.NewStyle().Foreground(Yellow).Background(Blue)
-
-	// JobQueue tab
 
 	//MenuTitleStyle    = lipgloss.NewStyle().Background(blue).Foreground(yellow)
 	MenuBoxStyle      = lipgloss.NewStyle().Padding(1, 1).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(Blue)

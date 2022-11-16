@@ -131,14 +131,13 @@ func (jt *JobTab) JobTabStats(l *log.Logger) string {
 
 	l.Printf("JobTabStats called\n")
 
-	//str := "Queue statistics (filtered):\n\n"
 	str := styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Job states (filtered):"))
-	str += "\n\n"
+	str += "\n"
 
 	str += generic.GenCountStrVert(jt.Stats.StateCnt, l)
 
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Pending jobs:"))
-	str += "\n\n"
+	str += "\n"
 	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
 	str += fmt.Sprintf("%-10s : %s\n", "MinWait", generic.HumanizeDuration(jt.Stats.MinWait, l))
 	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", generic.HumanizeDuration(jt.Stats.AvgWait, l))
@@ -147,7 +146,7 @@ func (jt *JobTab) JobTabStats(l *log.Logger) string {
 
 	str += "\n"
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Running jobs:"))
-	str += "\n\n"
+	str += "\n"
 	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
 	str += fmt.Sprintf("%-10s : %s\n", "MinRun", generic.HumanizeDuration(jt.Stats.MinRun, l))
 	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", generic.HumanizeDuration(jt.Stats.AvgRun, l))
@@ -160,56 +159,85 @@ func (jt *JobTab) JobTabStats(l *log.Logger) string {
 func (jt *JobTab) View(l *log.Logger) string {
 
 	var (
+		Header     strings.Builder
 		MainWindow strings.Builder
 	)
 
 	l.Printf("IN JobTab.View()")
 
-	// Top Main
-	MainWindow.WriteString(fmt.Sprintf("Filter: %10.30s\tItems: %d\n", jt.Filter.Value(), len(jt.SqueueFiltered.Jobs)))
-	MainWindow.WriteString("\n")
-
-	MainWindow.WriteString("\n")
+	// Header
+	//Header.WriteString("\n")
+	Header.WriteString(fmt.Sprintf("Filter: %10.30s\tItems: %d\n", jt.Filter.Value(), len(jt.SqueueFiltered.Jobs)))
+	Header.WriteString("\n")
 
 	// Mid Main: table || table+stats || table+menu
-	switch {
-	case jt.MenuOn:
-		// table + menu
-		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, jt.tabJobs(), styles.MenuBoxStyle.Render(jt.Menu.View())))
-		l.Printf("\nITEMS LIST: %#v\n", jt.Menu.Items())
-	//case m.JobTab.StatsOn:
-	//	// table + stats
-	//	MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabJobs(), styles.MenuBoxStyle.Render(m.JobTabStats())))
-	default:
-		// table
+
+	// Case Info OFF
+	if !jt.InfoOn {
+		// Table always here
 		MainWindow.WriteString(jt.tabJobs())
+
+		// Bellow table stich Filter || Counts
+		switch {
+		case jt.FilterOn:
+			// filter
+			MainWindow.WriteString("\n")
+			MainWindow.WriteString("Filter value (Search in joined: JobID + JobName + Account + UserName + JobState):\n")
+			MainWindow.WriteString(fmt.Sprintf("%s\n", jt.Filter.View()))
+			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
+		case jt.CountsOn:
+			// Counts on
+			MainWindow.WriteString("\n")
+			MainWindow.WriteString(styles.JobInfoBox.Render(jt.getJobCounts()))
+		}
+
+		// Then join all that Horizontally with Menu || Stats
+		switch {
+		case jt.MenuOn:
+			X := MainWindow.String()
+			MainWindow.Reset()
+			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, X, styles.MenuBoxStyle.Render(jt.Menu.View())))
+			l.Printf("\nITEMS LIST: %#v\n", jt.Menu.Items())
+		case jt.StatsOn:
+			X := MainWindow.String()
+			MainWindow.Reset()
+			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, X, styles.MenuBoxStyle.Render(jt.JobTabStats(l))))
+		}
+	} else {
+		// Case Info ON
+
+		// First join Horizontally Table with Menu || Stats
+		switch {
+		case jt.MenuOn:
+			// table + menu
+			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, jt.tabJobs(), styles.MenuBoxStyle.Render(jt.Menu.View())))
+			l.Printf("\nITEMS LIST: %#v\n", jt.Menu.Items())
+		case jt.StatsOn:
+			// table + stats
+			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, jt.tabJobs(), styles.MenuBoxStyle.Render(jt.JobTabStats(l))))
+		default:
+			// table
+			MainWindow.WriteString(jt.tabJobs())
+		}
+
+		// Then stich the Filter || Info || Counts below
+		switch {
+		case jt.FilterOn:
+			// filter
+			MainWindow.WriteString("\n")
+			MainWindow.WriteString("Filter value (Search in joined: JobID + JobName + Account + UserName + JobState):\n")
+			MainWindow.WriteString(fmt.Sprintf("%s\n", jt.Filter.View()))
+			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
+		case jt.InfoOn:
+			// info
+			MainWindow.WriteString("\n")
+			MainWindow.WriteString(styles.JobInfoBox.Render(jt.getJobInfo(l)))
+		case jt.CountsOn:
+			// Counts on
+			MainWindow.WriteString("\n")
+			MainWindow.WriteString(styles.JobInfoBox.Render(jt.getJobCounts()))
+		}
 	}
 
-	// Low Main: nil || info || filter || counts
-	switch {
-	case jt.FilterOn:
-		// filter
-		MainWindow.WriteString("\n")
-		MainWindow.WriteString("Filter value (search across: JobID, JobName, Account, UserName, JobState!):\n")
-		MainWindow.WriteString(fmt.Sprintf("%s\n", jt.Filter.View()))
-		MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
-	case jt.InfoOn:
-		// info
-		MainWindow.WriteString("\n")
-		MainWindow.WriteString(styles.JobInfoBox.Render(jt.getJobInfo(l)))
-	case jt.CountsOn:
-		// Counts on
-		MainWindow.WriteString("\n")
-		MainWindow.WriteString(styles.JobInfoBox.Render(jt.getJobCounts()))
-	}
-
-	switch {
-	case jt.StatsOn:
-		// table + stats
-		X := MainWindow.String()
-		MainWindow.Reset()
-		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, X, styles.MenuBoxStyle.Render(jt.JobTabStats(l))))
-	}
-
-	return MainWindow.String()
+	return Header.String() + MainWindow.String()
 }

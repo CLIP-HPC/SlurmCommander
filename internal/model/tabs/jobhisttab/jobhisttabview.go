@@ -20,11 +20,11 @@ func (jh *JobHistTab) JobHistTabStats(l *log.Logger) string {
 	l.Printf("JobHistTabStats called\n")
 
 	str := styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Historical job states (filtered):"))
-	str += "\n\n"
+	str += "\n"
 	str += generic.GenCountStrVert(jh.Stats.StateCnt, l)
 
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Waiting times (finished jobs):"))
-	str += "\n\n"
+	str += "\n"
 	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
 	str += fmt.Sprintf("%-10s : %s\n", "MinWait", generic.HumanizeDuration(jh.Stats.MinWait, l))
 	str += fmt.Sprintf("%-10s : %s\n", "AvgWait", generic.HumanizeDuration(jh.Stats.AvgWait, l))
@@ -33,7 +33,7 @@ func (jh *JobHistTab) JobHistTabStats(l *log.Logger) string {
 
 	str += "\n"
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Run times (finished jobs):"))
-	str += "\n\n"
+	str += "\n"
 	str += fmt.Sprintf("%-10s : %s\n", " ", "dd-hh:mm:ss")
 	str += fmt.Sprintf("%-10s : %s\n", "MinRun", generic.HumanizeDuration(jh.Stats.MinRun, l))
 	str += fmt.Sprintf("%-10s : %s\n", "AvgRun", generic.HumanizeDuration(jh.Stats.AvgRun, l))
@@ -117,7 +117,7 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 	switch {
 	case jh.StatsOn:
 		// table + stats
-		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, jh.tabJobHist(), styles.MenuBoxStyle.Render(jh.JobHistTabStats(l))))
+		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, jh.tabJobHist(), styles.StatsBoxStyle.Render(jh.JobHistTabStats(l))))
 	default:
 		// table
 		MainWindow.WriteString(jh.tabJobHist())

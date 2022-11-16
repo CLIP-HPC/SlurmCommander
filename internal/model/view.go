@@ -77,22 +77,25 @@ func (m *Model) genTabHelp() string {
 func (m Model) View() string {
 
 	var (
-		scr        strings.Builder
+		header     strings.Builder
 		MainWindow strings.Builder
 	)
 
 	// HEADER / TABS
-	scr.WriteString(m.genTabs())
-	scr.WriteString(m.genTabHelp())
+	header.WriteString(m.genTabs())
+	header.WriteString(m.genTabHelp())
 
 	if m.Debug {
 		// One debug line
-		scr.WriteString(fmt.Sprintf("%s Width: %d Height: %d ErrorMsg: %s\n", styles.TextRed.Render("DEBUG ON:"), m.Globals.winW, m.Globals.winH, m.Globals.ErrorMsg))
+		header.WriteString(fmt.Sprintf("%s Width: %d Height: %d ErrorMsg: %s\n", styles.TextRed.Render("DEBUG ON:"), m.Globals.winW, m.Globals.winH, m.Globals.ErrorMsg))
 	}
 
 	if m.Globals.ErrorHelp != "" {
-		scr.WriteString(styles.ErrorHelp.Render(fmt.Sprintf("ERROR: %s", m.Globals.ErrorHelp)))
-		scr.WriteString("\n")
+		m.Log.Println("Got error")
+		header.WriteString(styles.ErrorHelp.Render(fmt.Sprintf("ERROR: %s", m.Globals.ErrorHelp)))
+	} else {
+		m.Log.Println("Got NO error, insert newline")
+		//header.WriteString("\n")
 	}
 
 	// PICK and RENDER ACTIVE TAB
@@ -119,10 +122,8 @@ func (m Model) View() string {
 
 	case tabAbout:
 		MainWindow.WriteString(m.tabAbout())
+		// TODO: default
 	}
 
-	// FOOTER
-	scr.WriteString(lipgloss.JoinVertical(lipgloss.Left, styles.MainWindow.Render(MainWindow.String()), styles.HelpWindow.Render(m.Help.View(keybindings.DefaultKeyMap))))
-
-	return scr.String()
+	return lipgloss.JoinVertical(lipgloss.Left, header.String(), styles.MainWindow.Render(MainWindow.String()), styles.HelpWindow.Render(m.Help.View(keybindings.DefaultKeyMap)))
 }
