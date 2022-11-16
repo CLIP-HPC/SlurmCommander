@@ -14,7 +14,8 @@ import (
 const (
 	// Width of the SinfoTable, used in calculating Stats box width.
 	// Must be adjusted alongside SinfoTabCols changes.
-	SinfoTabWidth = 118
+	//SinfoTabWidth = 118
+	SinfoTabWidth = 134
 )
 
 var SinfoTabCols = []table.Column{

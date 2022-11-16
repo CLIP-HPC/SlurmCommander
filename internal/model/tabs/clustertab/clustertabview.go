@@ -61,6 +61,7 @@ func (ct *ClusterTab) ClusterTabStats(l *log.Logger) string {
 	l.Printf("JobClusterTabStats called\n")
 
 	sel := ct.SinfoTable.Cursor()
+	//str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Nodes states (filtered):"))
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Nodes states (filtered):"))
 	str += "\n"
 
@@ -166,7 +167,9 @@ func (ct *ClusterTab) View(l *log.Logger) string {
 		MainWindow.Reset()
 		// TODO: make this Width() somewhere else (e.g. Update() on WindowSizeMsg)
 		// Table Width == 118 chars, so .Width(m.winW-118)
-		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, X, styles.StatsBoxStyle.Width(50).Render(ct.ClusterTabStats(l))))
+		//MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, X, styles.StatsBoxStyle.Width(50).Render(ct.ClusterTabStats(l))))
+		l.Printf("CTB Width = %d\n", styles.ClusterTabStats.GetWidth())
+		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, X, styles.ClusterTabStats.Render(ct.ClusterTabStats(l))))
 	}
 
 	return Header.String() + MainWindow.String()

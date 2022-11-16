@@ -338,22 +338,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		styles.JobInfoInBox = styles.JobInfoInBox.Width(w / 3).Height(5)
 		styles.JobInfoInBottomBox = styles.JobInfoInBottomBox.Width(w + 4).Height(5)
 
-		// Tabs :  3
-		// Header  3
-		// TABLE:  X
-		// Debug:  5
-		// Filter: 3
-		// Help :  1
-		// ---
-		// TOTAL:  15
-		//
-		// TODO: if there are no Info||Count||Filter boxes below, stretch the table to go to the bottom of the screen
-		//m.SqueueTable.SetHeight(m.winH - 30)
+		// Adjust ALL tables
 		m.JobTab.AdjTableHeight(m.winH, m.Log)
-		//m.SacctTable.SetHeight(m.winH - 30)
 		m.JobHistTab.AdjTableHeight(m.winH, m.Log)
-		//m.SinfoTable.SetHeight(m.winH - 30)
 		m.ClusterTab.AdjTableHeight(m.winH, m.Log)
+
+		// Adjust StatBoxes
+		m.Log.Printf("CTB Width = %d\n", styles.ClusterTabStats.GetWidth())
+		styles.ClusterTabStats = styles.ClusterTabStats.Width(m.winW - clustertab.SinfoTabWidth)
+		m.Log.Printf("CTB Width = %d\n", styles.ClusterTabStats.GetWidth())
 
 	// JobTab update
 	case jobtab.SqueueJSON:

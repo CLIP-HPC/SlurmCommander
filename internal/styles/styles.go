@@ -56,6 +56,9 @@ var (
 	StatsBoxStyle       = lipgloss.NewStyle().Padding(0, 1).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(Blue)
 	StatsSeparatorTitle = lipgloss.NewStyle().Foreground(Yellow).Background(Blue)
 
+	// ClusterTab Stats Box
+	ClusterTabStats = StatsBoxStyle.Copy()
+
 	//MenuTitleStyle    = lipgloss.NewStyle().Background(blue).Foreground(yellow)
 	MenuBoxStyle      = lipgloss.NewStyle().Padding(1, 1).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(Blue)
 	MenuTitleStyle    = lipgloss.NewStyle().Foreground(Yellow)
