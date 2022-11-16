@@ -114,7 +114,7 @@ func main() {
 				table.WithStyles(s),
 			),
 		},
-		JobClusterTab: clustertab.JobClusterTab{
+		ClusterTab: clustertab.ClusterTab{
 			SinfoTable: table.New(table.WithColumns(clustertab.SinfoTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
 			Filter:     ti,
 		},

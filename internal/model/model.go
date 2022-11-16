@@ -53,7 +53,7 @@ type Model struct {
 	jobhisttab.JobHistTab
 	jobdetailstab.JobDetailsTab
 	jobfromtemplate.JobFromTemplateTab
-	clustertab.JobClusterTab
+	clustertab.ClusterTab
 }
 
 type Globals struct {

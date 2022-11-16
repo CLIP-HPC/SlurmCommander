@@ -2,13 +2,10 @@ package model
 
 import (
 	"fmt"
-	"log"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/pja237/slurmcommander-dev/internal/generic"
 	"github.com/pja237/slurmcommander-dev/internal/keybindings"
@@ -258,49 +255,6 @@ func (m Model) tabJobFromTemplate() string {
 	}
 }
 
-func (m Model) tabClusterBars() string {
-	var (
-		scr     string = ""
-		cpuPerc float64
-		memPerc float64
-	)
-
-	sel := m.SinfoTable.Cursor()
-	m.Log.Printf("ClusterTab Selected: %d\n", sel)
-	m.Log.Printf("ClusterTab len results: %d\n", len(m.JobClusterTab.SinfoFiltered.Nodes))
-	m.JobClusterTab.CpuBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
-	m.JobClusterTab.MemBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
-	if len(m.JobClusterTab.SinfoFiltered.Nodes) > 0 && sel != -1 {
-		cpuPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocCpus) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].Cpus)
-		memPerc = float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocMemory) / float64(*m.JobClusterTab.SinfoFiltered.Nodes[sel].RealMemory)
-
-		scr += fmt.Sprintf("CPU used/total: %d/%d\n", *m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocCpus, *m.JobClusterTab.SinfoFiltered.Nodes[sel].Cpus)
-		scr += m.CpuBar.ViewAs(cpuPerc)
-		scr += "\n"
-		scr += fmt.Sprintf("MEM used/total: %d/%d\n", *m.JobClusterTab.SinfoFiltered.Nodes[sel].AllocMemory, *m.JobClusterTab.SinfoFiltered.Nodes[sel].RealMemory)
-		scr += m.MemBar.ViewAs(memPerc)
-		scr += "\n\n"
-	} else {
-		cpuPerc = 0
-		memPerc = 0
-		scr += fmt.Sprintf("CPU used/total: %d/%d\n", 0, 0)
-		scr += m.CpuBar.ViewAs(cpuPerc)
-		scr += "\n"
-		scr += fmt.Sprintf("MEM used/total: %d/%d\n", 0, 0)
-		scr += m.MemBar.ViewAs(memPerc)
-		scr += "\n\n"
-
-	}
-
-	return scr
-}
-func (m Model) tabCluster() string {
-
-	scr := m.SinfoTable.View() + "\n"
-
-	return scr
-}
-
 func (m Model) tabAbout() string {
 
 	s := "Version: " + version.BuildVersion + "\n"
@@ -314,46 +268,6 @@ Contributors:
 `
 
 	return s
-}
-
-func (m Model) getClusterCounts() string {
-	var (
-		ret string
-		cpp string
-		mpp string
-		nps string
-	)
-
-	fmtStrCpu := "%-10s : %4d / %4d %2.0f%%\n"
-	fmtStrMem := "%-10s : %8d / %8d %2.0f%%\n"
-	fmtStrNPS := "%-15s : %4d\n"
-	fmtTitle := "%-40s"
-
-	cpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "CPUs per Partition (used/total)"))
-	cpp += "\n"
-	for _, v := range m.JobClusterTab.Breakdowns.CpuPerPart {
-		cpp += fmt.Sprintf(fmtStrCpu, v.Name, v.Count, v.Total, float32(v.Count)/float32(v.Total)*100)
-	}
-
-	mpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Mem per Partition (used/total)"))
-	mpp += "\n"
-	for _, v := range m.JobClusterTab.Breakdowns.MemPerPart {
-		mpp += fmt.Sprintf(fmtStrMem, v.Name, v.Count, v.Total, float32(v.Count)/float32(v.Total)*100)
-	}
-
-	nps += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Nodes per State"))
-	nps += "\n"
-	for _, v := range m.JobClusterTab.Breakdowns.NodesPerState {
-		nps += fmt.Sprintf(fmtStrNPS, v.Name, v.Count)
-	}
-
-	cpp = styles.CountsBox.Render(cpp)
-	mpp = styles.CountsBox.Render(mpp)
-	nps = styles.CountsBox.Render(nps)
-
-	ret = lipgloss.JoinHorizontal(lipgloss.Top, cpp, mpp, nps)
-
-	return ret
 }
 
 func (m *Model) genTabHelp() string {
@@ -373,77 +287,6 @@ func (m *Model) genTabHelp() string {
 		th = "SlurmCommander"
 	}
 	return th + "\n"
-}
-
-// Generate statistics string, horizontal.
-func GenCountStr(cnt map[string]uint, l *log.Logger) string {
-	var (
-		scr string
-	)
-
-	sm := make([]struct {
-		name string
-		val  uint
-	}, 0)
-
-	// place map to slice
-	for k, v := range cnt {
-		sm = append(sm, struct {
-			name string
-			val  uint
-		}{name: k, val: uint(v)})
-	}
-
-	// sort it
-	sort.Slice(sm, func(i, j int) bool {
-		if sm[i].name < sm[j].name {
-			return true
-		} else {
-			return false
-		}
-	})
-
-	// print it out
-	scr = "Count: "
-	for _, v := range sm {
-		scr += fmt.Sprintf("%s: %d ", v.name, v.val)
-	}
-	scr += "\n\n"
-
-	return scr
-}
-
-func (m Model) JobClusterTabStats() string {
-	var str string
-
-	m.Log.Printf("JobClusterTabStats called\n")
-
-	sel := m.JobClusterTab.SinfoTable.Cursor()
-	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Nodes states (filtered):"))
-	str += "\n"
-
-	if len(m.JobClusterTab.SinfoFiltered.Nodes) > 0 {
-		//str += generic.GenCountStrVert(m.JobClusterTab.Stats.StateCnt, m.Log)
-		str += generic.GenCountStrVert(m.JobClusterTab.Stats.StateSimpleCnt, m.Log)
-	}
-
-	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Selected node:"))
-
-	if len(m.JobClusterTab.SinfoFiltered.Nodes) > 0 && sel != -1 {
-		str += "\n"
-		str += fmt.Sprintf("%-15s: %s\n", "Arch", *m.JobClusterTab.SinfoFiltered.Nodes[sel].Architecture)
-		str += fmt.Sprintf("%-15s: %s\n", "Features", *m.JobClusterTab.SinfoFiltered.Nodes[sel].ActiveFeatures)
-		str += fmt.Sprintf("%-15s: %s\n", "TRES", *m.JobClusterTab.SinfoFiltered.Nodes[sel].Tres)
-		if m.JobClusterTab.SinfoFiltered.Nodes[sel].TresUsed != nil {
-			str += fmt.Sprintf("%-15s: %s\n", "TRES Used", *m.JobClusterTab.SinfoFiltered.Nodes[sel].TresUsed)
-		} else {
-			str += fmt.Sprintf("%-15s: %s\n", "TRES Used", "")
-		}
-		str += fmt.Sprintf("%-15s: %s\n", "GRES", *m.JobClusterTab.SinfoFiltered.Nodes[sel].Gres)
-		str += fmt.Sprintf("%-15s: %s\n", "GRES Used", *m.JobClusterTab.SinfoFiltered.Nodes[sel].GresUsed)
-		str += fmt.Sprintf("%-15s: %s\n", "Partitions", strings.Join(*m.JobClusterTab.SinfoFiltered.Nodes[sel].Partitions, ","))
-	}
-	return str
 }
 
 func (m Model) JobTabStats() string {
@@ -514,36 +357,8 @@ func (m Model) View() string {
 		MainWindow.WriteString(m.tabJobFromTemplate())
 
 	case tabCluster:
-		// Top Main
-		MainWindow.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n\n", m.JobClusterTab.Filter.Value(), len(m.JobClusterTab.SinfoFiltered.Nodes)))
-		MainWindow.WriteString(m.tabClusterBars())
-
-		// Mid Main: table || table+stats
-		switch {
-		case m.JobClusterTab.StatsOn:
-			MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, m.tabCluster(), styles.MenuBoxStyle.Render(m.JobClusterTabStats())))
-		default:
-			MainWindow.WriteString(m.tabCluster())
-		}
-
-		// Low Main: nil || filter || counts
-		switch {
-		case m.JobClusterTab.FilterOn:
-			// filter
-			MainWindow.WriteString("\n")
-			// filter
-			MainWindow.WriteString("\n")
-			MainWindow.WriteString("Filter value (search across: Name, State, StateFlags!):\n")
-			MainWindow.WriteString(fmt.Sprintf("%s\n", m.JobClusterTab.Filter.View()))
-			MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
-		case m.JobClusterTab.CountsOn:
-			MainWindow.WriteString("\n")
-			MainWindow.WriteString(styles.JobInfoBox.Render(m.getClusterCounts()))
-
-		default:
-			MainWindow.WriteString("\n")
-			MainWindow.WriteString(GenCountStr(m.JobClusterTab.Stats.StateCnt, m.Log))
-		}
+		m.Log.Printf("CALL ClusterTab.View()\n")
+		MainWindow.WriteString(m.ClusterTab.View(m.Log))
 
 	case tabAbout:
 		MainWindow.WriteString(m.tabAbout())

@@ -10,7 +10,7 @@ import (
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
-type JobClusterTab struct {
+type ClusterTab struct {
 	StatsOn       bool
 	CountsOn      bool
 	FilterOn      bool
@@ -36,7 +36,7 @@ type Breakdowns struct {
 	NodesPerState generic.CountItemSlice
 }
 
-func (t *JobClusterTab) GetStatsFiltered(l *log.Logger) {
+func (t *ClusterTab) GetStatsFiltered(l *log.Logger) {
 	var key string
 
 	cpp := generic.CountItemMap{} // CpuPerPartition

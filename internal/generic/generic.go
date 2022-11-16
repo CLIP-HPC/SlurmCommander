@@ -125,3 +125,41 @@ func GenCountStrVert(cnt map[string]uint, l *log.Logger) string {
 
 	return scr
 }
+
+// Generate statistics string, horizontal.
+func GenCountStr(cnt map[string]uint, l *log.Logger) string {
+	var (
+		scr string
+	)
+
+	sm := make([]struct {
+		name string
+		val  uint
+	}, 0)
+
+	// place map to slice
+	for k, v := range cnt {
+		sm = append(sm, struct {
+			name string
+			val  uint
+		}{name: k, val: uint(v)})
+	}
+
+	// sort it
+	sort.Slice(sm, func(i, j int) bool {
+		if sm[i].name < sm[j].name {
+			return true
+		} else {
+			return false
+		}
+	})
+
+	// print it out
+	scr = "Count: "
+	for _, v := range sm {
+		scr += fmt.Sprintf("%s: %d ", v.name, v.val)
+	}
+	scr += "\n\n"
+
+	return scr
+}

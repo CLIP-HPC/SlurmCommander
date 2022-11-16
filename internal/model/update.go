@@ -45,9 +45,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tabJobFromTemplate:
 		activeTable = &m.JobFromTemplateTab.TemplatesTable
 	case tabCluster:
-		activeTable = &m.JobClusterTab.SinfoTable
-		activeFilter = &m.JobClusterTab.Filter
-		activeFilterOn = &m.JobClusterTab.FilterOn
+		activeTable = &m.ClusterTab.SinfoTable
+		activeFilter = &m.ClusterTab.Filter
+		activeFilterOn = &m.ClusterTab.FilterOn
 	}
 
 	// Filter is turned on, take care of this first
@@ -105,7 +105,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 					return m, nil
 				case tabCluster:
-					m.JobClusterTab.GetStatsFiltered(m.Log)
+					m.ClusterTab.GetStatsFiltered(m.Log)
 					return m, clustertab.QuickGetSinfo(m.Log)
 				default:
 					return m, nil
@@ -362,15 +362,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Log.Printf("U(): got SinfoJSON\n")
 		if len(msg.Nodes) != 0 {
 			m.Sinfo = msg
-			rows, sif, err := msg.FilterSinfoTable(m.JobClusterTab.Filter.Value(), m.Log)
+			rows, sif, err := msg.FilterSinfoTable(m.ClusterTab.Filter.Value(), m.Log)
 			if err != nil {
 				m.Globals.ErrorHelp = err.ErrHelp
 				m.Globals.ErrorMsg = err.OrigErr
-				m.JobClusterTab.Filter.SetValue("")
+				m.ClusterTab.Filter.SetValue("")
 			} else {
-				m.JobClusterTab.SinfoTable.SetRows(*rows)
-				m.JobClusterTab.SinfoFiltered = *sif
-				m.JobClusterTab.GetStatsFiltered(m.Log)
+				m.ClusterTab.SinfoTable.SetRows(*rows)
+				m.ClusterTab.SinfoFiltered = *sif
+				m.ClusterTab.GetStatsFiltered(m.Log)
 			}
 		}
 		m.UpdateCnt++
@@ -424,7 +424,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case tabJobHist:
 				toggleSwitch(&m.JobHistTab.CountsOn)
 			case tabCluster:
-				toggleSwitch(&m.JobClusterTab.CountsOn)
+				toggleSwitch(&m.ClusterTab.CountsOn)
 			}
 			return m, nil
 
@@ -501,7 +501,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case m.ActiveTab == tabJobHist:
 				m.JobHistTab.FilterOn = true
 			case m.ActiveTab == tabCluster:
-				m.JobClusterTab.FilterOn = true
+				m.ClusterTab.FilterOn = true
 			}
 			return m, nil
 
@@ -576,9 +576,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				toggleSwitch(&m.JobHistTab.StatsOn)
 				m.Log.Printf("JobHistTab toggle to: %v\n", m.JobHistTab.StatsOn)
 			case tabCluster:
-				m.Log.Printf("JobCluster toggle from: %v\n", m.JobClusterTab.StatsOn)
-				toggleSwitch(&m.JobClusterTab.StatsOn)
-				m.Log.Printf("JobCluster toggle to: %v\n", m.JobClusterTab.StatsOn)
+				m.Log.Printf("JobCluster toggle from: %v\n", m.ClusterTab.StatsOn)
+				toggleSwitch(&m.ClusterTab.StatsOn)
+				m.Log.Printf("JobCluster toggle to: %v\n", m.ClusterTab.StatsOn)
 			}
 			return m, nil
 
