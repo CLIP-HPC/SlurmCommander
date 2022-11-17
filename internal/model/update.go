@@ -314,6 +314,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.TemplateEditor.SetHeight(m.winH - 30)
 		m.TemplateEditor.SetValue(string(msg))
 		m.TemplateEditor.Focus()
+		m.TemplateEditor.CharLimit = 0
 		return m, jobfromtemplate.EditorOn()
 
 	// Windows resize
