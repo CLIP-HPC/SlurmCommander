@@ -1,9 +1,5 @@
 package command
 
-const (
-	tick = 3
-)
-
 var (
 	SacctJobCmdSwitches    = []string{"-n", "--json", "-j"}
 	ScancelJobCmdSwitches  = []string{}

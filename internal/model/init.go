@@ -16,6 +16,6 @@ func (m Model) Init() tea.Cmd {
 		command.GetUserName(m.Log),
 		jobtab.QuickGetSqueue(m.Log),
 		clustertab.QuickGetSinfo(m.Log),
-		jobfromtemplate.GetTemplateList(jobfromtemplate.DefaultTemplatePaths, m.Log),
+		jobfromtemplate.GetTemplateList(m.Globals.ConfigContainer.TemplateDirs, m.Log),
 	)
 }

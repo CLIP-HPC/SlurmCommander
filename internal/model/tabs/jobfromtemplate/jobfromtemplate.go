@@ -1,6 +1,7 @@
 package jobfromtemplate
 
 import (
+	"bufio"
 	"log"
 	"os"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/pja237/slurmcommander-dev/internal/defaults"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
@@ -35,11 +37,11 @@ var TemplatesListCols = []table.Column{
 	},
 	{
 		Title: "Description",
-		Width: 30,
+		Width: 40,
 	},
 	{
 		Title: "Path",
-		Width: 30,
+		Width: 100,
 	},
 }
 
@@ -60,26 +62,39 @@ func GetTemplate(name string, l *log.Logger) tea.Cmd {
 
 type TemplatesListRows []table.Row
 
-var (
-	DefaultTemplatePaths = []string{
-		"/etc/slurmcommander-dev/templates",
-	}
-)
-
 func GetTemplateList(paths []string, l *log.Logger) tea.Cmd {
 
 	return func() tea.Msg {
 		var tlr TemplatesListRows
 		for _, p := range paths {
+			l.Printf("GetTemplateList reading dir: %s\n", p)
 			files, err := os.ReadDir(p)
 			if err != nil {
 				l.Printf("GetTemplateList ERROR: %s\n", err)
 			}
 			for _, f := range files {
 				l.Printf("GetTemplateList INFO files: %s %s\n", p, f.Name())
-				// TODO: check suffix, if .sbatch, append to tlr
-				// if suffix=".descr" then read content and use as description
-				tlr = append(tlr, table.Row{f.Name(), "Description", p + "/" + f.Name()})
+				// if suffix=".desc" then read content and use as description
+				if strings.HasSuffix(f.Name(), ".sbatch") {
+					sbatchPath := p + "/" + f.Name()
+					descPath := p + "/" + strings.TrimSuffix(f.Name(), defaults.TemplatesSuffix) + defaults.TemplatesDescSuffix
+					fd, err := os.Open(descPath)
+					if err != nil {
+						// handle error and put no desc in table
+						l.Printf("GetTemplateList FAIL open desc file: %s\n", err)
+						tlr = append(tlr, table.Row{f.Name(), "", sbatchPath})
+					} else {
+						l.Printf("GetTemplateList INFO open desc file: %s\n", descPath)
+						s := bufio.NewScanner(fd)
+						if s.Scan() {
+							tlr = append(tlr, table.Row{f.Name(), s.Text(), sbatchPath})
+						} else {
+							l.Printf("GetTemplateList ERR scanning desc file: %s : %s\n", descPath, s.Err())
+							// then we put no description
+							tlr = append(tlr, table.Row{f.Name(), "", sbatchPath})
+						}
+					}
+				}
 			}
 
 		}
