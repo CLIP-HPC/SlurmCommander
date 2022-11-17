@@ -38,7 +38,7 @@ func GetUserName(l *log.Logger) tea.Cmd {
 		l.Printf("Fetching UserName\n")
 		u, err := user.Current()
 		if err != nil {
-			//l.Fatalf("GetUserName FAILED: %s", err)
+			l.Printf("GetUserName FAILED: %s", err)
 			return ErrorMsg{
 				From:    "GetUserName",
 				ErrHelp: "Failed to get username, hard to imagine why. Please open an issue with us here: https://github.com/pja237/SlurmCommander-dev/issues/new/choose",
@@ -72,7 +72,7 @@ func GetUserAssoc(u string, l *log.Logger) tea.Cmd {
 		l.Printf("GetUserAssoc about to run: %v %v\n", cmd, sw)
 		stdOut, err := c.StdoutPipe()
 		if err != nil {
-			//l.Fatalf("StdoutPipe call FAILED with %s\n", err)
+			l.Printf("StdoutPipe call FAILED with %s\n", err)
 			return ErrorMsg{
 				From:    "GetUserAssoc",
 				ErrHelp: "Failed setting up command StdoutPipe()",
@@ -81,7 +81,7 @@ func GetUserAssoc(u string, l *log.Logger) tea.Cmd {
 		}
 
 		if e := c.Start(); e != nil {
-			//l.Fatalf("cmd.Run call FAILED with %s\n", err)
+			l.Printf("cmd.Run call FAILED with %s\n", err)
 			return ErrorMsg{
 				From:    "GetUserAssoc",
 				ErrHelp: "Failed Start()ing sacctmgr",
@@ -95,7 +95,7 @@ func GetUserAssoc(u string, l *log.Logger) tea.Cmd {
 			ua = append(ua, s.Text())
 		}
 		if e := c.Wait(); e != nil {
-			//l.Fatalf("cmd.Wait call FAILED with %s\n", err)
+			l.Printf("cmd.Wait call FAILED with %s\n", err)
 			return ErrorMsg{
 				From:    "GetUserAssoc",
 				ErrHelp: "Failed Wait()ing for sacctmgr to exit",
@@ -123,7 +123,7 @@ func CallScancel(jobid string, l *log.Logger) tea.Cmd {
 		l.Printf("EXEC: %q %q\n", cmd, switches)
 		out, err := exec.Command(cmd, switches...).CombinedOutput()
 		if err != nil {
-			//l.Fatalf("Error exec scancel: %q\n", err)
+			l.Printf("Error exec scancel: %q\n", err)
 			return ErrorMsg{
 				From:    "CallScancel",
 				ErrHelp: "Failed to run scancel: check command paths in scom.conf, check that you have permissions to cancel it",
@@ -152,7 +152,7 @@ func CallScontrolHold(jobid string, l *log.Logger) tea.Cmd {
 		l.Printf("EXEC: %q %q\n", cmd, switches)
 		out, err := exec.Command(cmd, switches...).CombinedOutput()
 		if err != nil {
-			//l.Fatalf("Error exec hold: %q\n", err)
+			l.Printf("Error exec hold: %q\n", err)
 			return ErrorMsg{
 				From:    "CallScontrolHold",
 				ErrHelp: "Failed to run scontrol hold : check command paths in scom.conf, check that you have permissions to hold it",
@@ -182,7 +182,6 @@ func CallScontrolRequeue(jobid string, l *log.Logger) tea.Cmd {
 		l.Printf("EXEC: %q %q\n", cmd, switches)
 		out, err := exec.Command(cmd, switches...).CombinedOutput()
 		if err != nil {
-			//l.Fatalf("Error exec requeue: %q\n", err)
 			l.Printf("Error exec requeue: %q\n", err)
 			l.Printf("Possible Reason: requeue can only be executed for batch jobs (e.g. won't work on srun --pty)\n")
 			return ErrorMsg{
@@ -214,7 +213,7 @@ func CallSbatch(jobfile string, l *log.Logger) tea.Cmd {
 		l.Printf("EXEC: %q %q\n", cmd, switches)
 		out, err := exec.Command(cmd, switches...).CombinedOutput()
 		if err != nil {
-			l.Fatalf("Error exec sbatch: %q\n", err)
+			l.Printf("Error exec sbatch: %q\n", err)
 			return ErrorMsg{
 				From:    "CallSbatch",
 				ErrHelp: "Failed to run sbatch, check scom.conf and the paths there.",

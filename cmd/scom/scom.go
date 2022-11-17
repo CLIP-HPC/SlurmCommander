@@ -45,8 +45,11 @@ func main() {
 	cc := config.NewConfigContainer()
 	err = cc.GetConfig()
 	if err != nil {
-		log.Printf("WARRNING: parsing config file: %s\n", err)
+		log.Printf("ERROR: parsing config files: %s\n", err)
 	}
+
+	// TODO: JFT We have the CMDline switches and config, now overwrite what's changed
+	//log.Println(cc.DumpConfig())
 
 	log.Printf("INFO: %s\n", cc.DumpConfig())
 	command.NewCmdCC(*cc)

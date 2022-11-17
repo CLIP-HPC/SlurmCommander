@@ -60,26 +60,26 @@ func GetTemplate(name string, l *log.Logger) tea.Cmd {
 
 type TemplatesListRows []table.Row
 
-var (
-	DefaultTemplatePaths = []string{
-		"/etc/slurmcommander-dev/templates",
-	}
-)
-
 func GetTemplateList(paths []string, l *log.Logger) tea.Cmd {
 
 	return func() tea.Msg {
 		var tlr TemplatesListRows
 		for _, p := range paths {
+			l.Printf("GetTemplateList reading dir: %s\n", p)
 			files, err := os.ReadDir(p)
 			if err != nil {
 				l.Printf("GetTemplateList ERROR: %s\n", err)
 			}
 			for _, f := range files {
 				l.Printf("GetTemplateList INFO files: %s %s\n", p, f.Name())
-				// TODO: check suffix, if .sbatch, append to tlr
-				// if suffix=".descr" then read content and use as description
+				// TODO: JFT check suffix, if .sbatch, append to tlr
+				// if suffix=".desc" then read content and use as description
+
+				// if description file exists {
+				// Append with desc
+				// } else {
 				tlr = append(tlr, table.Row{f.Name(), "Description", p + "/" + f.Name()})
+				// }
 			}
 
 		}
