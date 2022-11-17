@@ -1,6 +1,7 @@
 package jobfromtemplate
 
 import (
+	"bufio"
 	"log"
 	"os"
 	"strconv"
@@ -35,11 +36,11 @@ var TemplatesListCols = []table.Column{
 	},
 	{
 		Title: "Description",
-		Width: 30,
+		Width: 40,
 	},
 	{
 		Title: "Path",
-		Width: 30,
+		Width: 100,
 	},
 }
 
@@ -72,14 +73,27 @@ func GetTemplateList(paths []string, l *log.Logger) tea.Cmd {
 			}
 			for _, f := range files {
 				l.Printf("GetTemplateList INFO files: %s %s\n", p, f.Name())
-				// TODO: JFT check suffix, if .sbatch, append to tlr
 				// if suffix=".desc" then read content and use as description
-
-				// if description file exists {
-				// Append with desc
-				// } else {
-				tlr = append(tlr, table.Row{f.Name(), "Description", p + "/" + f.Name()})
-				// }
+				if strings.HasSuffix(f.Name(), ".sbatch") {
+					sbatchPath := p + "/" + f.Name()
+					descPath := p + "/" + strings.TrimSuffix(f.Name(), ".sbatch") + ".desc"
+					fd, err := os.Open(descPath)
+					if err != nil {
+						// handle error and put no desc in table
+						l.Printf("GetTemplateList FAIL open desc file: %s\n", err)
+						tlr = append(tlr, table.Row{f.Name(), "", sbatchPath})
+					} else {
+						l.Printf("GetTemplateList INFO open desc file: %s\n", descPath)
+						s := bufio.NewScanner(fd)
+						if s.Scan() {
+							tlr = append(tlr, table.Row{f.Name(), s.Text(), sbatchPath})
+						} else {
+							l.Printf("GetTemplateList ERR scanning desc file: %s : %s\n", descPath, s.Err())
+							// then we put no description
+							tlr = append(tlr, table.Row{f.Name(), "", sbatchPath})
+						}
+					}
+				}
 			}
 
 		}

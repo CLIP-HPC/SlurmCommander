@@ -43,7 +43,6 @@ func (cc *ConfigContainer) GetConfig() error {
 		cfgPaths = []string{"/etc/scom/scom.conf", home + "/scom/scom.conf"}
 	}
 
-	// TODO: JFT this NEEDS rework, not good.
 	for _, v := range cfgPaths {
 		log.Printf("Trying conf file: %s\n", v)
 		f, err := os.ReadFile(v)

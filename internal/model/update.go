@@ -310,8 +310,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		jobfromtemplate.EditorKeyMap.SetupKeys()
 		m.EditTemplate = true
 		m.TemplateEditor = textarea.New()
-		m.TemplateEditor.SetWidth(m.winW - 30)
-		m.TemplateEditor.SetHeight(m.winH - 30)
+		m.TemplateEditor.SetWidth(m.winW - 15)
+		m.TemplateEditor.SetHeight(m.winH - 15)
 		m.TemplateEditor.SetValue(string(msg))
 		m.TemplateEditor.Focus()
 		m.TemplateEditor.CharLimit = 0
