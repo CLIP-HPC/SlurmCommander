@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -23,10 +24,15 @@ import (
 
 type errMsg error
 
+type activeTabType interface {
+	AdjTableHeight(int, *log.Logger)
+}
+
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var (
 		brk            bool = false
+		activeTab      activeTabType
 		activeTable    *table.Model
 		activeFilter   *textinput.Model
 		activeFilterOn *bool
@@ -35,16 +41,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// This shortens the testing for table movement keys
 	switch m.ActiveTab {
 	case tabJobs:
+		activeTab = &m.JobTab
 		activeTable = &m.JobTab.SqueueTable
 		activeFilter = &m.JobTab.Filter
 		activeFilterOn = &m.JobTab.FilterOn
 	case tabJobHist:
+		activeTab = &m.JobHistTab
 		activeTable = &m.JobHistTab.SacctTable
 		activeFilter = &m.JobHistTab.Filter
 		activeFilterOn = &m.JobHistTab.FilterOn
 	case tabJobFromTemplate:
 		activeTable = &m.JobFromTemplateTab.TemplatesTable
 	case tabCluster:
+		activeTab = &m.ClusterTab
 		activeTable = &m.ClusterTab.SinfoTable
 		activeFilter = &m.ClusterTab.Filter
 		activeFilterOn = &m.ClusterTab.FilterOn
@@ -76,6 +85,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// NOTE: This doesn't do what i image it should, cursor remains -1 when table is empty situation?
 				// Explanation in clamp function: https://github.com/charmbracelet/bubbles/blob/13f52d678d315676568a656b5211b8a24a54a885/table/table.go#L296
 				activeTable.SetCursor(0)
+				activeTab.AdjTableHeight(m.winH, m.Log)
 				//m.Log.Printf("ActiveTable = %v\n", activeTable)
 				m.Log.Printf("Update: Filter set, setcursor(0), activetable.Cursor==%d\n", activeTable.Cursor())
 				switch m.ActiveTab {
@@ -137,12 +147,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "enter":
 				m.JobTab.MenuOn = false
-				// TODO: This is just temporarily here, instead of this, depending on the MenuChoice turn on Info if selected
-				m.JobTab.InfoOn = true
 				i, ok := m.JobTab.Menu.SelectedItem().(jobtab.MenuItem)
 				if ok {
 					m.JobTab.MenuChoice = jobtab.MenuItem(i)
+					if m.JobTab.MenuChoice.GetAction() == "INFO" {
+						// TODO: IF Stats==ON AND NxM, turn it of, can't have both on below NxM
+						m.JobTab.InfoOn = true
+						if m.JobTab.StatsOn && m.Globals.winH < 60 {
+							m.Log.Printf("Toggle InfoBox: Height %d too low (<60). Turn OFF Stats\n", m.Globals.winH)
+							// We have to turn off stats otherwise screen will break at this Height!
+							m.JobTab.StatsOn = false
+							// TODO: send a message via ErrMsg
+						}
+					}
 					// host is needed for ssh command
+					activeTab.AdjTableHeight(m.winH, m.Log)
 					host := m.JobTab.SqueueFiltered.Jobs[m.JobTab.SqueueTable.Cursor()].BatchHost
 					retCmd := m.JobTab.MenuChoice.ExecMenuItem(m.JobTab.SelectedJob, *host, m.Log)
 					return m, retCmd
@@ -301,10 +320,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.Log.Printf("Update: got WindowSizeMsg: %d %d\n", msg.Width, msg.Height)
 		// TODO: if W<195 || H<60 we can't really run without breaking view, so quit and inform user
-		if msg.Height < 60 || msg.Width < 195 {
-			m.Log.Printf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 195x60.\n", msg.Width, msg.Height)
-			//m.Globals.SizeErr = fmt.Sprintf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 195x60.\nIncrease your terminal window and/or decrease font size.", msg.Width, msg.Height)
-			//return m, tea.Quit
+		// 187x44 == 13" MacBook Font 14 iTerm (HUGE letters!)
+		if msg.Height < 43 || msg.Width < 185 {
+			m.Log.Printf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 187x44.\n", msg.Width, msg.Height)
+			m.Globals.SizeErr = fmt.Sprintf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 195x60.\nIncrease your terminal window and/or decrease font size.", msg.Width, msg.Height)
+			return m, tea.Quit
 		}
 		m.winW = msg.Width
 		m.winH = msg.Height
@@ -318,17 +338,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		styles.JobInfoInBox = styles.JobInfoInBox.Width(w / 3).Height(5)
 		styles.JobInfoInBottomBox = styles.JobInfoInBottomBox.Width(w + 4).Height(5)
 
-		// Tabs :  3
-		// Header  3
-		// TABLE:  X
-		// Debug:  5
-		// Filter: 3
-		// Help :  1
-		// ---
-		// TOTAL:  15
-		m.SqueueTable.SetHeight(m.winH - 30)
-		m.SacctTable.SetHeight(m.winH - 30)
-		m.SinfoTable.SetHeight(m.winH - 30)
+		// Adjust ALL tables
+		m.JobTab.AdjTableHeight(m.winH, m.Log)
+		m.JobHistTab.AdjTableHeight(m.winH, m.Log)
+		m.ClusterTab.AdjTableHeight(m.winH, m.Log)
+
+		// Adjust StatBoxes
+		m.Log.Printf("CTB Width = %d\n", styles.ClusterTabStats.GetWidth())
+		styles.ClusterTabStats = styles.ClusterTabStats.Width(m.winW - clustertab.SinfoTabWidth)
+		m.Log.Printf("CTB Width = %d\n", styles.ClusterTabStats.GetWidth())
 
 	// JobTab update
 	case jobtab.SqueueJSON:
@@ -426,6 +444,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case tabCluster:
 				toggleSwitch(&m.ClusterTab.CountsOn)
 			}
+			activeTab.AdjTableHeight(m.winH, m.Log)
 			return m, nil
 
 		// UP
@@ -503,6 +522,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case m.ActiveTab == tabCluster:
 				m.ClusterTab.FilterOn = true
 			}
+			activeTab.AdjTableHeight(m.winH, m.Log)
 			return m, nil
 
 		// ENTER
@@ -517,6 +537,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if n == -1 || len(m.JobTab.SqueueFiltered.Jobs) == 0 {
 					m.Log.Printf("Update ENTER key @ jobqueue table, no jobs selected/empty table\n")
 					return m, nil
+				}
+				// IF Info==ON AND NxM, turn it of, can't have both on below NxM
+				if m.JobTab.InfoOn && m.Globals.winH < 60 {
+					m.Log.Printf("Toggle MenuBox: Height %d too low (<60). Turn OFF Info\n", m.Globals.winH)
+					m.JobTab.InfoOn = false
 				}
 				// If yes, turn on menu
 				m.JobTab.MenuOn = true
@@ -559,9 +584,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Info - toggle on/off
 		case key.Matches(msg, keybindings.DefaultKeyMap.Info):
-			m.Log.Printf("Toggle InfoBox\n")
+			m.Log.Println("Toggle InfoBox")
+
+			// TODO: IF Stats==ON AND NxM, turn it of, can't have both on below NxM
+			if m.JobTab.StatsOn && m.Globals.winH < 60 {
+				m.Log.Printf("Toggle InfoBox: Height %d too low (<60). Turn OFF Stats\n", m.Globals.winH)
+				// We have to turn off stats otherwise screen will break at this Height!
+				m.JobTab.StatsOn = false
+				// TODO: send a message via ErrMsg
+			}
+
 			m.JobTab.CountsOn = false
 			toggleSwitch(&m.JobTab.InfoOn)
+			m.JobTab.AdjTableHeight(m.Globals.winH, m.Log)
 			return m, nil
 
 		// Stats - toggle on/off
@@ -570,6 +605,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case tabJobs:
 				m.Log.Printf("JobTab toggle from: %v\n", m.JobTab.StatsOn)
 				toggleSwitch(&m.JobTab.StatsOn)
+				// IF Info==ON AND NxM, turn it of, can't have both on below NxM
+				if m.JobTab.InfoOn && m.Globals.winH < 60 {
+					m.Log.Printf("Toggle StatsBox: Height %d too low (<60). Turn OFF Info\n", m.Globals.winH)
+					m.JobTab.InfoOn = false
+				}
 				m.Log.Printf("JobTab toggle to: %v\n", m.JobTab.StatsOn)
 			case tabJobHist:
 				m.Log.Printf("JobHistTab toggle from: %v\n", m.JobHistTab.StatsOn)

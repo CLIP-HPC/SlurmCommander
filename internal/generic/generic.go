@@ -121,7 +121,7 @@ func GenCountStrVert(cnt map[string]uint, l *log.Logger) string {
 	for _, v := range sm {
 		scr += fmt.Sprintf("%-15s: %d\n", v.name, v.val)
 	}
-	scr += "\n\n"
+	scr += "\n"
 
 	return scr
 }

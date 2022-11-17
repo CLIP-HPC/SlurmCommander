@@ -61,6 +61,7 @@ func (ct *ClusterTab) ClusterTabStats(l *log.Logger) string {
 	l.Printf("JobClusterTabStats called\n")
 
 	sel := ct.SinfoTable.Cursor()
+	//str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Nodes states (filtered):"))
 	str += styles.StatsSeparatorTitle.Render(fmt.Sprintf("%-30s", "Nodes states (filtered):"))
 	str += "\n"
 
@@ -96,8 +97,8 @@ func (ct *ClusterTab) getClusterCounts() string {
 		nps string
 	)
 
-	fmtStrCpu := "%-10s : %4d / %4d %2.0f%%\n"
-	fmtStrMem := "%-10s : %8d / %8d %2.0f%%\n"
+	fmtStrCpu := "%-8s : %4d / %4d %2.0f%%\n"
+	fmtStrMem := "%-8s : %10d / %10d %2.0f%%\n"
 	fmtStrNPS := "%-15s : %4d\n"
 	fmtTitle := "%-40s"
 
@@ -113,7 +114,7 @@ func (ct *ClusterTab) getClusterCounts() string {
 		mpp += fmt.Sprintf(fmtStrMem, v.Name, v.Count, v.Total, float32(v.Count)/float32(v.Total)*100)
 	}
 
-	nps += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Nodes per State"))
+	nps += styles.TextYellowOnBlue.Render(fmt.Sprintf("%-30s", "Nodes per State"))
 	nps += "\n"
 	for _, v := range ct.Breakdowns.NodesPerState {
 		nps += fmt.Sprintf(fmtStrNPS, v.Name, v.Count)
@@ -130,39 +131,46 @@ func (ct *ClusterTab) getClusterCounts() string {
 
 func (ct *ClusterTab) View(l *log.Logger) string {
 	var (
+		Header     strings.Builder
 		MainWindow strings.Builder
 	)
 
 	// Top Main
-	MainWindow.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n\n", ct.Filter.Value(), len(ct.SinfoFiltered.Nodes)))
-	MainWindow.WriteString(ct.tabClusterBars(l))
+	Header.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n\n", ct.Filter.Value(), len(ct.SinfoFiltered.Nodes)))
+	Header.WriteString(ct.tabClusterBars(l))
 
-	// Mid Main: table || table+stats
-	switch {
-	case ct.StatsOn:
-		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, ct.tabCluster(), styles.MenuBoxStyle.Render(ct.ClusterTabStats(l))))
-	default:
-		MainWindow.WriteString(ct.tabCluster())
-	}
+	// Table is always there
+	MainWindow.WriteString(ct.tabCluster())
 
-	// Low Main: nil || filter || counts
+	// Attach below table whatever is turned on
 	switch {
 	case ct.FilterOn:
 		// filter
 		MainWindow.WriteString("\n")
-		// filter
-		MainWindow.WriteString("\n")
-		MainWindow.WriteString("Filter value (search across: Name, State, StateFlags!):\n")
+		MainWindow.WriteString("Filter value (search in joined: Name + State + StateFlags!):\n")
 		MainWindow.WriteString(fmt.Sprintf("%s\n", ct.Filter.View()))
-		MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
+		MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported.\n")
+		MainWindow.WriteString(" Syntax details: https://golang.org/s/re2syntax)\n")
 	case ct.CountsOn:
 		MainWindow.WriteString("\n")
 		MainWindow.WriteString(styles.JobInfoBox.Render(ct.getClusterCounts()))
 
 	default:
 		MainWindow.WriteString("\n")
-		MainWindow.WriteString(generic.GenCountStr(ct.Stats.StateCnt, l))
+		//MainWindow.WriteString(generic.GenCountStr(ct.Stats.StateCnt, l))
 	}
 
-	return MainWindow.String()
+	// Lastly, if stats are on, horizontally join them to main
+	switch {
+	case ct.StatsOn:
+		X := MainWindow.String()
+		MainWindow.Reset()
+		// TODO: make this Width() somewhere else (e.g. Update() on WindowSizeMsg)
+		// Table Width == 118 chars, so .Width(m.winW-118)
+		//MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, X, styles.StatsBoxStyle.Width(50).Render(ct.ClusterTabStats(l))))
+		l.Printf("CTB Width = %d\n", styles.ClusterTabStats.GetWidth())
+		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, X, styles.ClusterTabStats.Render(ct.ClusterTabStats(l))))
+	}
+
+	return Header.String() + MainWindow.String()
 }

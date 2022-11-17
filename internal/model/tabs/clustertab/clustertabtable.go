@@ -11,6 +11,13 @@ import (
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
+const (
+	// Width of the SinfoTable, used in calculating Stats box width.
+	// Must be adjusted alongside SinfoTabCols changes.
+	//SinfoTabWidth = 118
+	SinfoTabWidth = 134
+)
+
 var SinfoTabCols = []table.Column{
 	{
 		Title: "Name",
@@ -26,11 +33,11 @@ var SinfoTabCols = []table.Column{
 	},
 	{
 		Title: "CPUAvail",
-		Width: 10,
+		Width: 8,
 	},
 	{
 		Title: "CPUTotal",
-		Width: 10,
+		Width: 8,
 	},
 	{
 		Title: "MEMAvail",
@@ -42,7 +49,7 @@ var SinfoTabCols = []table.Column{
 	},
 	{
 		Title: "State FLAGS",
-		Width: 40,
+		Width: 35,
 	},
 }
 

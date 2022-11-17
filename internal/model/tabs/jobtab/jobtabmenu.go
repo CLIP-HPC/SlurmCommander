@@ -52,6 +52,9 @@ var MenuList = JobMenuOptions{
 	},
 }
 
+func (i MenuItem) GetAction() string {
+	return i.action
+}
 func (i MenuItem) FilterValue() string {
 	return ""
 }
@@ -99,8 +102,8 @@ func NewMenu(selJobState string, l *log.Logger) list.Model {
 	lm.SetShowStatusBar(true)
 	lm.SetFilteringEnabled(false)
 	lm.SetShowHelp(false)
-	lm.SetShowPagination(false)
-	lm.SetSize(30, 25)
+	lm.SetShowPagination(true)
+	lm.SetSize(30, 17)
 	lm.Styles.Title = styles.MenuTitleStyle
 
 	return lm
