@@ -10,6 +10,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/pja237/slurmcommander-dev/internal/defaults"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
@@ -76,7 +77,7 @@ func GetTemplateList(paths []string, l *log.Logger) tea.Cmd {
 				// if suffix=".desc" then read content and use as description
 				if strings.HasSuffix(f.Name(), ".sbatch") {
 					sbatchPath := p + "/" + f.Name()
-					descPath := p + "/" + strings.TrimSuffix(f.Name(), ".sbatch") + ".desc"
+					descPath := p + "/" + strings.TrimSuffix(f.Name(), defaults.TemplatesSuffix) + defaults.TemplatesDescSuffix
 					fd, err := os.Open(descPath)
 					if err != nil {
 						// handle error and put no desc in table

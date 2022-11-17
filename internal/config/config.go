@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/pja237/slurmcommander-dev/internal/defaults"
 )
 
 type ConfigContainer struct {
@@ -38,9 +39,9 @@ func (cc *ConfigContainer) GetConfig() error {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Printf("Conf: FAILED getting users $HOME %s\n", err)
-		cfgPaths = []string{"/etc/scom/scom.conf"}
+		cfgPaths = []string{defaults.ConfFileName}
 	} else {
-		cfgPaths = []string{"/etc/scom/scom.conf", home + "/scom/scom.conf"}
+		cfgPaths = []string{defaults.SiteConfFile, home + "/" + defaults.AppName + "/" + defaults.ConfFileName}
 	}
 
 	for _, v := range cfgPaths {
@@ -61,9 +62,9 @@ func (cc *ConfigContainer) GetConfig() error {
 	// Also fill out unset config params.
 
 	// if unset (==0) or less then 3, set to default
-	if cc.Tick < 3 {
+	if cc.Tick < defaults.TickMin {
 		// set default Tick
-		cc.Tick = 3
+		cc.Tick = defaults.TickMin
 	}
 	cc.testNsetBinPaths()
 	cc.testNsetTemplateDirs()
@@ -76,10 +77,9 @@ func (cc *ConfigContainer) GetConfig() error {
 }
 
 func (cc *ConfigContainer) testNsetTemplateDirs() {
-	// default, always there:	"/etc/slurmcommander/templates",
 	if cc.TemplateDirs == nil {
 		// Nothing set from config files
-		cc.TemplateDirs = append(cc.TemplateDirs, "/etc/slurmcommander/templates")
+		cc.TemplateDirs = append(cc.TemplateDirs, defaults.TemplatesDir)
 	} else {
 		// Something exists from config, can be site-wide OR user-conf
 		// QUESTION: should we do anything about it? prepend /etc/... one? or leave it as-is?
@@ -94,19 +94,7 @@ func (cc *ConfigContainer) testNsetBinPaths() {
 		cc.Binpaths = make(map[string]string)
 	}
 
-	// default paths
-	defaultpaths := map[string]string{
-		"sacct":    "/bin/sacct",
-		"sstat":    "/bin/sstat",
-		"sinfo":    "/bin/sinfo",
-		"squeue":   "/bin/squeue",
-		"sbatch":   "/bin/sbatch",
-		"scancel":  "/bin/scancel",
-		"scontrol": "/bin/scontrol",
-		"sacctmgr": "/bin/sacctmgr",
-	}
-
-	for key, path := range defaultpaths {
+	for key, path := range defaults.BinPaths {
 		if val, exists := cc.Binpaths[key]; !exists || val == "" {
 			if cc.Prefix != "" {
 				// prefix is set, prepend it
