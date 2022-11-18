@@ -8,10 +8,10 @@ import (
 type Keys map[*key.Binding]bool
 
 var KeyMap = Keys{
-	&keybindings.DefaultKeyMap.Up:       false,
-	&keybindings.DefaultKeyMap.Down:     false,
-	&keybindings.DefaultKeyMap.PageUp:   false,
-	&keybindings.DefaultKeyMap.PageDown: false,
+	&keybindings.DefaultKeyMap.Up:       true,
+	&keybindings.DefaultKeyMap.Down:     true,
+	&keybindings.DefaultKeyMap.PageUp:   true,
+	&keybindings.DefaultKeyMap.PageDown: true,
 	&keybindings.DefaultKeyMap.Slash:    false,
 	&keybindings.DefaultKeyMap.Info:     false,
 	&keybindings.DefaultKeyMap.Enter:    false,
