@@ -210,12 +210,22 @@ func (jd *JobDetailsTab) tabJobDetails(jh *jobhisttab.JobHistTab, l *log.Logger)
 	return scr
 }
 
+func (jd *JobDetailsTab) SetViewportContent(jh *jobhisttab.JobHistTab, l *log.Logger) string {
+	var (
+		MainWindow strings.Builder
+	)
+
+	jd.ViewPort.SetContent(jd.tabJobDetails(jh, l))
+
+	return MainWindow.String()
+}
+
 func (jd *JobDetailsTab) View(jh *jobhisttab.JobHistTab, l *log.Logger) string {
 	var (
 		MainWindow strings.Builder
 	)
 
-	MainWindow.WriteString(jd.tabJobDetails(jh, l))
+	MainWindow.WriteString(jd.ViewPort.View())
 
 	return MainWindow.String()
 }

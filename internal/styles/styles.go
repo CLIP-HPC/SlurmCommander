@@ -56,6 +56,10 @@ var (
 	StatsBoxStyle       = lipgloss.NewStyle().Padding(0, 1).BorderStyle(lipgloss.DoubleBorder()).BorderForeground(Blue)
 	StatsSeparatorTitle = lipgloss.NewStyle().Foreground(Yellow).Background(Blue)
 
+	// JobDetails viewport box
+	//JDviewportBox = lipgloss.NewStyle().Border(lipgloss.DoubleBorder(), true, false).BorderForeground(Yellow).Padding(1, 1)
+	JDviewportBox = lipgloss.NewStyle()
+
 	// ClusterTab Stats Box
 	ClusterTabStats = StatsBoxStyle.Copy()
 

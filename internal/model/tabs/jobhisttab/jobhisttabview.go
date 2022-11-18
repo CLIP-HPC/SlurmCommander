@@ -122,7 +122,7 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 	case jh.FilterOn:
 		// filter
 		MainWindow.WriteString("\n")
-		MainWindow.WriteString("Filter value (search in joined: JobID + JobName + AccountName + UserName + JobState):\n")
+		MainWindow.WriteString("Filter value (search in joined: JobID + JobName + QoS + AccountName + UserName + JobState):\n")
 		MainWindow.WriteString(fmt.Sprintf("%s\n", jh.Filter.View()))
 		MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
 	case jh.CountsOn:

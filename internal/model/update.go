@@ -31,11 +31,12 @@ type activeTabType interface {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var (
-		brk            bool = false
-		activeTab      activeTabType
-		activeTable    *table.Model
-		activeFilter   *textinput.Model
-		activeFilterOn *bool
+		brk              bool = false
+		activeTab        activeTabType
+		activeTable      *table.Model
+		activeFilter     *textinput.Model
+		activeFilterOn   *bool
+		activeJDViewport bool
 	)
 
 	// This shortens the testing for table movement keys
@@ -50,6 +51,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		activeTable = &m.JobHistTab.SacctTable
 		activeFilter = &m.JobHistTab.Filter
 		activeFilterOn = &m.JobHistTab.FilterOn
+	case tabJobDetails:
+		// here we're in the special situation, we need to pass on keys to viewport
+		activeJDViewport = true
 	case tabJobFromTemplate:
 		activeTable = &m.JobFromTemplateTab.TemplatesTable
 	case tabCluster:
@@ -62,6 +66,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Filter is turned on, take care of this first
 	// TODO: revisit this for filtering on multiple tabs
 	switch {
+	case activeJDViewport:
+		// catch only up/down keys, leave the rest to fallthrough
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch {
+			case key.Matches(msg, keybindings.DefaultKeyMap.Up),
+				key.Matches(msg, keybindings.DefaultKeyMap.Down),
+				key.Matches(msg, keybindings.DefaultKeyMap.PageUp),
+				key.Matches(msg, keybindings.DefaultKeyMap.PageDown):
+				m.Log.Printf("VIEWPORT: up/down msg\n")
+				var cmd tea.Cmd
+				m.JobDetailsTab.ViewPort, cmd = m.JobDetailsTab.ViewPort.Update(msg)
+				return m, cmd
+			}
+		}
+
 	case activeFilterOn != nil && *activeFilterOn:
 		m.Log.Printf("Filter is ON")
 		switch msg := msg.(type) {
@@ -344,6 +364,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.JobHistTab.AdjTableHeight(m.winH, m.Log)
 		m.ClusterTab.AdjTableHeight(m.winH, m.Log)
 
+		// Fix jobdetails viewport
+		m.JobDetailsTab.ViewPort.Width = m.winW - 15
+		m.JobDetailsTab.ViewPort.Height = m.winH - 15
+
 		// Adjust StatBoxes
 		m.Log.Printf("CTB Width = %d\n", styles.ClusterTabStats.GetWidth())
 		styles.ClusterTabStats = styles.ClusterTabStats.Width(m.winW - clustertab.SinfoTabWidth)
@@ -562,14 +586,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
-				// TODO: this we change to directly address data from SacctHistFiltered instead of
-				// calling another sacct Cmd
-				//m.JobDetailsTab.SelJobID = m.JobHistTab.SacctTable.SelectedRow()[0]
-				//return m, command.SingleJobGetSacct(m.JobDetailsTab.SelJobID, m.Globals.JobHistStart, m.Log)
 				m.JobDetailsTab.SelJobIDNew = n
 				// clear error states
 				m.Globals.ErrorHelp = ""
 				m.Globals.ErrorMsg = nil
+
+				// new job selected, fill out viewport
+				m.JobDetailsTab.SetViewportContent(&m.JobHistTab, m.Log)
 				return m, nil
 
 			// Job from Template tab: Open template for editing

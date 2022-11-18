@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/pja237/slurmcommander-dev/internal/cmdline"
@@ -86,6 +87,10 @@ func main() {
 	hlp.Styles.ShortDesc = styles.TextBlue
 	hlp.Styles.ShortSeparator = styles.TextBlueGrey
 
+	/// JD viewport
+	vp := viewport.New(10, 10)
+	vp.Style = styles.JDviewportBox
+
 	m := model.Model{
 		Globals: model.Globals{
 			Help:            hlp,
@@ -108,6 +113,7 @@ func main() {
 		},
 		JobDetailsTab: jobdetailstab.JobDetailsTab{
 			SelJobIDNew: -1,
+			ViewPort:    vp,
 		},
 		JobFromTemplateTab: jobfromtemplate.JobFromTemplateTab{
 			EditTemplate: false,

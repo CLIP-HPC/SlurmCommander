@@ -18,10 +18,14 @@ var SacctTabCols = []table.Column{
 	},
 	{
 		Title: "Job Name",
-		Width: 30,
+		Width: 35,
 	},
 	{
-		Title: "Partition",
+		Title: "Part.",
+		Width: 5,
+	},
+	{
+		Title: "QoS",
 		Width: 10,
 	},
 	{
@@ -30,7 +34,11 @@ var SacctTabCols = []table.Column{
 	},
 	{
 		Title: "User",
-		Width: 10,
+		Width: 15,
+	},
+	{
+		Title: "Nodes",
+		Width: 20,
 	},
 	{
 		Title: "State",
@@ -67,13 +75,14 @@ func (saList *SacctJSON) FilterSacctTable(f string, l *log.Logger) (*TableRows, 
 		line := strings.Join([]string{
 			strconv.Itoa(*v.JobId),
 			*v.Name,
+			*v.Qos,
 			*v.Account,
 			*v.User,
 			*v.State.Current,
 		}, ".")
 
 		if re.MatchString(line) {
-			saTabRows = append(saTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Partition, *v.Account, *v.User, *v.State.Current})
+			saTabRows = append(saTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Partition, *v.Qos, *v.Account, *v.User, *v.Nodes, *v.State.Current})
 			sacctHistFiltered.Jobs = append(sacctHistFiltered.Jobs, v)
 		}
 	}
