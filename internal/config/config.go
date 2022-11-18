@@ -39,9 +39,9 @@ func (cc *ConfigContainer) GetConfig() error {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Printf("Conf: FAILED getting users $HOME %s\n", err)
-		cfgPaths = []string{defaults.ConfFileName}
+		cfgPaths = []string{defaults.SCConfFileName}
 	} else {
-		cfgPaths = []string{defaults.SiteConfFile, home + "/" + defaults.AppName + "/" + defaults.ConfFileName}
+		cfgPaths = []string{defaults.SCSiteConfFile, home + "/" + defaults.AppName + "/" + defaults.SCConfFileName}
 	}
 
 	for _, v := range cfgPaths {

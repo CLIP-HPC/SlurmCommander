@@ -1,17 +1,31 @@
 package defaults
 
+import "log"
+
 const (
 	TickMin = 3 // minimal time in seconds between that can be set in config file. If not set or less then, Set to this value.
-
-	AppName = "scom"
-
-	ConfFileName = "scom.conf"
-	SiteConfDir  = "/etc/" + AppName + "/"
-	SiteConfFile = SiteConfDir + ConfFileName
 
 	TemplatesDir        = SiteConfDir + "templates"
 	TemplatesSuffix     = ".sbatch"
 	TemplatesDescSuffix = ".desc"
+
+	// Global
+	AppName     = "scom"
+	SiteConfDir = "/etc/" + AppName + "/"
+
+	// SlurmCommander
+	SCLogFile      = "scdebug.log"
+	SCConfFileName = "scom.conf"
+	SCSiteConfFile = SiteConfDir + SCConfFileName
+
+	// SlurmCommanderCache
+	SccAppName      = "sccache"
+	SccLogFile      = "sccdebug.log"
+	SccConfFileName = "scc.conf"
+	SccSiteConfFile = SiteConfDir + SccConfFileName
+
+	// logging
+	LogFlag = log.Lshortfile | log.Lmicroseconds
 )
 
 var (
