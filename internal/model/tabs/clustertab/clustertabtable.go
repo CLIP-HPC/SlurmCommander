@@ -48,8 +48,16 @@ var SinfoTabCols = []table.Column{
 		Width: 10,
 	},
 	{
+		Title: "GPUAvail",
+		Width: 8,
+	},
+	{
+		Title: "GPUTotal",
+		Width: 8,
+	},
+	{
 		Title: "State FLAGS",
-		Width: 35,
+		Width: 15,
 	},
 }
 
@@ -86,7 +94,12 @@ func (siJson *SinfoJSON) FilterSinfoTable(f string, l *log.Logger) (*TableRows, 
 		}, ".")
 
 		if re.MatchString(line) {
-			siTabRows = append(siTabRows, table.Row{*v.Name, strings.Join(*v.Partitions, ","), *v.State, strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.Cpus), strconv.Itoa(*v.FreeMemory), strconv.Itoa(*v.RealMemory), strings.Join(*v.StateFlags, ",")})
+			// This is how many GPUs are available on the node
+			gpuAvail := slurm.ParseGRES(*v.Gres)
+
+			// This is how many GPUs are allocated on the node
+			gpuAlloc := slurm.ParseGRES(*v.GresUsed)
+			siTabRows = append(siTabRows, table.Row{*v.Name, strings.Join(*v.Partitions, ","), *v.State, strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.Cpus), strconv.Itoa(*v.FreeMemory), strconv.Itoa(*v.RealMemory), strconv.Itoa(*gpuAvail), strconv.Itoa(*gpuAlloc), strings.Join(*v.StateFlags, ",")})
 			siJsonFiltered.Nodes = append(siJsonFiltered.Nodes, v)
 		}
 	}

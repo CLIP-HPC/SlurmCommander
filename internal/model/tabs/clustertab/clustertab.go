@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/pja237/slurmcommander-dev/internal/generic"
+	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/table"
 )
 
@@ -17,6 +18,7 @@ type ClusterTab struct {
 	SinfoTable    table.Model
 	CpuBar        progress.Model
 	MemBar        progress.Model
+	GpuBar        progress.Model
 	Sinfo         SinfoJSON
 	SinfoFiltered SinfoJSON
 	Filter        textinput.Model
@@ -33,6 +35,7 @@ type Stats struct {
 type Breakdowns struct {
 	CpuPerPart    generic.CountItemSlice
 	MemPerPart    generic.CountItemSlice
+	GpuPerPart    generic.CountItemSlice
 	NodesPerState generic.CountItemSlice
 }
 
@@ -51,6 +54,7 @@ func (t *ClusterTab) GetStatsFiltered(l *log.Logger) {
 
 	cpp := generic.CountItemMap{} // CpuPerPartition
 	mpp := generic.CountItemMap{} // MemPerPartition
+	gpp := generic.CountItemMap{} // GPUPerPartition
 	nps := generic.CountItemMap{} // NodesPerState
 
 	t.Stats.StateCnt = map[string]uint{}
@@ -76,12 +80,18 @@ func (t *ClusterTab) GetStatsFiltered(l *log.Logger) {
 			if _, ok := mpp[p]; !ok {
 				mpp[p] = &generic.CountItem{}
 			}
+			if _, ok := gpp[p]; !ok {
+				gpp[p] = &generic.CountItem{}
+			}
 			cpp[p].Name = p
 			cpp[p].Count += uint(*v.AllocCpus)
 			cpp[p].Total += uint(*v.Cpus)
 			mpp[p].Name = p
 			mpp[p].Count += uint(*v.AllocMemory)
 			mpp[p].Total += uint(*v.RealMemory)
+			gpp[p].Name = p
+			gpp[p].Count += uint(*slurm.ParseGRES(*v.GresUsed))
+			gpp[p].Total += uint(*slurm.ParseGRES(*v.Gres))
 		}
 		for _, s := range *v.StateFlags {
 			if _, ok := nps[s]; !ok {
@@ -96,6 +106,7 @@ func (t *ClusterTab) GetStatsFiltered(l *log.Logger) {
 	t.Breakdowns.CpuPerPart = generic.SortItemMapBySel("Name", &cpp)
 	t.Breakdowns.MemPerPart = generic.SortItemMapBySel("Name", &mpp)
 	t.Breakdowns.NodesPerState = generic.SortItemMapBySel("Count", &nps)
+	t.Breakdowns.GpuPerPart = generic.SortItemMapBySel("Count", &gpp)
 
 	l.Printf("GetStatsFiltered end\n")
 }

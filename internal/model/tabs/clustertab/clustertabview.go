@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/pja237/slurmcommander-dev/internal/generic"
+	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/styles"
 )
 
@@ -23,6 +24,7 @@ func (ct *ClusterTab) tabClusterBars(l *log.Logger) string {
 		scr     string = ""
 		cpuPerc float64
 		memPerc float64
+		gpuPerc float64
 	)
 
 	sel := ct.SinfoTable.Cursor()
@@ -30,19 +32,28 @@ func (ct *ClusterTab) tabClusterBars(l *log.Logger) string {
 	l.Printf("ClusterTab len results: %d\n", len(ct.SinfoFiltered.Nodes))
 	ct.CpuBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
 	ct.MemBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
+	ct.GpuBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
 	if len(ct.SinfoFiltered.Nodes) > 0 && sel != -1 {
 		cpuPerc = float64(*ct.SinfoFiltered.Nodes[sel].AllocCpus) / float64(*ct.SinfoFiltered.Nodes[sel].Cpus)
 		memPerc = float64(*ct.SinfoFiltered.Nodes[sel].AllocMemory) / float64(*ct.SinfoFiltered.Nodes[sel].RealMemory)
-
+		gpuAvail := slurm.ParseGRES(*ct.SinfoFiltered.Nodes[sel].Gres)
+		gpuUsed := slurm.ParseGRES(*ct.SinfoFiltered.Nodes[sel].GresUsed)
 		scr += fmt.Sprintf("CPU used/total: %d/%d\n", *ct.SinfoFiltered.Nodes[sel].AllocCpus, *ct.SinfoFiltered.Nodes[sel].Cpus)
 		scr += ct.CpuBar.ViewAs(cpuPerc)
 		scr += "\n"
 		scr += fmt.Sprintf("MEM used/total: %d/%d\n", *ct.SinfoFiltered.Nodes[sel].AllocMemory, *ct.SinfoFiltered.Nodes[sel].RealMemory)
 		scr += ct.MemBar.ViewAs(memPerc)
+		if *gpuAvail > 0 {
+			scr += "\n"
+			gpuPerc = float64(*gpuUsed) / float64(*gpuAvail)
+			scr += fmt.Sprintf("GPU used/total: %d/%d\n", *gpuUsed, *gpuAvail)
+			scr += ct.GpuBar.ViewAs(gpuPerc)
+		}
 		scr += "\n\n"
 	} else {
 		cpuPerc = 0
 		memPerc = 0
+		gpuPerc = 0
 		scr += fmt.Sprintf("CPU used/total: %d/%d\n", 0, 0)
 		scr += ct.CpuBar.ViewAs(cpuPerc)
 		scr += "\n"
@@ -94,11 +105,13 @@ func (ct *ClusterTab) getClusterCounts() string {
 		ret string
 		cpp string
 		mpp string
+		gpp string
 		nps string
 	)
 
 	fmtStrCpu := "%-8s : %4d / %4d %2.0f%%\n"
 	fmtStrMem := "%-8s : %10d / %10d %2.0f%%\n"
+	fmtStrGpu := "%-8s : %4d / %4d %2.0f%%\n"
 	fmtStrNPS := "%-15s : %4d\n"
 	fmtTitle := "%-40s"
 
@@ -114,6 +127,12 @@ func (ct *ClusterTab) getClusterCounts() string {
 		mpp += fmt.Sprintf(fmtStrMem, v.Name, v.Count, v.Total, float32(v.Count)/float32(v.Total)*100)
 	}
 
+	gpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "GPUs per Partition (used/total)"))
+	gpp += "\n"
+	for _, v := range ct.Breakdowns.GpuPerPart {
+		gpp += fmt.Sprintf(fmtStrGpu, v.Name, v.Count, v.Total, float32(v.Count)/float32(v.Total)*100)
+	}
+
 	nps += styles.TextYellowOnBlue.Render(fmt.Sprintf("%-30s", "Nodes per State"))
 	nps += "\n"
 	for _, v := range ct.Breakdowns.NodesPerState {
@@ -122,9 +141,10 @@ func (ct *ClusterTab) getClusterCounts() string {
 
 	cpp = styles.CountsBox.Render(cpp)
 	mpp = styles.CountsBox.Render(mpp)
+	gpp = styles.CountsBox.Render(gpp)
 	nps = styles.CountsBox.Render(nps)
 
-	ret = lipgloss.JoinHorizontal(lipgloss.Top, cpp, mpp, nps)
+	ret = lipgloss.JoinHorizontal(lipgloss.Top, cpp, mpp, gpp, nps)
 
 	return ret
 }
