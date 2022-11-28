@@ -3,6 +3,7 @@ debug.log
 scdebug.log
 scripts/**
 /scom
+/sccache
 *.sbatch
 tmp/**
 build/**

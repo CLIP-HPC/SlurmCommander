@@ -41,7 +41,7 @@ func (cc *ConfigContainer) GetConfig() error {
 		log.Printf("Conf: FAILED getting users $HOME %s\n", err)
 		cfgPaths = []string{defaults.SCConfFileName}
 	} else {
-		cfgPaths = []string{defaults.SCSiteConfFile, home + "/" + defaults.AppName + "/" + defaults.SCConfFileName}
+		cfgPaths = []string{defaults.SCSiteConfFile, home + "/" + defaults.SCAppName + "/" + defaults.SCConfFileName}
 	}
 
 	for _, v := range cfgPaths {

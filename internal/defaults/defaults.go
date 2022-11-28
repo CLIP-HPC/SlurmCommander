@@ -13,7 +13,11 @@ const (
 	AppName     = "scom"
 	SiteConfDir = "/etc/" + AppName + "/"
 
+	// logging
+	LogFlag = log.Lshortfile | log.Lmicroseconds
+
 	// SlurmCommander
+	SCAppName      = AppName
 	SCLogFile      = "scdebug.log"
 	SCConfFileName = "scom.conf"
 	SCSiteConfFile = SiteConfDir + SCConfFileName
@@ -24,8 +28,8 @@ const (
 	SccConfFileName = "scc.conf"
 	SccSiteConfFile = SiteConfDir + SccConfFileName
 
-	// logging
-	LogFlag = log.Lshortfile | log.Lmicroseconds
+	SccRefreshT = 5
+	SccPort     = 10237
 )
 
 var (
