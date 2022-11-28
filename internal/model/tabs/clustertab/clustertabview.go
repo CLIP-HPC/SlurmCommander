@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/dustin/go-humanize"
 	"github.com/pja237/slurmcommander-dev/internal/generic"
 	"github.com/pja237/slurmcommander-dev/internal/slurm"
 	"github.com/pja237/slurmcommander-dev/internal/styles"
@@ -110,10 +111,10 @@ func (ct *ClusterTab) getClusterCounts() string {
 	)
 
 	fmtStrCpu := "%-8s : %4d / %4d %2.0f%%\n"
-	fmtStrMem := "%-8s : %10d / %10d %2.0f%%\n"
+	fmtStrMem := "%-8s : %s / %s %2.0f%%\n"
 	fmtStrGpu := "%-8s : %4d / %4d %2.0f%%\n"
 	fmtStrNPS := "%-15s : %4d\n"
-	fmtTitle := "%-40s"
+	fmtTitle := "%-35s"
 
 	cpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "CPUs per Partition (used/total)"))
 	cpp += "\n"
@@ -124,7 +125,7 @@ func (ct *ClusterTab) getClusterCounts() string {
 	mpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "Mem per Partition (used/total)"))
 	mpp += "\n"
 	for _, v := range ct.Breakdowns.MemPerPart {
-		mpp += fmt.Sprintf(fmtStrMem, v.Name, v.Count, v.Total, float32(v.Count)/float32(v.Total)*100)
+		mpp += fmt.Sprintf(fmtStrMem, v.Name, humanize.Bytes(uint64(v.Count)*1024*1024), humanize.Bytes(uint64(v.Total)*1024*1024), float32(v.Count)/float32(v.Total)*100)
 	}
 
 	gpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "GPUs per Partition (used/total)"))
@@ -144,7 +145,7 @@ func (ct *ClusterTab) getClusterCounts() string {
 	gpp = styles.CountsBox.Render(gpp)
 	nps = styles.CountsBox.Render(nps)
 
-	ret = lipgloss.JoinHorizontal(lipgloss.Top, cpp, mpp, gpp, nps)
+	ret = lipgloss.JoinVertical(lipgloss.Left, lipgloss.JoinHorizontal(lipgloss.Top, cpp, mpp, gpp), nps)
 
 	return ret
 }
