@@ -22,10 +22,16 @@ func (ct *ClusterTab) tabCluster() string {
 
 func (ct *ClusterTab) tabClusterBars(l *log.Logger) string {
 	var (
-		scr     string = ""
-		cpuPerc float64
-		memPerc float64
-		gpuPerc float64
+		scr      string  = ""
+		cpuPerc  float64 = 0
+		cpuUsed  int64   = 0
+		cpuAvail int     = 0
+		memPerc  float64 = 0
+		memUsed  int64   = 0
+		memAvail int     = 0
+		gpuPerc  float64 = 0
+		gpuUsed  int     = 0
+		gpuAvail int     = 0
 	)
 
 	sel := ct.SinfoTable.Cursor()
@@ -35,35 +41,26 @@ func (ct *ClusterTab) tabClusterBars(l *log.Logger) string {
 	ct.MemBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
 	ct.GpuBar = progress.New(progress.WithGradient("#277BC0", "#FFCB42"))
 	if len(ct.SinfoFiltered.Nodes) > 0 && sel != -1 {
-		cpuPerc = float64(*ct.SinfoFiltered.Nodes[sel].AllocCpus) / float64(*ct.SinfoFiltered.Nodes[sel].Cpus)
-		memPerc = float64(*ct.SinfoFiltered.Nodes[sel].AllocMemory) / float64(*ct.SinfoFiltered.Nodes[sel].RealMemory)
-		gpuAvail := slurm.ParseGRES(*ct.SinfoFiltered.Nodes[sel].Gres)
-		gpuUsed := slurm.ParseGRES(*ct.SinfoFiltered.Nodes[sel].GresUsed)
-		scr += fmt.Sprintf("CPU used/total: %d/%d\n", *ct.SinfoFiltered.Nodes[sel].AllocCpus, *ct.SinfoFiltered.Nodes[sel].Cpus)
-		scr += ct.CpuBar.ViewAs(cpuPerc)
-		scr += "\n"
-		scr += fmt.Sprintf("MEM used/total: %d/%d\n", *ct.SinfoFiltered.Nodes[sel].AllocMemory, *ct.SinfoFiltered.Nodes[sel].RealMemory)
-		scr += ct.MemBar.ViewAs(memPerc)
-		if *gpuAvail > 0 {
-			scr += "\n"
-			gpuPerc = float64(*gpuUsed) / float64(*gpuAvail)
-			scr += fmt.Sprintf("GPU used/total: %d/%d\n", *gpuUsed, *gpuAvail)
-			scr += ct.GpuBar.ViewAs(gpuPerc)
+		cpuUsed = *ct.SinfoFiltered.Nodes[sel].AllocCpus
+		cpuAvail = *ct.SinfoFiltered.Nodes[sel].Cpus
+		cpuPerc = float64(cpuUsed) / float64(cpuAvail)
+		memUsed = *ct.SinfoFiltered.Nodes[sel].AllocMemory
+		memAvail = *ct.SinfoFiltered.Nodes[sel].RealMemory
+		memPerc = float64(memUsed) / float64(memAvail)
+		gpuAvail = *slurm.ParseGRES(*ct.SinfoFiltered.Nodes[sel].Gres)
+		gpuUsed = *slurm.ParseGRES(*ct.SinfoFiltered.Nodes[sel].GresUsed)
+		if gpuAvail > 0 {
+			gpuPerc = float64(gpuUsed) / float64(gpuAvail)
 		}
-		scr += "\n\n"
-	} else {
-		cpuPerc = 0
-		memPerc = 0
-		gpuPerc = 0
-		scr += fmt.Sprintf("CPU used/total: %d/%d\n", 0, 0)
-		scr += ct.CpuBar.ViewAs(cpuPerc)
-		scr += "\n"
-		scr += fmt.Sprintf("MEM used/total: %d/%d\n", 0, 0)
-		scr += ct.MemBar.ViewAs(memPerc)
-		scr += "\n\n"
-
 	}
-
+	cpur := lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("CPU used/total: %d/%d", cpuUsed, cpuAvail), ct.CpuBar.ViewAs(cpuPerc))
+	memr := lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("MEM used/total: %d/%d", memUsed, memAvail), ct.MemBar.ViewAs(memPerc))
+	scr += lipgloss.JoinVertical(lipgloss.Top, cpur, memr)
+	if gpuAvail > 0 {
+		gpur := lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("GPU used/total: %d/%d", gpuUsed, gpuAvail), ct.GpuBar.ViewAs(gpuPerc))
+		scr = lipgloss.JoinHorizontal(lipgloss.Top, scr, fmt.Sprintf("%4s", ""), gpur)
+	}
+	scr += "\n\n"
 	return scr
 }
 
