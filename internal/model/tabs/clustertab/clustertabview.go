@@ -111,7 +111,7 @@ func (ct *ClusterTab) getClusterCounts() string {
 	fmtStrMem := "%-8s : %s / %s %2.0f%%\n"
 	fmtStrGpu := "%-8s : %4d / %4d %2.0f%%\n"
 	fmtStrNPS := "%-15s : %4d\n"
-	fmtTitle := "%-35s"
+	fmtTitle := "%-30s"
 
 	cpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "CPUs per Partition (used/total)"))
 	cpp += "\n"
@@ -128,7 +128,11 @@ func (ct *ClusterTab) getClusterCounts() string {
 	gpp += styles.TextYellowOnBlue.Render(fmt.Sprintf(fmtTitle, "GPUs per Partition (used/total)"))
 	gpp += "\n"
 	for _, v := range ct.Breakdowns.GpuPerPart {
-		gpp += fmt.Sprintf(fmtStrGpu, v.Name, v.Count, v.Total, float32(v.Count)/float32(v.Total)*100)
+		var gpuPerc float32 = 0.0
+		if v.Total > 0 {
+			gpuPerc = float32(v.Count) / float32(v.Total) * 100
+		}
+		gpp += fmt.Sprintf(fmtStrGpu, v.Name, v.Count, v.Total, gpuPerc)
 	}
 
 	nps += styles.TextYellowOnBlue.Render(fmt.Sprintf("%-30s", "Nodes per State"))
@@ -142,15 +146,16 @@ func (ct *ClusterTab) getClusterCounts() string {
 	gpp = styles.CountsBox.Render(gpp)
 	nps = styles.CountsBox.Render(nps)
 
-	ret = lipgloss.JoinVertical(lipgloss.Left, lipgloss.JoinHorizontal(lipgloss.Top, cpp, mpp, gpp), nps)
+	ret = lipgloss.JoinHorizontal(lipgloss.Top, cpp, mpp, gpp, nps)
 
 	return ret
 }
 
 func (ct *ClusterTab) View(l *log.Logger) string {
 	var (
-		Header     strings.Builder
-		MainWindow strings.Builder
+		Header       strings.Builder
+		MainWindow   strings.Builder
+		FooterWindow strings.Builder
 	)
 
 	// Top Main
@@ -164,17 +169,17 @@ func (ct *ClusterTab) View(l *log.Logger) string {
 	switch {
 	case ct.FilterOn:
 		// filter
-		MainWindow.WriteString("\n")
-		MainWindow.WriteString("Filter value (search in joined: Name + State + StateFlags!):\n")
-		MainWindow.WriteString(fmt.Sprintf("%s\n", ct.Filter.View()))
-		MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported.\n")
-		MainWindow.WriteString(" Syntax details: https://golang.org/s/re2syntax)\n")
+		FooterWindow.WriteString("\n")
+		FooterWindow.WriteString("Filter value (search in joined: Name + State + StateFlags!):\n")
+		FooterWindow.WriteString(fmt.Sprintf("%s\n", ct.Filter.View()))
+		FooterWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported.\n")
+		FooterWindow.WriteString(" Syntax details: https://golang.org/s/re2syntax)\n")
 	case ct.CountsOn:
-		MainWindow.WriteString("\n")
-		MainWindow.WriteString(styles.JobInfoBox.Render(ct.getClusterCounts()))
+		FooterWindow.WriteString("\n")
+		FooterWindow.WriteString(styles.JobInfoBox.Render(ct.getClusterCounts()))
 
 	default:
-		MainWindow.WriteString("\n")
+		FooterWindow.WriteString("\n")
 		//MainWindow.WriteString(generic.GenCountStr(ct.Stats.StateCnt, l))
 	}
 
@@ -190,5 +195,5 @@ func (ct *ClusterTab) View(l *log.Logger) string {
 		MainWindow.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, X, styles.ClusterTabStats.Render(ct.ClusterTabStats(l))))
 	}
 
-	return Header.String() + MainWindow.String()
+	return Header.String() + MainWindow.String() + FooterWindow.String()
 }
