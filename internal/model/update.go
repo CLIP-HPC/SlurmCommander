@@ -343,8 +343,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// TODO: if W<195 || H<60 we can't really run without breaking view, so quit and inform user
 		// 187x44 == 13" MacBook Font 14 iTerm (HUGE letters!)
 		if msg.Height < 43 || msg.Width < 185 {
-			m.Log.Printf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 187x44.\n", msg.Width, msg.Height)
-			m.Globals.SizeErr = fmt.Sprintf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 195x60.\nIncrease your terminal window and/or decrease font size.", msg.Width, msg.Height)
+			m.Log.Printf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 185x43.\n", msg.Width, msg.Height)
+			m.Globals.SizeErr = fmt.Sprintf("FATAL: Window too small to run without breaking view. Have %dx%d. Need at least 185x43.\nIncrease your terminal window and/or decrease font size.", msg.Width, msg.Height)
 			return m, tea.Quit
 		}
 		m.winW = msg.Width

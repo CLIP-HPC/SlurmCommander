@@ -5,13 +5,14 @@ import "log"
 const (
 	TickMin = 3 // minimal time in seconds between that can be set in config file. If not set or less then, Set to this value.
 
-	TemplatesDir        = SiteConfDir + "templates"
-	TemplatesSuffix     = ".sbatch"
-	TemplatesDescSuffix = ".desc"
-
 	// Global
 	AppName     = "scom"
 	SiteConfDir = "/etc/" + AppName + "/"
+
+	// Job from templates tab
+	TemplatesDir        = SiteConfDir + "templates"
+	TemplatesSuffix     = ".sbatch"
+	TemplatesDescSuffix = ".desc"
 
 	// logging
 	LogFlag = log.Lshortfile | log.Lmicroseconds
@@ -27,6 +28,7 @@ const (
 	SccLogFile      = "sccdebug.log"
 	SccConfFileName = "scc.conf"
 	SccSiteConfFile = SiteConfDir + SccConfFileName
+	SccPrefix       = "/bin"
 
 	SccRefreshT = 5
 	SccPort     = 10237
@@ -44,4 +46,6 @@ var (
 		"scontrol": "/bin/scontrol",
 		"sacctmgr": "/bin/sacctmgr",
 	}
+
+	SqueueCmdSwitches = []string{"-a", "--json"}
 )

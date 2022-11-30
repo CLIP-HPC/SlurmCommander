@@ -9,11 +9,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/pja237/slurmcommander-dev/internal/command"
 	"github.com/pja237/slurmcommander-dev/internal/config"
+	"github.com/pja237/slurmcommander-dev/internal/defaults"
 )
 
 var (
-	cc                config.ConfigContainer
-	SqueueCmdSwitches = []string{"-a", "--json"}
+	cc config.ConfigContainer
 )
 
 func NewCmdCC(config config.ConfigContainer) {
@@ -26,7 +26,8 @@ func GetSqueue(t time.Time) tea.Msg {
 	var sqJson SqueueJSON
 
 	cmd := cc.Binpaths["squeue"]
-	out, err := exec.Command(cmd, SqueueCmdSwitches...).CombinedOutput()
+	// if cc.SccCache is configured, call getSqueueFromCache()
+	out, err := exec.Command(cmd, defaults.SqueueCmdSwitches...).CombinedOutput()
 	if err != nil {
 		return command.ErrorMsg{
 			From:    "GetSqueue",
