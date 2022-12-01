@@ -69,7 +69,24 @@ func (sqJson *SqueueJSON) FilterSqueueTable(f string, l *log.Logger) (*TableRows
 	// 	1. join strings from job into one line
 	// 	2. re.MatchString(line)
 	// Allows doing matches across multiple columns, e.g.: "bash.*(als|gmi)" - "bash jobs BY als or gmi accounts"
-	for _, v := range sqJson.Jobs {
+	l.Printf("Filtering on len=%d\n", len(sqJson.Jobs))
+	//l.Printf("Filtering %#v\n", sqJson.Jobs)
+	prio := 0
+	for i, v := range sqJson.Jobs {
+		l.Printf("Filtering %%%d\n", i)
+		l.Printf("0. Filter SQTable: jobid %s\n", strconv.Itoa(*v.JobId))
+		l.Printf("0. Filter SQTable: name %s\n", *v.Name)
+		l.Printf("0. Filter SQTable: acc %s\n", *v.Account)
+		l.Printf("0. Filter SQTable: username %s\n", *v.UserName)
+		l.Printf("0. Filter SQTable: jobstate %s\n", *v.JobState)
+		// https://groups.google.com/g/golang-nuts/c/i8JVM25NkDo
+		if v.Priority == nil {
+			l.Println("NIL PRIO")
+			prio = 0
+		} else {
+			prio = *v.Priority
+		}
+		l.Printf("0. Filter SQTable: prio %s\n", strconv.Itoa(prio))
 
 		// NEW: 1. JOIN
 		line := strings.Join([]string{
@@ -82,7 +99,7 @@ func (sqJson *SqueueJSON) FilterSqueueTable(f string, l *log.Logger) (*TableRows
 
 		// NEW: 2. MATCH
 		if re.MatchString(line) {
-			sqTabRows = append(sqTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Account, *v.UserName, *v.JobState, strconv.Itoa(*v.Priority)})
+			sqTabRows = append(sqTabRows, table.Row{strconv.Itoa(*v.JobId), *v.Name, *v.Account, *v.UserName, *v.JobState, strconv.Itoa(prio)})
 			sqJsonFiltered.Jobs = append(sqJsonFiltered.Jobs, v)
 		}
 	}
