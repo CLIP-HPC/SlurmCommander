@@ -8,10 +8,11 @@ import (
 	"net/http"
 	"net/rpc"
 	"os/exec"
+	"strconv"
 	"time"
 
 	"github.com/pja237/slurmcommander-dev/internal/defaults"
-	"github.com/pja237/slurmcommander-dev/internal/slurm"
+	"github.com/pja237/slurmcommander-dev/internal/scrpc"
 )
 
 type cmdflags struct {
@@ -38,31 +39,18 @@ func (c *cmdflags) DumpFlags() {
 	log.Println("--------------------------------------------------------------------------------")
 }
 
-type CachedSqueue struct {
-	Counter    uint
-	SqueueJSON slurm.SqueueJSON
-}
-
-type ReqArgs struct {
-	Cid  uint   // client id
-	Cstr string // client string
-}
-
-type ReplyArgs struct {
-	N int
-	CachedSqueue
-}
-
+// listener->bank request data
 type lbQuery struct {
-	req     ReqArgs
-	replyCh chan CachedSqueue
+	req     scrpc.ReqArgs
+	replyCh chan scrpc.CachedSqueue
 }
 
+// Data type (receiver) whose methods are published in RPC server
 type SqueueCache struct {
 	lbCh chan lbQuery
 }
 
-func (sqc *SqueueCache) GetCachedSqueue(c ReqArgs, r *ReplyArgs) error {
+func (sqc *SqueueCache) GetCachedSqueue(c scrpc.ReqArgs, r *scrpc.ReplyArgs) error {
 	var lbq lbQuery
 
 	t := time.Now()
@@ -71,7 +59,7 @@ func (sqc *SqueueCache) GetCachedSqueue(c ReqArgs, r *ReplyArgs) error {
 
 	// Send a query to the bank
 	log.Printf(">> GetCachedSqueue() Prep req for bank, t=%f\n", time.Since(t).Seconds())
-	lbq.replyCh = make(chan CachedSqueue)
+	lbq.replyCh = make(chan scrpc.CachedSqueue)
 	lbq.req.Cid = c.Cid
 	lbq.req.Cstr = c.Cstr
 	sqc.lbCh <- lbq
@@ -93,9 +81,9 @@ type routineDone struct {
 	err error
 }
 
-func fetcherSacct(prefix string, fch chan<- routineDone, fbCh chan<- CachedSqueue) {
+func fetcherSacct(prefix string, fch chan<- routineDone, fbCh chan<- scrpc.CachedSqueue) {
 	var (
-		cSqueue CachedSqueue = CachedSqueue{}
+		cSqueue scrpc.CachedSqueue = scrpc.CachedSqueue{}
 	)
 
 	defer func() {
@@ -139,10 +127,10 @@ func fetcherSacct(prefix string, fch chan<- routineDone, fbCh chan<- CachedSqueu
 
 }
 
-func bank(bCh chan<- routineDone, fbCh <-chan CachedSqueue, lbCh <-chan lbQuery) {
+func bank(bCh chan<- routineDone, fbCh <-chan scrpc.CachedSqueue, lbCh <-chan lbQuery) {
 
 	var (
-		csq CachedSqueue
+		csq scrpc.CachedSqueue
 	)
 
 	defer func() {
@@ -172,14 +160,14 @@ func bank(bCh chan<- routineDone, fbCh <-chan CachedSqueue, lbCh <-chan lbQuery)
 
 }
 
-func listenRPC(lbCh chan lbQuery) {
+func listenRPC(p uint, lbCh chan lbQuery) {
 
 	sqc := new(SqueueCache)
 	sqc.lbCh = lbCh
 
 	rpc.Register(sqc)
 	rpc.HandleHTTP()
-	l, e := net.Listen("tcp", ":1234")
+	l, e := net.Listen("tcp", ":"+strconv.FormatUint(uint64(p), 10))
 	if e != nil {
 		log.Fatal("listen error:", e)
 	}
@@ -191,15 +179,15 @@ func main() {
 
 	var (
 		cmd  cmdflags
-		fCh  chan routineDone  // Fetcher done channel
-		bCh  chan routineDone  // Bank done channel
-		fbCh chan CachedSqueue // Fetcher-Bank channel
-		lbCh chan lbQuery      // ListenRPC-Bank channel
+		fCh  chan routineDone        // Fetcher done channel
+		bCh  chan routineDone        // Bank done channel
+		fbCh chan scrpc.CachedSqueue // Fetcher-Bank channel
+		lbCh chan lbQuery            // ListenRPC-Bank channel
 	)
 
 	fCh = make(chan routineDone)
 	bCh = make(chan routineDone)
-	fbCh = make(chan CachedSqueue)
+	fbCh = make(chan scrpc.CachedSqueue)
 	lbCh = make(chan lbQuery, 10)
 
 	log.Printf("- SCCache Start")
@@ -221,7 +209,7 @@ func main() {
 	go bank(bCh, fbCh, lbCh)
 
 	// Spin up server listeners
-	go listenRPC(lbCh)
+	go listenRPC(*cmd.port, lbCh)
 
 	log.Printf("Spun up goroutines, waiting...\n")
 	// TODO: select on goroutine exit channels, if one exits, log, teardown everything and exit

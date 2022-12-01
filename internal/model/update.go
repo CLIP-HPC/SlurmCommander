@@ -375,7 +375,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// JobTab update
 	case jobtab.SqueueJSON:
-		m.Log.Printf("U(): got SqueueJSON\n")
+		m.Log.Printf("GOT SqueueJSON, len=%d\n", len(msg.Jobs))
 		if len(msg.Jobs) != 0 {
 			m.Squeue = msg
 

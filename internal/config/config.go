@@ -18,6 +18,7 @@ import (
 type ConfigContainer struct {
 	Prefix       string            // if this is set, then we prepend this path to all commands
 	Binpaths     map[string]string // else, we specify one by one
+	Sccache      string            // address of the sccache rpc daemon (optional)
 	Tick         uint
 	TemplateDirs []string
 }
