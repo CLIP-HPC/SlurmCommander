@@ -33,11 +33,14 @@ func (jt *JobTab) getJobInfo(l *log.Logger) string {
 	infoBoxLeft += fmt.Sprintf(fmtStr, "QoS", *jt.SqueueFiltered.Jobs[n].Qos)
 	infoBoxLeft += fmt.Sprintf(fmtStr, "TRES", *jt.SqueueFiltered.Jobs[n].TresReqStr)
 	infoBoxLeft += fmt.Sprintf(fmtStr, "Batch Host", *jt.SqueueFiltered.Jobs[n].BatchHost)
-	if jt.SqueueFiltered.Jobs[n].JobResources.Nodes != nil {
-		infoBoxLeft += fmt.Sprintf(fmtStrLast, "AllocNodes", *jt.SqueueFiltered.Jobs[n].JobResources.Nodes)
-	} else {
-		infoBoxLeft += fmt.Sprintf(fmtStrLast, "AllocNodes", "none")
+	// DONE: slurm 21 vs 22, in 22, JobResources is not set for pending jobs? include a test for that? investigate
+	if jt.SqueueFiltered.Jobs[n].JobResources != nil {
+		if jt.SqueueFiltered.Jobs[n].JobResources.Nodes != nil {
+			infoBoxLeft += fmt.Sprintf(fmtStrLast, "AllocNodes", *jt.SqueueFiltered.Jobs[n].JobResources.Nodes)
+		} else {
+			infoBoxLeft += fmt.Sprintf(fmtStrLast, "AllocNodes", "none")
 
+		}
 	}
 
 	infoBoxRight := fmt.Sprintf(fmtStr, "Array Job ID", strconv.Itoa(*jt.SqueueFiltered.Jobs[n].ArrayJobId))

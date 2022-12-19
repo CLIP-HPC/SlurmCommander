@@ -46,10 +46,11 @@ func (m Model) tabAbout() string {
 	s += "Commit : " + version.BuildCommit + "\n"
 
 	s += `
-petar.jager@imba.oeaw.ac.at
-CLIP-HPC Team @ VBC
+Petar Jager
+CLIP-HPC @VBC
 
 Contributors:
+Seren,Ümit @VBC
 `
 
 	return s

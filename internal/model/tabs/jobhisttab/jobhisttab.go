@@ -63,8 +63,8 @@ func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
 	jpp := generic.CountItemMap{}
 
 	t.Stats.StateCnt = map[string]uint{}
-	tmp := []time.Duration{}
-	tmpRun := []time.Duration{}
+	tmp := []time.Duration{}    // waiting times
+	tmpRun := []time.Duration{} // running times
 	t.AvgWait = 0
 	t.MedWait = 0
 
@@ -73,14 +73,18 @@ func (t *JobHistTab) GetStatsFiltered(l *log.Logger) {
 	for _, v := range t.SacctHistFiltered.Jobs {
 		t.Stats.StateCnt[*v.State.Current]++
 		//l.Printf("TIME: submit=%d, start=%d, end=%d\n", *v.Time.Submission, *v.Time.Start, *v.Time.End)
-		if *v.State.Current != "RUNNING" {
+		switch *v.State.Current {
+		case "PENDING":
+			// no *v.Time.Start
+			tmp = append(tmp, time.Since(time.Unix(int64(*v.Time.Submission), 0)))
+		case "RUNNING":
+			// no *v.Time.End
+			tmpRun = append(tmpRun, time.Since(time.Unix(int64(*v.Time.Start), 0)))
+		default:
 			tmp = append(tmp, time.Unix(int64(*v.Time.Start), 0).Sub(time.Unix(int64(*v.Time.Submission), 0)))
 			tmpRun = append(tmpRun, time.Unix(int64(*v.Time.End), 0).Sub(time.Unix(int64(*v.Time.Start), 0)))
-		} else {
-			// TODO: Question, do we include RUNNING jobs in the calculation?
-			//tmpRun = append(tmpRun, time.Duration(*v.Time.Elapsed))
-		}
 
+		}
 		// Breakdowns:
 		if _, ok := top5acc[*v.Account]; !ok {
 			top5acc[*v.Account] = &generic.CountItem{}
