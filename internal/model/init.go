@@ -2,10 +2,10 @@ package model
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pja237/slurmcommander-dev/internal/command"
-	"github.com/pja237/slurmcommander-dev/internal/model/tabs/clustertab"
-	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobfromtemplate"
-	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
+	"github.com/CLIP-HPC/SlurmCommander/internal/command"
+	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/clustertab"
+	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobfromtemplate"
+	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobtab"
 )
 
 func (m Model) Init() tea.Cmd {

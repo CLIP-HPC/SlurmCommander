@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/pja237/slurmcommander-dev/internal/generic"
-	"github.com/pja237/slurmcommander-dev/internal/stats"
-	"github.com/pja237/slurmcommander-dev/internal/table"
+	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
+	"github.com/CLIP-HPC/SlurmCommander/internal/stats"
+	"github.com/CLIP-HPC/SlurmCommander/internal/table"
 )
 
 type JobHistTab struct {

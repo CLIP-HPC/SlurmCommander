@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pja237/slurmcommander-dev/internal/openapi"
+	"github.com/CLIP-HPC/SlurmCommander/internal/openapi"
 )
 
 type SinfoJSON struct {

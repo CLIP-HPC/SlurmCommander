@@ -6,7 +6,7 @@
 SlurmCommander is a simple, lightweight, no-dependencies text-based user interface (TUI) to your cluster.
 It ties together multiple slurm commands to provide you with a simple and efficient interaction point with slurm.
 
-Installation does not require any special privileges or environment. Simply download the [binary](https://github.com/pja237/SlurmCommander-dev/releases/latest), fill out a small [config file](./cmd/scom/scom.conf) and it's ready to run.
+Installation does not require any special privileges or environment. Simply download the [binary](https://github.com/CLIP-HPC/SlurmCommander/releases/latest), fill out a small [config file](./cmd/scom/scom.conf) and it's ready to run.
 
 You can view, search, analyze and interact with:
 
@@ -27,7 +27,7 @@ SlurmCommander does not require any special privileges to be installed, see inst
 
 ### Regular users
 
-1. Download the pre-built [binary](https://github.com/pja237/SlurmCommander-dev/releases/latest)
+1. Download the pre-built [binary](https://github.com/CLIP-HPC/SlurmCommander/releases/latest)
 2. Download the [annotated config](./cmd/scom/scom.conf) file
 3. Edit the config file, follow instructions inside
 4. Create scom directory in your $HOME and place the edited config there: `mkdir $HOME/scom`

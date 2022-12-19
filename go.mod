@@ -1,4 +1,4 @@
-module github.com/pja237/slurmcommander-dev
+module github.com/CLIP-HPC/SlurmCommander
 
 go 1.18
 

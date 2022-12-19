@@ -2,7 +2,7 @@ package jobdetailstab
 
 import (
 	"github.com/charmbracelet/bubbles/viewport"
-	"github.com/pja237/slurmcommander-dev/internal/slurm"
+	"github.com/CLIP-HPC/SlurmCommander/internal/slurm"
 )
 
 type JobDetailsTab struct {

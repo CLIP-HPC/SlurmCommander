@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/pja237/slurmcommander-dev/internal/keybindings"
-	"github.com/pja237/slurmcommander-dev/internal/styles"
-	"github.com/pja237/slurmcommander-dev/internal/version"
+	"github.com/CLIP-HPC/SlurmCommander/internal/keybindings"
+	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
+	"github.com/CLIP-HPC/SlurmCommander/internal/version"
 )
 
 // genTabs() generates top tabs

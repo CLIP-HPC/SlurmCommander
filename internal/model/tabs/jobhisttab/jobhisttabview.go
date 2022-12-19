@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/pja237/slurmcommander-dev/internal/generic"
-	"github.com/pja237/slurmcommander-dev/internal/styles"
+	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
+	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
 )
 
 func (jh *JobHistTab) tabJobHist() string {

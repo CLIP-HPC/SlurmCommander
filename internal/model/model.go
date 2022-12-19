@@ -4,13 +4,13 @@ import (
 	"log"
 
 	"github.com/charmbracelet/bubbles/help"
-	"github.com/pja237/slurmcommander-dev/internal/config"
-	"github.com/pja237/slurmcommander-dev/internal/model/tabs/abouttab"
-	"github.com/pja237/slurmcommander-dev/internal/model/tabs/clustertab"
-	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobdetailstab"
-	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobfromtemplate"
-	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobhisttab"
-	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobtab"
+	"github.com/CLIP-HPC/SlurmCommander/internal/config"
+	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/abouttab"
+	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/clustertab"
+	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobdetailstab"
+	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobfromtemplate"
+	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobhisttab"
+	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobtab"
 )
 
 const (

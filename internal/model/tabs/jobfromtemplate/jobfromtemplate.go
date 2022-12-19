@@ -10,8 +10,8 @@ import (
 
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pja237/slurmcommander-dev/internal/defaults"
-	"github.com/pja237/slurmcommander-dev/internal/table"
+	"github.com/CLIP-HPC/SlurmCommander/internal/defaults"
+	"github.com/CLIP-HPC/SlurmCommander/internal/table"
 )
 
 type JobFromTemplateTab struct {

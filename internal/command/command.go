@@ -8,7 +8,7 @@ import (
 	"os/user"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pja237/slurmcommander-dev/internal/config"
+	"github.com/CLIP-HPC/SlurmCommander/internal/config"
 )
 
 var cc config.ConfigContainer
@@ -41,7 +41,7 @@ func GetUserName(l *log.Logger) tea.Cmd {
 			l.Printf("GetUserName FAILED: %s", err)
 			return ErrorMsg{
 				From:    "GetUserName",
-				ErrHelp: "Failed to get username, hard to imagine why. Please open an issue with us here: https://github.com/pja237/SlurmCommander-dev/issues/new/choose",
+				ErrHelp: "Failed to get username, hard to imagine why. Please open an issue with us here: https://github.com/CLIP-HPC/SlurmCommander/issues/new/choose",
 				OrigErr: err,
 			}
 		}

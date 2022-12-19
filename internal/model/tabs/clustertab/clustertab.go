@@ -6,9 +6,9 @@ import (
 
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/pja237/slurmcommander-dev/internal/generic"
-	"github.com/pja237/slurmcommander-dev/internal/slurm"
-	"github.com/pja237/slurmcommander-dev/internal/table"
+	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
+	"github.com/CLIP-HPC/SlurmCommander/internal/slurm"
+	"github.com/CLIP-HPC/SlurmCommander/internal/table"
 )
 
 type ClusterTab struct {

@@ -7,8 +7,8 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pja237/slurmcommander-dev/internal/command"
-	"github.com/pja237/slurmcommander-dev/internal/config"
+	"github.com/CLIP-HPC/SlurmCommander/internal/command"
+	"github.com/CLIP-HPC/SlurmCommander/internal/config"
 )
 
 var (
@@ -39,7 +39,7 @@ func GetSqueue(t time.Time) tea.Msg {
 	if err != nil {
 		return command.ErrorMsg{
 			From:    "GetSqueue",
-			ErrHelp: "squeue JSON failed to parse, note your slurm version and open an issue with us here: https://github.com/pja237/SlurmCommander-dev/issues/new/choose",
+			ErrHelp: "squeue JSON failed to parse, note your slurm version and open an issue with us here: https://github.com/CLIP-HPC/SlurmCommander/issues/new/choose",
 			OrigErr: err,
 		}
 	}

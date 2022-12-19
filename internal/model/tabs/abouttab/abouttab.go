@@ -2,7 +2,7 @@ package abouttab
 
 import (
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/pja237/slurmcommander-dev/internal/keybindings"
+	"github.com/CLIP-HPC/SlurmCommander/internal/keybindings"
 )
 
 type Keys map[*key.Binding]bool

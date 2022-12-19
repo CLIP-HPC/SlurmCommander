@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/pja237/slurmcommander-dev/internal/defaults"
+	"github.com/CLIP-HPC/SlurmCommander/internal/defaults"
 )
 
 type ConfigContainer struct {

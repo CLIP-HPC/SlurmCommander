@@ -8,9 +8,9 @@ import (
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/dustin/go-humanize"
-	"github.com/pja237/slurmcommander-dev/internal/generic"
-	"github.com/pja237/slurmcommander-dev/internal/slurm"
-	"github.com/pja237/slurmcommander-dev/internal/styles"
+	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
+	"github.com/CLIP-HPC/SlurmCommander/internal/slurm"
+	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
 )
 
 func (ct *ClusterTab) tabCluster() string {

@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pja237/slurmcommander-dev/internal/command"
-	"github.com/pja237/slurmcommander-dev/internal/slurm"
-	"github.com/pja237/slurmcommander-dev/internal/table"
+	"github.com/CLIP-HPC/SlurmCommander/internal/command"
+	"github.com/CLIP-HPC/SlurmCommander/internal/slurm"
+	"github.com/CLIP-HPC/SlurmCommander/internal/table"
 )
 
 const (

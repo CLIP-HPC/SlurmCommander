@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pja237/slurmcommander-dev/internal/model/tabs/jobhisttab"
-	"github.com/pja237/slurmcommander-dev/internal/styles"
+	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobhisttab"
+	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
 )
 
 func (jd *JobDetailsTab) tabJobDetails(jh *jobhisttab.JobHistTab, l *log.Logger) (scr string) {

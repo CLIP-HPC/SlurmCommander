@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/pja237/slurmcommander-dev/internal/styles"
+	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
 )
 
 func (jft *JobFromTemplateTab) tabJobFromTemplate() string {

@@ -6,8 +6,8 @@
 # ...in github actions comes from make -e version=git_ref
 version=$(shell cat VERSION)
 commit=$(shell git show --no-patch --format=format:%H HEAD)
-buildVersionVar=github.com/pja237/slurmcommander-dev/internal/version.BuildVersion
-buildCommitVar=github.com/pja237/slurmcommander-dev/internal/version.BuildCommit
+buildVersionVar=github.com/CLIP-HPC/SlurmCommander/internal/version.BuildVersion
+buildCommitVar=github.com/CLIP-HPC/SlurmCommander/internal/version.BuildCommit
 
 # various directories
 bindirs=$(wildcard ./cmd/*)

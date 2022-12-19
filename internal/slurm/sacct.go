@@ -1,7 +1,7 @@
 package slurm
 
 import (
-	"github.com/pja237/slurmcommander-dev/internal/openapidb"
+	"github.com/CLIP-HPC/SlurmCommander/internal/openapidb"
 )
 
 // SacctJobHist struct holds job history.

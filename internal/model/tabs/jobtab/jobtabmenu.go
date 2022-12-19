@@ -5,8 +5,8 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pja237/slurmcommander-dev/internal/command"
-	"github.com/pja237/slurmcommander-dev/internal/styles"
+	"github.com/CLIP-HPC/SlurmCommander/internal/command"
+	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
 )
 
 type JobMenuOptions map[string]MenuOptions
