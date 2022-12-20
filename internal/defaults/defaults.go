@@ -5,9 +5,10 @@ const (
 
 	AppName = "scom"
 
-	ConfFileName = "scom.conf"
-	SiteConfDir  = "/etc/" + AppName + "/"
-	SiteConfFile = SiteConfDir + ConfFileName
+	EnvConfVarName = "SCOM_CONF"
+	ConfFileName   = "scom.conf"
+	SiteConfDir    = "/etc/" + AppName + "/"
+	SiteConfFile   = SiteConfDir + ConfFileName
 
 	TemplatesDir        = SiteConfDir + "templates"
 	TemplatesSuffix     = ".sbatch"

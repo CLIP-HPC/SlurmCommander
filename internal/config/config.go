@@ -44,6 +44,22 @@ func (cc *ConfigContainer) GetConfig() error {
 		cfgPaths = []string{defaults.SiteConfFile, home + "/" + defaults.AppName + "/" + defaults.ConfFileName}
 	}
 
+	// SCOM_CONF content, if exists
+	if scomConf, exists := os.LookupEnv(defaults.EnvConfVarName); exists && scomConf != "" {
+		// SCOM_CONF set
+		cfgPaths = append(cfgPaths, scomConf)
+	}
+
+	// $XDG_CONFIG_HOME/scom/scom.conf
+	if xdgConfHome, exists := os.LookupEnv("XDG_CONFIG_HOME"); exists && xdgConfHome != "" {
+		// XDG_CONFIG_HOME set
+		cfgPaths = append(cfgPaths, xdgConfHome+"/"+defaults.AppName+"/"+defaults.ConfFileName)
+	} else {
+		// XDG_CONFIG_HOME unset or empty
+		// If $XDG_CONFIG_HOME is either not set or empty, a default equal to $HOME/.config should be used.
+		cfgPaths = append(cfgPaths, home+"/.config/"+defaults.AppName+"/"+defaults.ConfFileName)
+	}
+
 	for _, v := range cfgPaths {
 		log.Printf("Trying conf file: %s\n", v)
 		f, err := os.ReadFile(v)
