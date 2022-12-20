@@ -36,7 +36,12 @@ SlurmCommander does not require any special privileges to be installed, see inst
 ### Site administrators
 
 Instructions are same as for the regular users, with one minor perk. 
-Place the [config file](./cmd/scom/scom.conf) in `/etc/scom/scom.conf` to be used as global configuration source for all scom instances on that machine.
+Place the [config file](./cmd/scom/scom.conf) in one of the following locations to be used as global configuration source for all scom instances on that machine.
+
+1. /etc/scom/scom.conf
+2. Any location, providing users with the environment variable `SCOM_CONF` containing path to config. file
+3. Users $XDG_CONFIG_HOME/scom/scom.conf
+
 
 __NOTE__: Users can still override global configuration options by changing config stanzas in their local `$HOME/scom/scom.conf`
 

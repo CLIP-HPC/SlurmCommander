@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/CLIP-HPC/SlurmCommander/internal/keybindings"
 	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
 	"github.com/CLIP-HPC/SlurmCommander/internal/version"
+	"github.com/charmbracelet/lipgloss"
 )
 
 // genTabs() generates top tabs
@@ -50,7 +50,8 @@ Petar Jager
 CLIP-HPC @VBC
 
 Contributors:
-Seren,Ümit @VBC
+Seren Ümit
+Kilian Cavalotti
 `
 
 	return s
