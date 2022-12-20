@@ -479,9 +479,6 @@ type V0039JobResources struct {
 	// AllocatedHosts number of assigned job hosts
 	AllocatedHosts *int `json:"allocated_hosts,omitempty"`
 
-	// AllocatedNodes array of allocated nodes
-	AllocatedNodes *map[string]V0039NodeAllocation `json:"allocated_nodes,omitempty"`
-
 	// Nodes list of assigned job nodes
 	Nodes *string `json:"nodes,omitempty"`
 }
@@ -1021,24 +1018,6 @@ type V0039Node struct {
 
 	// Weight arbitrary priority of node for scheduling
 	Weight *int `json:"weight,omitempty"`
-}
-
-// V0039NodeAllocation defines model for v0.0.39_node_allocation.
-type V0039NodeAllocation struct {
-	// Cpus number of assigned job CPUs
-	Cpus *int `json:"cpus,omitempty"`
-
-	// Memory amount of assigned job memory
-	Memory *int `json:"memory,omitempty"`
-
-	// Nodename node name
-	Nodename *string `json:"nodename,omitempty"`
-
-	// Sockets assignment status of each socket by numeric socket id
-	Sockets *struct {
-		// Cores assignment status of each core by core id in each socket
-		Cores *map[string]interface{} `json:"cores,omitempty"`
-	} `json:"sockets,omitempty"`
 }
 
 // V0039NodesResponse defines model for v0.0.39_nodes_response.

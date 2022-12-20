@@ -2023,13 +2023,6 @@
 	  "allocated_hosts": {
 	    "type": "integer",
 	    "description": "number of assigned job hosts"
-	  },
-	  "allocated_nodes": {
-	    "type": "object",
-	    "additionalProperties": {
-	      "$ref": "#/components/schemas/v0.0.39_node_allocation"
-	    },
-	    "description": "array of allocated nodes"
 	  }
 	}
       },
