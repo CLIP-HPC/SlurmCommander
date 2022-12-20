@@ -12,6 +12,7 @@ type KeyMap struct {
 	PageUp        key.Binding
 	PageDown      key.Binding
 	Tab           key.Binding
+	ShiftTab      key.Binding
 	Slash         key.Binding
 	Info          key.Binding
 	Enter         key.Binding
@@ -56,6 +57,10 @@ var DefaultKeyMap = KeyMap{
 		key.WithKeys("tab"),
 		key.WithHelp("tab", "Cycle tabs"),
 	),
+	ShiftTab: key.NewBinding(
+		key.WithKeys("shift+tab"),
+		key.WithHelp("shift+tab", "Cycle tabs backwards"),
+	),
 	Quit: key.NewBinding(
 		key.WithKeys("q", "ctrl+c"),
 		key.WithHelp("q", "Quit scom"),
@@ -92,6 +97,7 @@ func (km KeyMap) ShortHelp() []key.Binding {
 		km.PageUp,
 		km.PageDown,
 		km.Tab,
+		km.ShiftTab,
 		km.Slash,
 		km.Info,
 		km.Stats,
