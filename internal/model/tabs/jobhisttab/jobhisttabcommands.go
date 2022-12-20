@@ -8,9 +8,9 @@ import (
 	"os/exec"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/CLIP-HPC/SlurmCommander/internal/command"
 	"github.com/CLIP-HPC/SlurmCommander/internal/config"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 var (
@@ -48,7 +48,7 @@ func GetSacctHist(uaccs string, d uint, t uint, l *log.Logger) tea.Cmd {
 		switches = append(switches, "-A", uaccs)
 
 		l.Printf("EXEC: %q %q\n", cmd, switches)
-		out, err := exec.CommandContext(ctx, cmd, switches...).CombinedOutput()
+		out, err := exec.CommandContext(ctx, cmd, switches...).Output()
 		if err != nil {
 			l.Printf("Error exec sacct: %q\n", err)
 			// set error, return.

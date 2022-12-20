@@ -6,9 +6,9 @@ import (
 	"os/exec"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/CLIP-HPC/SlurmCommander/internal/command"
 	"github.com/CLIP-HPC/SlurmCommander/internal/config"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 var (
@@ -26,7 +26,7 @@ func GetSqueue(t time.Time) tea.Msg {
 	var sqJson SqueueJSON
 
 	cmd := cc.Binpaths["squeue"]
-	out, err := exec.Command(cmd, SqueueCmdSwitches...).CombinedOutput()
+	out, err := exec.Command(cmd, SqueueCmdSwitches...).Output()
 	if err != nil {
 		return command.ErrorMsg{
 			From:    "GetSqueue",
