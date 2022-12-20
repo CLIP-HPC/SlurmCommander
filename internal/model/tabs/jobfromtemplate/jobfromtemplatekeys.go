@@ -1,8 +1,8 @@
 package jobfromtemplate
 
 import (
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/CLIP-HPC/SlurmCommander/internal/keybindings"
+	"github.com/charmbracelet/bubbles/key"
 )
 
 type Keys map[*key.Binding]bool
@@ -14,6 +14,7 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.PageUp:        false,
 	&keybindings.DefaultKeyMap.PageDown:      false,
 	&keybindings.DefaultKeyMap.Tab:           true,
+	&keybindings.DefaultKeyMap.ShiftTab:      true,
 	&keybindings.DefaultKeyMap.Slash:         false,
 	&keybindings.DefaultKeyMap.Info:          false,
 	&keybindings.DefaultKeyMap.Enter:         true,
@@ -31,6 +32,7 @@ var EditorKeyMap = Keys{
 	&keybindings.DefaultKeyMap.PageUp:        false,
 	&keybindings.DefaultKeyMap.PageDown:      false,
 	&keybindings.DefaultKeyMap.Tab:           false,
+	&keybindings.DefaultKeyMap.ShiftTab:      false,
 	&keybindings.DefaultKeyMap.Slash:         false,
 	&keybindings.DefaultKeyMap.Info:          false,
 	&keybindings.DefaultKeyMap.Enter:         false,

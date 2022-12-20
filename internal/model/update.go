@@ -7,10 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/textarea"
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/CLIP-HPC/SlurmCommander/internal/command"
 	"github.com/CLIP-HPC/SlurmCommander/internal/keybindings"
 	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/clustertab"
@@ -20,6 +16,10 @@ import (
 	"github.com/CLIP-HPC/SlurmCommander/internal/slurm"
 	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
 	"github.com/CLIP-HPC/SlurmCommander/internal/table"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/textarea"
+	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 type errMsg error
@@ -520,6 +520,31 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, keybindings.DefaultKeyMap.Tab):
 			// switch tab
 			m.ActiveTab = (m.ActiveTab + 1) % uint(len(tabs))
+			// setup keys
+			tabKeys[m.ActiveTab].SetupKeys()
+			m.lastKey = "tab"
+
+			// clear error states
+			m.Globals.ErrorHelp = ""
+			m.Globals.ErrorMsg = nil
+
+			switch m.ActiveTab {
+			case tabJobs:
+				return m, jobtab.TimedGetSqueue(m.Log)
+			case tabCluster:
+				return m, clustertab.TimedGetSinfo(m.Log)
+			default:
+				return m, nil
+			}
+
+		// Shift+TAB
+		case key.Matches(msg, keybindings.DefaultKeyMap.ShiftTab):
+			// switch tab
+			if m.ActiveTab == 0 {
+				m.ActiveTab = uint(len(tabs) - 1)
+			} else {
+				m.ActiveTab -= 1
+			}
 			// setup keys
 			tabKeys[m.ActiveTab].SetupKeys()
 			m.lastKey = "tab"
