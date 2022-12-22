@@ -47,11 +47,12 @@ func (m Model) tabAbout() string {
 
 	s += `
 Petar Jager
-CLIP-HPC @VBC
 
-Contributors:
+A special thank you goes to:
+
 Seren Ümit
 Kilian Cavalotti
+Killian Murphy
 `
 
 	return s
