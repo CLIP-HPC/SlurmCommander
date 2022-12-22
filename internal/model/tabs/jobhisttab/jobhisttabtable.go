@@ -72,6 +72,14 @@ func (saList *SacctJSON) FilterSacctTable(f string, l *log.Logger) (*TableRows, 
 
 	for _, v := range saList.Jobs {
 
+		// https://github.com/CLIP-HPC/SlurmCommander/issues/9
+		// Entry without JobId, log&discard
+		switch {
+		case v.JobId == nil:
+			l.Printf("FilterSacctTable: Found job with no JobId field, skipping...\n")
+			continue
+		}
+
 		line := strings.Join([]string{
 			strconv.Itoa(*v.JobId),
 			*v.Name,
