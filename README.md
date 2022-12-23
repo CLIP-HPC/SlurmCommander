@@ -6,17 +6,49 @@
 SlurmCommander is a simple, lightweight, no-dependencies text-based user interface (TUI) to your cluster.
 It ties together multiple slurm commands to provide you with a simple and efficient interaction point with slurm.
 
-Installation does not require any special privileges or environment. Simply download the [binary](https://github.com/CLIP-HPC/SlurmCommander/releases/latest), fill out a small [config file](./cmd/scom/scom.conf) and it's ready to run.
+[Installation](#installation) does not require any special privileges or environment. Simply download the [binary](https://github.com/CLIP-HPC/SlurmCommander/releases/latest), fill out a small [config file](./cmd/scom/scom.conf) and it's ready to run.
 
 You can view, search, analyze and interact with:
 
-* Job queue - view, search, inspect, ssh to nodes, issue commands to jobs etc.
-* Job history - browse, search and inspect past jobs
-* Edit and submit jobs from predefined templates (can be your own or group/site ones)
-  * In the config file, set the `templatedirs` list of directories where to look for _.sbatch_ templates and their _.desc_ description files
-* Examine state of cluster nodes and partitions
+### Job Queue 
 
-Example Job Queue tab demo:
+Job Queue shows jobs currently in the queue, additional information and breakdowns can be turned on with `s`,`c` and `i` keys:
+![Job Queue main window](./images/jq.png)
+
+`Enter` key opens menu window with different actions available based on the job state (RUNNING, PENDING, etc.)
+![Job Queue actions window](./images/jq_actions.png)
+
+`\` turns on __filtering__. It works by concatenating multiple job columns into a single string, and accepts [golang re2 regular expressions](https://github.com/google/re2/wiki/Syntax) thus allowing you to do some very imaginative filters.
+
+Example: `grid.*alice.\*(RUN|PEND)` =~ _jobs from account grid, user alice, in RUNNING OR PENDING state_
+![Job Queue filtering](./images/jq_filter.png)
+
+### Job history 
+
+Browse, filter and inspect past jobs
+![Job History tab](./images/jh.png)
+
+![Job Details tab](./images/jd.png)
+
+### Edit and submit jobs from predefined templates
+
+* In the config file, set the `templatedirs` list of directories where to look for _.sbatch_ templates and their _.desc_ description files
+
+![Job from Template tab](./images/jft.png)
+![Job from Template tab](./images/jft_edit.png)
+
+### Examine state of cluster nodes and partitions
+
+![Cluster tab](./images/ct.png)
+
+Same as with _Job Queue_ and _Job History_ tabs, filtering is available here.
+![Cluster tab filtering](./images/ct_filter.png)
+
+So if we would like to see only nodes whose name contains _clip-c_ that are _idle_ and _POWERED\_DOWN_, we can easily filter those out with a filter: `clip-c.*idle.\*POWER`
+![Cluster tab filter on](./images/ct_filter_on.png)
+
+
+### Example Job Queue tab demo:
 ![demo](./images/jobqueue.gif)
 
 ## Installation
