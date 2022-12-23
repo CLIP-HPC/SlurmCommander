@@ -99,7 +99,7 @@ func (siJson *SinfoJSON) FilterSinfoTable(f string, l *log.Logger) (*TableRows, 
 
 			// This is how many GPUs are allocated on the node
 			gpuAlloc := slurm.ParseGRES(*v.GresUsed)
-			siTabRows = append(siTabRows, table.Row{*v.Name, strings.Join(*v.Partitions, ","), *v.State, strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.Cpus), strconv.Itoa(*v.FreeMemory), strconv.Itoa(*v.RealMemory), strconv.Itoa(*gpuAvail), strconv.Itoa(*gpuAlloc), strings.Join(*v.StateFlags, ",")})
+			siTabRows = append(siTabRows, table.Row{*v.Name, strings.Join(*v.Partitions, ","), *v.State, strconv.FormatInt(*v.IdleCpus, 10), strconv.Itoa(*v.Cpus), strconv.Itoa(*v.FreeMemory), strconv.Itoa(*v.RealMemory), strconv.Itoa(*gpuAvail - *gpuAlloc), strconv.Itoa(*gpuAvail), strings.Join(*v.StateFlags, ",")})
 			siJsonFiltered.Nodes = append(siJsonFiltered.Nodes, v)
 		}
 	}
