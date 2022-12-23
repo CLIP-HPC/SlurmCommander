@@ -89,6 +89,7 @@ func (siJson *SinfoJSON) FilterSinfoTable(f string, l *log.Logger) (*TableRows, 
 
 		line := strings.Join([]string{
 			*v.Name,
+			strings.Join(*v.Partitions, ","),
 			*v.State,
 			strings.Join(*v.StateFlags, ","),
 		}, ".")
