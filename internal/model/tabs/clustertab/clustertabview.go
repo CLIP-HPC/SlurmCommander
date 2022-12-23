@@ -5,12 +5,12 @@ import (
 	"log"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/progress"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/dustin/go-humanize"
 	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
 	"github.com/CLIP-HPC/SlurmCommander/internal/slurm"
 	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
+	"github.com/charmbracelet/bubbles/progress"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/dustin/go-humanize"
 )
 
 func (ct *ClusterTab) tabCluster() string {
@@ -170,7 +170,7 @@ func (ct *ClusterTab) View(l *log.Logger) string {
 	case ct.FilterOn:
 		// filter
 		FooterWindow.WriteString("\n")
-		FooterWindow.WriteString("Filter value (search in joined: Name + State + StateFlags!):\n")
+		FooterWindow.WriteString("Filter value (search in joined: Name + Partition + State + StateFlags!):\n")
 		FooterWindow.WriteString(fmt.Sprintf("%s\n", ct.Filter.View()))
 		FooterWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported.\n")
 		FooterWindow.WriteString(" Syntax details: https://golang.org/s/re2syntax)\n")
