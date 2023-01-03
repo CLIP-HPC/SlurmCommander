@@ -29,11 +29,18 @@ func main() {
 
 	var (
 		debugSet bool = false
+		args *cmdline.CmdArgs
 	)
 
 	fmt.Printf("Welcome to Slurm Commander!\n\n")
 
-	args, err := cmdline.NewCmdArgs()
+	cc := config.NewConfigContainer()
+	err := cc.GetConfig()
+	if err != nil {
+		log.Printf("ERROR: parsing config files: %s\n", err)
+	}
+
+	args, err = cmdline.NewCmdArgs(cc.HistDays, cc.HistTimeout)
 	if err != nil {
 		log.Fatalf("ERROR: parsing cmdline args: %s\n", err)
 	}
@@ -41,12 +48,6 @@ func main() {
 	if *args.Version {
 		version.DumpVersion()
 		os.Exit(0)
-	}
-
-	cc := config.NewConfigContainer()
-	err = cc.GetConfig()
-	if err != nil {
-		log.Printf("ERROR: parsing config files: %s\n", err)
 	}
 
 	// TODO: JFT We have the CMDline switches and config, now overwrite/append what's changed
