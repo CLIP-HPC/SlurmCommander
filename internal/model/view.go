@@ -53,6 +53,7 @@ A special thank you goes to:
 Seren Ümit
 Kilian Cavalotti
 Killian Murphy
+Hans-Nikolai Vießmann
 `
 
 	return s

@@ -19,6 +19,8 @@ type ConfigContainer struct {
 	Prefix       string            // if this is set, then we prepend this path to all commands
 	Binpaths     map[string]string // else, we specify one by one
 	Tick         uint
+	HistDays     uint
+	HistTimeout  uint
 	TemplateDirs []string
 }
 
@@ -81,6 +83,14 @@ func (cc *ConfigContainer) GetConfig() error {
 	if cc.Tick < defaults.TickMin {
 		// set default Tick
 		cc.Tick = defaults.TickMin
+	}
+	// if unset (==0), set to default
+	if cc.HistDays < 1 {
+	    cc.HistDays = defaults.HistDays
+	}
+	// if unset (==0), set to default
+	if cc.HistTimeout < 1 {
+	    cc.HistTimeout = defaults.HistTimeout
 	}
 	cc.testNsetBinPaths()
 	cc.testNsetTemplateDirs()
