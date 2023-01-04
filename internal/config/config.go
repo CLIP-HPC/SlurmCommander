@@ -32,14 +32,6 @@ func (cc *ConfigContainer) GetTick() time.Duration {
 	return time.Duration(cc.Tick)
 }
 
-func (cc *ConfigContainer) GetHistDays() uint {
-	return cc.HistDays
-}
-
-func (cc *ConfigContainer) GetHistTimeout() uint {
-	return cc.HistTimeout
-}
-
 // Read & unmarshall configuration from 'name' file into configContainer structure
 func (cc *ConfigContainer) GetConfig() error {
 	var (
