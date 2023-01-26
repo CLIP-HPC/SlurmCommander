@@ -633,8 +633,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Refresh the View
 		case key.Matches(msg, keybindings.DefaultKeyMap.Refresh):
-			m.Log.Println ("Refresh View")
-                        // TODO
+			switch m.ActiveTab {
+			case tabJobHist:
+				m.Log.Println ("Refreshing JobHist View")
+				m.JobHistTab.HistFetched = false
+				return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.JobHistTab.JobHistStart, m.JobHistTab.JobHistTimeout, m.Log)
+			}
 			return m, nil
 
 		// Info - toggle on/off
