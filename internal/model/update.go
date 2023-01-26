@@ -631,6 +631,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 
+		// Refresh the View
+		case key.Matches(msg, keybindings.DefaultKeyMap.Refresh):
+			m.Log.Println ("Refresh View")
+                        // TODO
+			return m, nil
+
 		// Info - toggle on/off
 		case key.Matches(msg, keybindings.DefaultKeyMap.Info):
 			m.Log.Println("Toggle InfoBox")
