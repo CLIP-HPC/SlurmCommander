@@ -40,7 +40,7 @@ func main() {
 		log.Printf("ERROR: parsing config files: %s\n", err)
 	}
 
-	args, err = cmdline.NewCmdArgs(cc.HistDays, cc.HistTimeout)
+	args, err = cmdline.NewCmdArgs()
 	if err != nil {
 		log.Fatalf("ERROR: parsing cmdline args: %s\n", err)
 	}
@@ -109,8 +109,8 @@ func main() {
 			Filter:         ti,
 			HistFetched:    false,
 			HistFetchFail:  false,
-			JobHistStart:   *args.HistDays,
-			JobHistTimeout: *args.HistTimeout,
+			JobHistStart:   cc.HistDays,
+			JobHistTimeout: cc.HistTimeout,
 		},
 		JobDetailsTab: jobdetailstab.JobDetailsTab{
 			SelJobIDNew: -1,

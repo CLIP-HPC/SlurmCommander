@@ -27,13 +27,14 @@ type JobHistTabMsg struct {
 	SacctJSON
 }
 
-func GetSacctHist(uaccs string, d uint, t uint, l *log.Logger) tea.Cmd {
+func GetSacctHist(uaccs string, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
 		var (
 			jht JobHistTabMsg
+			// FIXME kludge, should be directly pulled in from JobHistTab struct
+			d uint = cc.HistDays
+			t uint = cc.HistTimeout
 		)
-
-		// TODO: Setup command line switch to pick how many days of sacct to fetch in case of massive runs.
 
 		l.Printf("GetSacctHist(%q) start: days %d, timeout: %d\n", uaccs, d, t)
 
@@ -44,8 +45,7 @@ func GetSacctHist(uaccs string, d uint, t uint, l *log.Logger) tea.Cmd {
 		// prepare command
 		cmd := cc.Binpaths["sacct"]
 		start := fmt.Sprintf("now-%ddays", d)
-		switches := append(SacctHistCmdSwitches, "-S", start)
-		switches = append(switches, "-A", uaccs)
+		switches := append(SacctHistCmdSwitches, "-S", start, "-A", uaccs)
 
 		l.Printf("EXEC: %q %q\n", cmd, switches)
 		out, err := exec.CommandContext(ctx, cmd, switches...).Output()
