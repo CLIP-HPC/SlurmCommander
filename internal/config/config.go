@@ -86,11 +86,11 @@ func (cc *ConfigContainer) GetConfig() error {
 	}
 	// if unset (==0), set to default
 	if cc.HistDays < 1 {
-	    cc.HistDays = defaults.HistDays
+		cc.HistDays = defaults.HistDays
 	}
 	// if unset (==0), set to default
 	if cc.HistTimeout < 1 {
-	    cc.HistTimeout = defaults.HistTimeout
+		cc.HistTimeout = defaults.HistTimeout
 	}
 	cc.testNsetBinPaths()
 	cc.testNsetTemplateDirs()
@@ -134,7 +134,5 @@ func (cc *ConfigContainer) testNsetBinPaths() {
 }
 
 func (cc *ConfigContainer) DumpConfig() string {
-
 	return fmt.Sprintf("Configuration: %#v\n", cc)
-
 }

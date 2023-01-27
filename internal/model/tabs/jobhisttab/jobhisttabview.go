@@ -117,14 +117,22 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 	// Table is always here
 	MainWindow.WriteString(jh.tabJobHist())
 
-	// Next we join table Vertically with: nil || filter || counts
+	// Next we join table Vertically with: nil || filter || params || counts
 	switch {
 	case jh.FilterOn:
-		// filter
 		MainWindow.WriteString("\n")
 		MainWindow.WriteString("Filter value (search in joined: JobID + JobName + QoS + AccountName + UserName + JobState):\n")
 		MainWindow.WriteString(fmt.Sprintf("%s\n", jh.Filter.View()))
 		MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
+
+	case jh.UserInputsOn:
+		MainWindow.WriteString("\n")
+		MainWindow.WriteString(fmt.Sprintf("Current Parameters: days(%d) timeout_s(%d)\n", jh.JobHistStart, jh.JobHistTimeout))
+		for i := range jh.UserInputs.Params {
+			MainWindow.WriteString(fmt.Sprintf("%s: %s\n", jh.UserInputs.ParamTexts[i], jh.UserInputs.Params[i].View()))
+		}
+		MainWindow.WriteString("(Enter to apply, Esc to clear params and abort\n")
+
 	case jh.CountsOn:
 		// Counts on
 		MainWindow.WriteString("\n")

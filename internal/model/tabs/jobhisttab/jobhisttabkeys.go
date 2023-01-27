@@ -15,6 +15,7 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.Slash:    true,
 	&keybindings.DefaultKeyMap.Info:     false,
 	&keybindings.DefaultKeyMap.Refresh:  true,
+	&keybindings.DefaultKeyMap.Params:   true,
 	&keybindings.DefaultKeyMap.Enter:    true,
 	&keybindings.DefaultKeyMap.Stats:    true,
 	&keybindings.DefaultKeyMap.Count:    true,

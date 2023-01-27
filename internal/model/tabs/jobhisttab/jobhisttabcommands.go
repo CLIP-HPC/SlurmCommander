@@ -27,13 +27,12 @@ type JobHistTabMsg struct {
 	SacctJSON
 }
 
-func GetSacctHist(uaccs string, l *log.Logger) tea.Cmd {
+func GetSacctHist(uaccs string, jh JobHistTab, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
 		var (
 			jht JobHistTabMsg
-			// FIXME kludge, should be directly pulled in from JobHistTab struct
-			d uint = cc.HistDays
-			t uint = cc.HistTimeout
+			d uint = jh.JobHistStart
+			t uint = jh.JobHistTimeout
 		)
 
 		l.Printf("GetSacctHist(%q) start: days %d, timeout: %d\n", uaccs, d, t)

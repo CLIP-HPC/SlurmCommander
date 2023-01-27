@@ -8,8 +8,9 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/CLIP-HPC/SlurmCommander/internal/cmdline"
 	"github.com/CLIP-HPC/SlurmCommander/internal/command"
 	"github.com/CLIP-HPC/SlurmCommander/internal/config"
@@ -102,11 +103,12 @@ func main() {
 		},
 		JobTab: jobtab.JobTab{
 			SqueueTable: table.New(table.WithColumns(jobtab.SqueueTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
-			Filter:      ti,
+			Filter: ti,
 		},
 		JobHistTab: jobhisttab.JobHistTab{
 			SacctTable:     table.New(table.WithColumns(jobhisttab.SacctTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
-			Filter:         ti,
+			Filter: ti,
+			UserInputs:     jobhisttab.NewUserInputs(cc.HistDays, cc.HistTimeout),
 			HistFetched:    false,
 			HistFetchFail:  false,
 			JobHistStart:   cc.HistDays,
@@ -127,7 +129,7 @@ func main() {
 		},
 		ClusterTab: clustertab.ClusterTab{
 			SinfoTable: table.New(table.WithColumns(clustertab.SinfoTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
-			Filter:     ti,
+			Filter: ti,
 		},
 	}
 

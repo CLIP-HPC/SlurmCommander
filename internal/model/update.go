@@ -14,11 +14,12 @@ import (
 	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobhisttab"
 	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobtab"
 	"github.com/CLIP-HPC/SlurmCommander/internal/slurm"
+	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
 	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
 	"github.com/CLIP-HPC/SlurmCommander/internal/table"
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -31,12 +32,14 @@ type activeTabType interface {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var (
-		brk              bool = false
-		activeTab        activeTabType
-		activeTable      *table.Model
-		activeFilter     *textinput.Model
-		activeFilterOn   *bool
-		activeJDViewport bool
+		brk                 bool = false
+		activeTab           activeTabType
+		activeTable         *table.Model
+		activeFilter        *textinput.Model
+		activeFilterOn      *bool
+		activeUserInputs    *generic.UserInputs
+		activeUserInputsOn  *bool
+		activeJDViewport    bool
 	)
 
 	// This shortens the testing for table movement keys
@@ -51,6 +54,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		activeTable = &m.JobHistTab.SacctTable
 		activeFilter = &m.JobHistTab.Filter
 		activeFilterOn = &m.JobHistTab.FilterOn
+		activeUserInputs = &m.JobHistTab.UserInputs
+		activeUserInputsOn = &m.JobHistTab.UserInputsOn
 	case tabJobDetails:
 		// here we're in the special situation, we need to pass on keys to viewport
 		activeJDViewport = true
@@ -93,12 +98,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// finish & apply entering filter
 				*activeFilterOn = false
 				brk = true
+
 			case tea.KeyEsc:
 				// abort entering filter
 				*activeFilterOn = false
-				activeFilter.SetValue("")
 				brk = true
 			}
+
 			if brk {
 				// TODO: this is a "fix" for crashing-after-filter when Cursor() goes beyond list end
 				// TODO: don't feel good about this... what if list is empty? no good. revisit
@@ -134,9 +140,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						m.JobHistTab.GetStatsFiltered(m.Log)
 					}
 					return m, nil
+
 				case tabCluster:
 					m.ClusterTab.GetStatsFiltered(m.Log)
 					return m, clustertab.QuickGetSinfo(m.Log)
+
 				default:
 					return m, nil
 				}
@@ -145,6 +153,85 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		tmp, cmd := activeFilter.Update(msg)
 		*activeFilter = tmp
+		return m, cmd
+
+	case activeUserInputsOn != nil && *activeUserInputsOn:
+		m.Log.Printf("UserInputs is ON")
+		switch msg := msg.(type) {
+
+		case tea.KeyMsg:
+			switch msg.Type {
+			// TODO: when filter is set/cleared, trigger refresh with new filtered data
+			case tea.KeyEnter:
+				// finish & apply entering filter
+				*activeUserInputsOn = false
+				brk = true
+
+			case tea.KeyEsc:
+				// abort entering filter
+				*activeUserInputsOn = false
+				brk = true
+
+			case tea.KeyUp, tea.KeyDown:
+				s := msg.String()
+				m.JobHistTab.UserInputs.Params[m.JobHistTab.UserInputs.FocusIndex].Blur()
+
+				if s == "up" {
+					m.JobHistTab.UserInputs.FocusIndex--
+				} else {
+					m.JobHistTab.UserInputs.FocusIndex++
+				}
+
+				if m.JobHistTab.UserInputs.FocusIndex >= len(m.JobHistTab.UserInputs.Params) {
+					m.JobHistTab.UserInputs.FocusIndex = 0
+				} else if m.JobHistTab.UserInputs.FocusIndex < 0 {
+					m.JobHistTab.UserInputs.FocusIndex = len(m.JobHistTab.UserInputs.Params)-1
+				}
+
+				m.JobHistTab.UserInputs.Params[m.JobHistTab.UserInputs.FocusIndex].Focus()
+			}
+
+			if brk {
+				// TODO: this is a "fix" for crashing-after-filter when Cursor() goes beyond list end
+				// TODO: don't feel good about this... what if list is empty? no good. revisit
+				// NOTE: This doesn't do what i image it should, cursor remains -1 when table is empty situation?
+				// Explanation in clamp function: https://github.com/charmbracelet/bubbles/blob/13f52d678d315676568a656b5211b8a24a54a885/table/table.go#L296
+				activeTable.SetCursor(0)
+				activeTab.AdjTableHeight(m.winH, m.Log)
+				//m.Log.Printf("ActiveTable = %v\n", activeTable)
+				m.Log.Printf("Update: Filter set, setcursor(0), activetable.Cursor==%d\n", activeTable.Cursor())
+				switch m.ActiveTab {
+				case tabJobHist:
+					chngd := false
+					val1, _ := strconv.Atoi(m.JobHistTab.UserInputs.Params[0].Value())
+					val2, _ := strconv.Atoi(m.JobHistTab.UserInputs.Params[1].Value())
+					if uint(val1) != m.JobHistTab.JobHistStart {
+						m.JobHistTab.JobHistStart = uint(val1)
+						chngd = true
+					}
+					if uint(val2) != m.JobHistTab.JobHistTimeout {
+						m.JobHistTab.JobHistTimeout = uint(val2)
+						chngd = true
+					}
+
+					if chngd {
+						m.Log.Println ("Refreshing JobHist View")
+						m.JobHistTab.HistFetched = false
+						return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.JobHistTab, m.Log)
+					}
+
+				default:
+					return m, nil
+				}
+			}
+		}
+
+		var tmp textinput.Model
+		var cmd tea.Cmd
+		for i := range m.JobHistTab.UserInputs.Params {
+			tmp, cmd = activeUserInputs.Params[i].Update(msg)
+			*&activeUserInputs.Params[i] = tmp
+		}
 		return m, cmd
 
 	case m.JobTab.MenuOn:
@@ -284,7 +371,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Now we trigger a sacctHist
 		//return m, nil
 		m.Log.Printf("Appended UserAssoc msg go Globals, calling GetSacctHist()\n")
-		return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
+		return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.JobHistTab, m.Log)
 
 	// UserName fetched
 	case command.UserName:
@@ -564,13 +651,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// SLASH
 		case key.Matches(msg, keybindings.DefaultKeyMap.Slash):
-			switch {
-			case m.ActiveTab == tabJobs:
+			switch m.ActiveTab {
+			case tabJobs:
 				m.JobTab.FilterOn = true
-			case m.ActiveTab == tabJobHist:
+			case tabJobHist:
 				m.JobHistTab.FilterOn = true
-			case m.ActiveTab == tabCluster:
+			case tabCluster:
 				m.ClusterTab.FilterOn = true
+			}
+			activeTab.AdjTableHeight(m.winH, m.Log)
+			return m, nil
+
+		// p show UserInput Params
+		case key.Matches(msg, keybindings.DefaultKeyMap.Params):
+			switch m.ActiveTab {
+			case tabJobHist:
+				m.JobHistTab.UserInputsOn = true
 			}
 			activeTab.AdjTableHeight(m.winH, m.Log)
 			return m, nil
@@ -637,7 +733,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case tabJobHist:
 				m.Log.Println ("Refreshing JobHist View")
 				m.JobHistTab.HistFetched = false
-				return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.Log)
+				return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.JobHistTab, m.Log)
 			}
 			return m, nil
 

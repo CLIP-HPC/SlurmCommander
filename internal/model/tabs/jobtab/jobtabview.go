@@ -180,7 +180,7 @@ func (jt *JobTab) View(l *log.Logger) string {
 		// Table always here
 		MainWindow.WriteString(jt.tabJobs())
 
-		// Bellow table stich Filter || Counts
+		// Below table stich Filter || Counts
 		switch {
 		case jt.FilterOn:
 			// filter
