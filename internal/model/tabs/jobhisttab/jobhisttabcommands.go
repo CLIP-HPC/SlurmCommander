@@ -3,6 +3,7 @@ package jobhisttab
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"fmt"
 	"log"
 	"os/exec"
@@ -14,7 +15,7 @@ import (
 )
 
 var (
-	cc                   config.ConfigContainer
+	cc config.ConfigContainer
 	SacctHistCmdSwitches = []string{"-n", "--json"}
 )
 
@@ -43,8 +44,9 @@ func GetSacctHist(uaccs string, jh JobHistTab, l *log.Logger) tea.Cmd {
 
 		// prepare command
 		cmd := cc.Binpaths["sacct"]
-		start := fmt.Sprintf("now-%ddays", d)
-		switches := append(SacctHistCmdSwitches, "-S", start, "-A", uaccs)
+		params := fmt.Sprintf(jh.SacctCmdline, d)
+		switches := append(SacctHistCmdSwitches, "-A", uaccs)
+		switches = append(switches, strings.Fields(params)...)
 
 		l.Printf("EXEC: %q %q\n", cmd, switches)
 		out, err := exec.CommandContext(ctx, cmd, switches...).Output()

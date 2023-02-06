@@ -108,11 +108,12 @@ func main() {
 		JobHistTab: jobhisttab.JobHistTab{
 			SacctTable:     table.New(table.WithColumns(jobhisttab.SacctTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
 			Filter: ti,
-			UserInputs:     jobhisttab.NewUserInputs(cc.HistDays, cc.HistTimeout),
+			UserInputs:     jobhisttab.NewUserInputs(cc.HistDays, cc.HistTimeout, "-S now-%ddays"),
 			HistFetched:    false,
 			HistFetchFail:  false,
 			JobHistStart:   cc.HistDays,
 			JobHistTimeout: cc.HistTimeout,
+			SacctCmdline: "-S now-%ddays",
 		},
 		JobDetailsTab: jobdetailstab.JobDetailsTab{
 			SelJobIDNew: -1,

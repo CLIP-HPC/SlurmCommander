@@ -25,6 +25,7 @@ type JobHistTab struct {
 	SacctHistFiltered SacctJSON
 	Filter            textinput.Model
 	UserInputs        generic.UserInputs
+	SacctCmdline      string // with format specifiers
 	Stats
 	Breakdowns
 }
@@ -49,7 +50,7 @@ type Breakdowns struct {
 	JobPerPart generic.CountItemSlice
 }
 
-func NewUserInputs(d uint, t uint) generic.UserInputs {
+func NewUserInputs(d uint, t uint, cmdline string) generic.UserInputs {
 	var tmp_s string
 	var tmp_t textinput.Model
 
@@ -83,7 +84,7 @@ func NewUserInputs(d uint, t uint) generic.UserInputs {
 
 		case 2:
 		tmp_t.Placeholder = "Cmdline"
-		tmp_t.SetValue("")
+		tmp_t.SetValue(cmdline)
 		tmp_t.CharLimit = 50
 		tmp_t.Width = 50
 		tmp_s = "Cmdline"

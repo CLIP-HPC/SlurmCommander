@@ -205,12 +205,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					chngd := false
 					val1, _ := strconv.Atoi(m.JobHistTab.UserInputs.Params[0].Value())
 					val2, _ := strconv.Atoi(m.JobHistTab.UserInputs.Params[1].Value())
+					val3 := m.JobHistTab.UserInputs.Params[2].Value()
 					if uint(val1) != m.JobHistTab.JobHistStart {
 						m.JobHistTab.JobHistStart = uint(val1)
 						chngd = true
 					}
 					if uint(val2) != m.JobHistTab.JobHistTimeout {
 						m.JobHistTab.JobHistTimeout = uint(val2)
+						chngd = true
+					}
+					if val3 != m.JobHistTab.SacctCmdline {
+						m.JobHistTab.SacctCmdline = val3
 						chngd = true
 					}
 
