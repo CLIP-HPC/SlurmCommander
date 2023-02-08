@@ -15,6 +15,7 @@ type KeyMap struct {
 	Tab           key.Binding
 	ShiftTab      key.Binding
 	Slash         key.Binding
+	TimeRange     key.Binding
 	Params        key.Binding
 	Info          key.Binding
 	Enter         key.Binding
@@ -67,9 +68,13 @@ var DefaultKeyMap = KeyMap{
 		key.WithKeys("r"),
 		key.WithHelp("r", "Refresh View"),
 	),
+	TimeRange: key.NewBinding(
+		key.WithKeys("t"),
+		key.WithHelp("t", "Modify Time Range"),
+	),
 	Params: key.NewBinding(
-		key.WithKeys("p"),
-		key.WithHelp("p", "Modify Parameters"),
+		key.WithKeys("P"),
+		key.WithHelp("P", "Modify Parameters"),
 	),
 	Quit: key.NewBinding(
 		key.WithKeys("q", "ctrl+c"),
@@ -113,6 +118,7 @@ func (km KeyMap) ShortHelp() []key.Binding {
 		km.Stats,
 		km.Count,
 		km.Refresh,
+		km.TimeRange,
 		km.Params,
 		km.Enter,
 		km.Quit,

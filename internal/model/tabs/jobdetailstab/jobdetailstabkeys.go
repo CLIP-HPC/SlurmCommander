@@ -18,6 +18,7 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.Stats:    false,
 	&keybindings.DefaultKeyMap.Count:    false,
 	&keybindings.DefaultKeyMap.Params:   false,
+	&keybindings.DefaultKeyMap.TimeRange:false,
 }
 
 func (k *Keys) SetupKeys() {

@@ -98,9 +98,9 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 	// If sacct timed out/errored, instruct the user to reduce fetch period from default 7 days
 	l.Printf("HistFetch: %t HistFetchFail: %t\n", jh.HistFetched, jh.HistFetchFail)
 	if jh.HistFetchFail {
-		msg := fmt.Sprintf("Fetching jobs history timed out (-t %d seconds), probably too many jobs in the last -d %d days.\n", jh.JobHistTimeout, jh.JobHistStart)
+		msg := fmt.Sprintf("Fetching jobs history timed out (-t %d seconds)\n", jh.JobHistTimeout)
 		Header.WriteString(msg)
-		Header.WriteString("You can reduce the history period with -d N (days) switch, or increase the history fetch timeout with -t N (seconds) switch.\n")
+		Header.WriteString("You can you can modify the time ranges or timeout though the 'time-ranges' menu\n")
 		return Header.String()
 	}
 
@@ -127,7 +127,7 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 
 	case jh.UserInputsOn:
 		MainWindow.WriteString("\n")
-		MainWindow.WriteString(fmt.Sprintf("Current Parameters: days(%d) timeout_s(%d)\n", jh.JobHistStart, jh.JobHistTimeout))
+		MainWindow.WriteString(fmt.Sprintf("Current Parameters: start(%s) end(%s) timeout_s(%d)\n", jh.JobHistStart, jh.JobHistEnd, jh.JobHistTimeout))
 		for i := range jh.UserInputs.Params {
 			MainWindow.WriteString(fmt.Sprintf("%s: %s\n", jh.UserInputs.ParamTexts[i], jh.UserInputs.Params[i].View()))
 		}

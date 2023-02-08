@@ -172,7 +172,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				*activeUserInputsOn = false
 				brk = true
 
-			case tea.KeyUp, tea.KeyDown:
+			case tea.KeyUp, tea.KeyDown, tea.KeyTab:
 				s := msg.String()
 				m.JobHistTab.UserInputs.Params[m.JobHistTab.UserInputs.FocusIndex].Blur()
 
@@ -198,24 +198,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Explanation in clamp function: https://github.com/charmbracelet/bubbles/blob/13f52d678d315676568a656b5211b8a24a54a885/table/table.go#L296
 				activeTable.SetCursor(0)
 				activeTab.AdjTableHeight(m.winH, m.Log)
-				//m.Log.Printf("ActiveTable = %v\n", activeTable)
-				m.Log.Printf("Update: Filter set, setcursor(0), activetable.Cursor==%d\n", activeTable.Cursor())
+				m.Log.Printf("Update: Param set, setcursor(0), activetable.Cursor==%d\n", activeTable.Cursor())
 				switch m.ActiveTab {
 				case tabJobHist:
 					chngd := false
-					val1, _ := strconv.Atoi(m.JobHistTab.UserInputs.Params[0].Value())
-					val2, _ := strconv.Atoi(m.JobHistTab.UserInputs.Params[1].Value())
-					val3 := m.JobHistTab.UserInputs.Params[2].Value()
-					if uint(val1) != m.JobHistTab.JobHistStart {
-						m.JobHistTab.JobHistStart = uint(val1)
+					t, _ := strconv.ParseUint(m.JobHistTab.UserInputs.Params[0].Value(), 10, 32)
+
+					if m.JobHistTab.UserInputs.Params[1].Value() != m.JobHistTab.JobHistStart {
+						m.JobHistTab.JobHistStart = m.JobHistTab.UserInputs.Params[1].Value()
 						chngd = true
 					}
-					if uint(val2) != m.JobHistTab.JobHistTimeout {
-						m.JobHistTab.JobHistTimeout = uint(val2)
+					if m.JobHistTab.UserInputs.Params[2].Value() != m.JobHistTab.JobHistEnd {
+						m.JobHistTab.JobHistEnd = m.JobHistTab.UserInputs.Params[2].Value()
 						chngd = true
 					}
-					if val3 != m.JobHistTab.SacctCmdline {
-						m.JobHistTab.SacctCmdline = val3
+					if uint(t) != m.JobHistTab.JobHistTimeout {
+						m.JobHistTab.JobHistTimeout = uint(t)
 						chngd = true
 					}
 
@@ -667,8 +665,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			activeTab.AdjTableHeight(m.winH, m.Log)
 			return m, nil
 
-		// p show UserInput Params
-		case key.Matches(msg, keybindings.DefaultKeyMap.Params):
+		// t
+		case key.Matches(msg, keybindings.DefaultKeyMap.TimeRange):
 			switch m.ActiveTab {
 			case tabJobHist:
 				m.JobHistTab.UserInputsOn = true

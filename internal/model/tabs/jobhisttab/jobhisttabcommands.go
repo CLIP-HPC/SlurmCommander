@@ -3,8 +3,6 @@ package jobhisttab
 import (
 	"context"
 	"encoding/json"
-	"strings"
-	"fmt"
 	"log"
 	"os/exec"
 	"time"
@@ -32,11 +30,12 @@ func GetSacctHist(uaccs string, jh JobHistTab, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
 		var (
 			jht JobHistTabMsg
-			d uint = jh.JobHistStart
+			start string = jh.JobHistStart
+			end string = jh.JobHistEnd
 			t uint = jh.JobHistTimeout
 		)
 
-		l.Printf("GetSacctHist(%q) start: days %d, timeout: %d\n", uaccs, d, t)
+		l.Printf("GetSacctHist(%q) start: %s, end: %s, timeout: %d\n", uaccs, start, end, t)
 
 		// setup context with 5 second timeout
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(t)*time.Second)
@@ -44,9 +43,8 @@ func GetSacctHist(uaccs string, jh JobHistTab, l *log.Logger) tea.Cmd {
 
 		// prepare command
 		cmd := cc.Binpaths["sacct"]
-		params := fmt.Sprintf(jh.SacctCmdline, d)
-		switches := append(SacctHistCmdSwitches, "-A", uaccs)
-		switches = append(switches, strings.Fields(params)...)
+		// TODO add -E end
+		switches := append(SacctHistCmdSwitches, "-A", uaccs, "-S", start)
 
 		l.Printf("EXEC: %q %q\n", cmd, switches)
 		out, err := exec.CommandContext(ctx, cmd, switches...).Output()

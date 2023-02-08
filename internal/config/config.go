@@ -15,12 +15,17 @@ import (
 	"github.com/CLIP-HPC/SlurmCommander/internal/defaults"
 )
 
+type ConfigJobHistContainer struct {
+	Starttime string
+	Endtime string
+	Timeout uint
+}
+
 type ConfigContainer struct {
 	Prefix       string            // if this is set, then we prepend this path to all commands
 	Binpaths     map[string]string // else, we specify one by one
 	Tick         uint
-	HistDays     uint
-	HistTimeout  uint
+	JobHist      ConfigJobHistContainer
 	TemplateDirs []string
 }
 
@@ -84,13 +89,14 @@ func (cc *ConfigContainer) GetConfig() error {
 		// set default Tick
 		cc.Tick = defaults.TickMin
 	}
-	// if unset (==0), set to default
-	if cc.HistDays < 1 {
-		cc.HistDays = defaults.HistDays
+
+	// if unset, set to default
+	if len(cc.JobHist.Starttime) == 0 {
+		cc.JobHist.Starttime = defaults.HistStart
 	}
 	// if unset (==0), set to default
-	if cc.HistTimeout < 1 {
-		cc.HistTimeout = defaults.HistTimeout
+	if cc.JobHist.Timeout < 1 {
+		cc.JobHist.Timeout = defaults.HistTimeout
 	}
 	cc.testNsetBinPaths()
 	cc.testNsetTemplateDirs()

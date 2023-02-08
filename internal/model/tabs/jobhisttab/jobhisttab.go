@@ -18,14 +18,14 @@ type JobHistTab struct {
 	UserInputsOn      bool // allow user to add/modify parameters for slurm commands
 	HistFetched       bool // signals View() if sacct call is finished, to print "waiting for..." message
 	HistFetchFail     bool // if sacct call times out/errors, this is set to true
-	JobHistStart      uint
+	JobHistStart      string
+	JobHistEnd        string
 	JobHistTimeout    uint
 	SacctTable        table.Model
 	SacctHist         SacctJSON
 	SacctHistFiltered SacctJSON
 	Filter            textinput.Model
 	UserInputs        generic.UserInputs
-	SacctCmdline      string // with format specifiers
 	Stats
 	Breakdowns
 }
@@ -50,7 +50,7 @@ type Breakdowns struct {
 	JobPerPart generic.CountItemSlice
 }
 
-func NewUserInputs(d uint, t uint, cmdline string) generic.UserInputs {
+func NewUserInputs(t uint, starttime string, endtime string) generic.UserInputs {
 	var tmp_s string
 	var tmp_t textinput.Model
 
@@ -68,26 +68,26 @@ func NewUserInputs(d uint, t uint, cmdline string) generic.UserInputs {
 		// FIXME we need to generalise this
 		switch i {
 		case 0:
-		tmp_t.Placeholder = "Days"
-		tmp_t.SetValue(strconv.FormatInt(int64(d), 10))
-		tmp_t.Focus()
-		tmp_t.CharLimit = 30
-		tmp_t.Width = 30
-		tmp_s = "Days"
-
-		case 1:
 		tmp_t.Placeholder = "Timeout (s)"
 		tmp_t.SetValue(strconv.FormatInt(int64(t), 10))
+		tmp_t.Focus()
 		tmp_t.CharLimit = 30
 		tmp_t.Width = 30
 		tmp_s = "Timeout"
 
-		case 2:
-		tmp_t.Placeholder = "Cmdline"
-		tmp_t.SetValue(cmdline)
+		case 1:
+		tmp_t.Placeholder = "Starttime"
+		tmp_t.SetValue(starttime)
 		tmp_t.CharLimit = 50
 		tmp_t.Width = 50
-		tmp_s = "Cmdline"
+		tmp_s = "Starttime"
+
+		case 2:
+		tmp_t.Placeholder = "Endtime"
+		tmp_t.SetValue(endtime)
+		tmp_t.CharLimit = 50
+		tmp_t.Width = 50
+		tmp_s = "Endtime"
 
 		}
 
