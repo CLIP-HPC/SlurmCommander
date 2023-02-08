@@ -106,12 +106,13 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 
 	// Check if history is here, if not, return "Waiting for sacct..."
 	if !jh.HistFetched {
-		Header.WriteString("Waiting for job history...\n")
+		Header.WriteString(fmt.Sprintf("Waiting for job history... Timeout is %d\n", jh.JobHistTimeout))
 		return Header.String()
 	}
 
 	// Top Main
 	Header.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n", jh.Filter.Value(), len(jh.SacctHistFiltered.Jobs)))
+	Header.WriteString(fmt.Sprintf("Start: %10.20s\tEnd: %10.20s\tTimeout: %d\n", jh.JobHistStart, jh.JobHistEnd, jh.JobHistTimeout))
 	Header.WriteString("\n")
 
 	// Table is always here

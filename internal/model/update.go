@@ -735,6 +735,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch m.ActiveTab {
 			case tabJobHist:
 				m.Log.Println ("Refreshing JobHist View")
+				m.JobHistTab.HistFetchFail = false
 				m.JobHistTab.HistFetched = false
 				return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.JobHistTab, m.Log)
 			}
