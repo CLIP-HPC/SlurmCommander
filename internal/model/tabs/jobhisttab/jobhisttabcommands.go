@@ -26,18 +26,15 @@ type JobHistTabMsg struct {
 	SacctJSON
 }
 
-func GetSacctHist(uaccs string, jh JobHistTab, l *log.Logger) tea.Cmd {
+func GetSacctHist(uaccs string, start string, end string, t uint, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
 		var (
 			jht JobHistTabMsg
-			start string = jh.JobHistStart
-			end string = jh.JobHistEnd
-			t uint = jh.JobHistTimeout
 		)
 
 		l.Printf("GetSacctHist(%q) start: %s, end: %s, timeout: %d\n", uaccs, start, end, t)
 
-		// setup context with 5 second timeout
+		// setup context with user set timeout in seconds
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(t)*time.Second)
 		defer cancel()
 

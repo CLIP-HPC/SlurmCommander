@@ -219,7 +219,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if chngd {
 						m.Log.Println ("Refreshing JobHist View")
 						m.JobHistTab.HistFetched = false
-						return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.JobHistTab, m.Log)
+						return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","),
+										m.JobHistTab.JobHistStart,
+										m.JobHistTab.JobHistEnd,
+										m.JobHistTab.JobHistTimeout,
+										m.Log)
 					}
 
 				default:
@@ -372,9 +376,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Globals.UAccounts = append(m.Globals.UAccounts, msg...)
 		m.Log.Printf("Appended UserAssoc msg go Globals, value now: %#v\n", m.Globals.UAccounts)
 		// Now we trigger a sacctHist
-		//return m, nil
-		m.Log.Printf("Appended UserAssoc msg go Globals, calling GetSacctHist()\n")
-		return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.JobHistTab, m.Log)
+		return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","),
+							m.JobHistTab.JobHistStart,
+							m.JobHistTab.JobHistEnd,
+							m.JobHistTab.JobHistTimeout,
+							m.Log)
 
 	// UserName fetched
 	case command.UserName:
@@ -539,7 +545,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if !m.JobHistTab.HistFetchFail {
 			m.JobHistTab.HistFetched = true
 		}
-		// TODO: Here we don't tick refresh, because of potentially long sacct calls, make it manually triggered
+
 		return m, nil
 
 	// Keys pressed
@@ -734,9 +740,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch m.ActiveTab {
 			case tabJobHist:
 				m.Log.Println ("Refreshing JobHist View")
-				m.JobHistTab.HistFetchFail = false
 				m.JobHistTab.HistFetched = false
-				return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.JobHistTab, m.Log)
+				return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","),
+				                                  m.JobHistTab.JobHistStart,
+								  m.JobHistTab.JobHistEnd,
+								  m.JobHistTab.JobHistTimeout,
+								  m.Log)
 			}
 			return m, nil
 
