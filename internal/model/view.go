@@ -98,8 +98,7 @@ func (m Model) View() string {
 		m.Log.Println("Got error")
 		header.WriteString(styles.ErrorHelp.Render(fmt.Sprintf("ERROR: %s", m.Globals.ErrorHelp)))
 	} else {
-		m.Log.Println("Got NO error, insert newline")
-		//header.WriteString("\n")
+		m.Log.Println("Got NO error")
 	}
 
 	// PICK and RENDER ACTIVE TAB

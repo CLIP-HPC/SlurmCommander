@@ -101,7 +101,6 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 		msg := fmt.Sprintf("Fetching jobs history timed out (-t %d seconds)\n", jh.JobHistTimeout)
 		Header.WriteString(msg)
 		Header.WriteString("You can you can modify the time ranges or timeout though the 'time-ranges' menu\n")
-		return Header.String()
 	}
 
 	// Check if history is here, if not, return "Waiting for sacct..."
@@ -116,7 +115,9 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 	Header.WriteString("\n")
 
 	// Table is always here
-	MainWindow.WriteString(jh.tabJobHist())
+	if jh.HistFetched {
+		MainWindow.WriteString(jh.tabJobHist())
+	}
 
 	// Next we join table Vertically with: nil || filter || params || counts
 	switch {
@@ -137,7 +138,11 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 	case jh.CountsOn:
 		// Counts on
 		MainWindow.WriteString("\n")
-		MainWindow.WriteString(styles.JobInfoBox.Render(jh.getJobHistCounts()))
+		if jh.HistFetched {
+			MainWindow.WriteString(styles.JobInfoBox.Render(jh.getJobHistCounts()))
+		} else {
+			MainWindow.WriteString("History data missing, please refresh window!")
+		}
 	}
 
 	// Last, if needed we join Stats Horizontally with Main

@@ -5,7 +5,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/CLIP-HPC/SlurmCommander/internal/command"
 	"github.com/CLIP-HPC/SlurmCommander/internal/keybindings"
@@ -322,6 +321,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case tea.KeyCtrlC:
 				return m, tea.Quit
+
 			default:
 				if !m.TemplateEditor.Focused() {
 					cmd = m.TemplateEditor.Focus()
@@ -570,10 +570,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// DOWN
 		case key.Matches(msg, keybindings.DefaultKeyMap.Down):
-			t := time.Now()
-			m.Log.Printf("Update: Move down\n")
 			activeTable.MoveDown(1)
-			m.Log.Printf("Update: Move down finished in: %.3f sec\n", time.Since(t).Seconds())
 			m.lastKey = "down"
 
 		// PAGE DOWN
@@ -654,6 +651,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// SLASH
 		case key.Matches(msg, keybindings.DefaultKeyMap.Slash):
+			m.Log.Printf("Filter key pressed\n")
 			switch m.ActiveTab {
 			case tabJobs:
 				m.JobTab.FilterOn = true
@@ -667,6 +665,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// t
 		case key.Matches(msg, keybindings.DefaultKeyMap.TimeRange):
+			m.Log.Printf("time-range key pressed\n")
 			switch m.ActiveTab {
 			case tabJobHist:
 				m.JobHistTab.UserInputsOn = true
@@ -783,7 +782,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// QUIT
 		case key.Matches(msg, keybindings.DefaultKeyMap.Quit):
-			fmt.Println("Quit key pressed")
+			m.Log.Printf("Quit key pressed\n")
 			return m, tea.Quit
 		}
 	}
