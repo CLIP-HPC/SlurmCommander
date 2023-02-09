@@ -4,11 +4,11 @@ import (
 	"log"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/progress"
-	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
 	"github.com/CLIP-HPC/SlurmCommander/internal/slurm"
 	"github.com/CLIP-HPC/SlurmCommander/internal/table"
+	"github.com/charmbracelet/bubbles/progress"
+	"github.com/charmbracelet/bubbles/textinput"
 )
 
 type ClusterTab struct {
@@ -89,6 +89,7 @@ func (t *ClusterTab) GetStatsFiltered(l *log.Logger) {
 			mpp[p].Name = p
 			mpp[p].Count += uint(*v.AllocMemory)
 			mpp[p].Total += uint(*v.RealMemory)
+
 			gpp[p].Name = p
 			gpp[p].Count += uint(*slurm.ParseGRES(*v.GresUsed))
 			gpp[p].Total += uint(*slurm.ParseGRES(*v.Gres))
