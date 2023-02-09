@@ -3,6 +3,7 @@ package clustertab
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 
 	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
@@ -34,6 +35,7 @@ func (ct *ClusterTab) tabClusterBars(l *log.Logger) string {
 		gpuAvail slurm.GresMap      = make(slurm.GresMap)
 		gpuPerc  map[string]float64 = make(map[string]float64)
 		gpuList  string
+		gpuSlice []string = make([]string, 0)
 	)
 
 	sel := ct.SinfoTable.Cursor()
@@ -62,8 +64,13 @@ func (ct *ClusterTab) tabClusterBars(l *log.Logger) string {
 	memr := lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("MEM used/total: %d/%d", memUsed, memAvail), ct.MemBar.ViewAs(memPerc))
 	scr += lipgloss.JoinVertical(lipgloss.Top, cpur, memr)
 
+	for k := range gpuAvail {
+		gpuSlice = append(gpuSlice, k)
+	}
+	sort.Strings(gpuSlice)
+
 	if len(gpuAvail) > 0 {
-		for k := range gpuAvail {
+		for _, k := range gpuSlice {
 			// TODO: this adds one additional newline at the top bringing gpus down... find the fix
 			//gpuList = lipgloss.JoinVertical(lipgloss.Left, gpuList, fmt.Sprintf("GPU %s used/total: %d/%d", k, gpuUsed[k], gpuAvail[k]), ct.GpuBar.ViewAs(gpuPerc[k]))
 			gpuList += fmt.Sprintf("GPU %s used/total: %d/%d\n", k, gpuUsed[k], gpuAvail[k]) + ct.GpuBar.ViewAs(gpuPerc[k]) + "\n"
