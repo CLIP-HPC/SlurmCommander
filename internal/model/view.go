@@ -46,14 +46,16 @@ func (m Model) tabAbout() string {
 	s += "Commit : " + version.BuildCommit + "\n"
 
 	s += `
+
+A special thank you goes to our code-crafters, bug-hunters, idea-pitchers:
+(in order of appearance)
+
 Petar Jager
-
-A special thank you goes to:
-
 Seren Ümit
 Kilian Cavalotti
 Killian Murphy
 Hans-Nikolai Vießmann
+github.com/reedacus25
 `
 
 	return s

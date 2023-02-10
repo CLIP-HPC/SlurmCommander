@@ -47,7 +47,7 @@ func ParseGRESAll(line string) *GresMap {
 		matches := gpuGresPattern.FindStringSubmatch(g)
 		if len(matches) == 3 {
 			v, _ := strconv.Atoi(matches[2])
-			gmap[matches[1]] += v
+			gmap[strings.Trim(matches[1], ":")] += v
 		}
 	}
 
