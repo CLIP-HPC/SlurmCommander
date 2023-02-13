@@ -2,6 +2,7 @@ package jobhisttab
 
 import (
 	"context"
+	"strings"
 	"encoding/json"
 	"log"
 	"os/exec"
@@ -40,8 +41,13 @@ func GetSacctHist(uaccs string, start string, end string, t uint, l *log.Logger)
 
 		// prepare command
 		cmd := cc.Binpaths["sacct"]
-		// TODO add -E end
-		switches := append(SacctHistCmdSwitches, "-A", uaccs, "-S", start)
+		switches := append(SacctHistCmdSwitches, "-A", uaccs)
+		if strings.TrimSpace(start) != "" {
+			switches = append(switches, "-S", start)
+		}
+		if strings.TrimSpace(end) != "" {
+			switches = append(switches, "-E", end)
+		}
 
 		l.Printf("EXEC: %q %q\n", cmd, switches)
 		out, err := exec.CommandContext(ctx, cmd, switches...).Output()
@@ -56,14 +62,12 @@ func GetSacctHist(uaccs string, start string, end string, t uint, l *log.Logger)
 
 		err = json.Unmarshal(out, &jht.SacctJSON)
 		if err != nil {
-			//jht.HistFetchFail = true
 			l.Printf("Error unmarshall: %q\n", err)
 			return command.ErrorMsg{
 				From:    "GetSacctHist",
 				ErrHelp: "sacct JSON failed to parse, note your slurm version and open an issue with us here: https://github.com/CLIP-HPC/SlurmCommander/issues/new/choose",
 				OrigErr: err,
 			}
-			//return jht
 		}
 
 		jht.HistFetchFail = false
