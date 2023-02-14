@@ -23,8 +23,6 @@ var KeyMap = Keys{
 	&keybindings.DefaultKeyMap.Escape:        false,
 	&keybindings.DefaultKeyMap.Stats:         false,
 	&keybindings.DefaultKeyMap.Count:         false,
-	&keybindings.DefaultKeyMap.Params:        false,
-	&keybindings.DefaultKeyMap.TimeRange:     false,
 }
 
 var EditorKeyMap = Keys{
@@ -43,8 +41,6 @@ var EditorKeyMap = Keys{
 	&keybindings.DefaultKeyMap.Escape:        true,
 	&keybindings.DefaultKeyMap.Stats:         false,
 	&keybindings.DefaultKeyMap.Count:         false,
-	&keybindings.DefaultKeyMap.Params:        false,
-	&keybindings.DefaultKeyMap.TimeRange:     false,
 }
 
 func (k *Keys) SetupKeys() {
