@@ -300,6 +300,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch msg.Type {
 			case tea.KeyEsc:
 				m.EditTemplate = false
+				jobfromtemplate.EditorKeyMap.DisableKeys()
 				tabKeys[m.ActiveTab].SetupKeys()
 				//if m.TemplateEditor.Focused() {
 				//	m.TemplateEditor.Blur()
@@ -315,6 +316,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// 4. Submit job
 				m.Log.Printf("EditTemplate: Ctrl+s pressed\n")
 				m.EditTemplate = false
+				jobfromtemplate.EditorKeyMap.DisableKeys()
 				tabKeys[m.ActiveTab].SetupKeys()
 				name, err := jobfromtemplate.SaveToFile(m.JobFromTemplateTab.TemplatesTable.SelectedRow()[0], m.JobFromTemplateTab.TemplateEditor.Value(), m.Log)
 				if err != nil {
@@ -423,6 +425,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case jobfromtemplate.TemplateText:
 		m.Log.Printf("Update: Got TemplateText msg: %#v\n", msg)
 		// HERE: we initialize the new textarea editor and flip the EditTemplate switch to ON
+		tabKeys[m.ActiveTab].DisableKeys()
 		jobfromtemplate.EditorKeyMap.SetupKeys()
 		m.EditTemplate = true
 		m.TemplateEditor = textarea.New()
@@ -592,6 +595,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// 1..6 Tab Selection keys
 		case key.Matches(msg, keybindings.DefaultKeyMap.TtabSel):
 			k, _ := strconv.Atoi(msg.String())
+			tabKeys[m.ActiveTab].DisableKeys()
 			m.ActiveTab = uint(k) - 1
 			tabKeys[m.ActiveTab].SetupKeys()
 			m.lastKey = msg.String()
@@ -611,6 +615,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// TAB
 		case key.Matches(msg, keybindings.DefaultKeyMap.Tab):
+			tabKeys[m.ActiveTab].DisableKeys()
 			// switch tab
 			m.ActiveTab = (m.ActiveTab + 1) % uint(len(tabs))
 			// setup keys
@@ -632,6 +637,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Shift+TAB
 		case key.Matches(msg, keybindings.DefaultKeyMap.ShiftTab):
+			tabKeys[m.ActiveTab].DisableKeys()
 			// switch tab
 			if m.ActiveTab == 0 {
 				m.ActiveTab = uint(len(tabs) - 1)
@@ -713,6 +719,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.Log.Printf("Update ENTER key @ jobhist table, no jobs selected/empty table\n")
 					return m, nil
 				}
+				tabKeys[m.ActiveTab].DisableKeys()
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
 				m.JobDetailsTab.SelJobIDNew = n

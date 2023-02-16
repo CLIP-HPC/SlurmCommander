@@ -5,22 +5,23 @@ import (
 	"github.com/CLIP-HPC/SlurmCommander/internal/keybindings"
 )
 
-type Keys map[*key.Binding]bool
+type Keys []*key.Binding
 
 var KeyMap = Keys{
-	&keybindings.DefaultKeyMap.Up:       true,
-	&keybindings.DefaultKeyMap.Down:     true,
-	&keybindings.DefaultKeyMap.PageUp:   true,
-	&keybindings.DefaultKeyMap.PageDown: true,
-	&keybindings.DefaultKeyMap.Slash:    false,
-	&keybindings.DefaultKeyMap.Info:     false,
-	&keybindings.DefaultKeyMap.Enter:    false,
-	&keybindings.DefaultKeyMap.Stats:    false,
-	&keybindings.DefaultKeyMap.Count:    false,
+	&keybindings.DefaultKeyMap.Up,
+	&keybindings.DefaultKeyMap.Down,
+	&keybindings.DefaultKeyMap.PageUp,
+	&keybindings.DefaultKeyMap.PageDown,
 }
 
-func (k *Keys) SetupKeys() {
-	for k, v := range KeyMap {
-		k.SetEnabled(v)
+func (ky *Keys) SetupKeys() {
+	for _, k := range *ky {
+		k.SetEnabled(true)
+	}
+}
+
+func (ky *Keys) DisableKeys() {
+	for _, k := range *ky {
+		k.SetEnabled(false)
 	}
 }
