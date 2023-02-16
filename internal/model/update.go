@@ -101,6 +101,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case tea.KeyEsc:
 				// abort entering filter
 				*activeFilterOn = false
+				activeFilter.SetValue("")
 				brk = true
 			}
 
