@@ -451,7 +451,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// TODO: set also maxheight/width here on change?
 		styles.MainWindow = styles.MainWindow.Height(m.winH - 10)
 		styles.MainWindow = styles.MainWindow.Width(m.winW - 15)
-		styles.HelpWindow = styles.HelpWindow.Width(m.winW - 15)
+		styles.HelpWindow = styles.HelpWindow.Width(m.winW)
 		styles.JobStepBoxStyle = styles.JobStepBoxStyle.Width(m.winW - 20)
 		// InfoBox
 		w := ((m.Globals.winW - 25) / 3) * 3

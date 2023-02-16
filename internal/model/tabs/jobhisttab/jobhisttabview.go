@@ -95,10 +95,6 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 		MainWindow strings.Builder
 	)
 
-	// Show parameters to the user
-	heading := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FAFAFA")).Background(lipgloss.Color("#37ABBF")).Width(12).PaddingLeft(1).PaddingRight(1).Align(lipgloss.Right)
-	Header.WriteString(fmt.Sprintf("%s Start: %10.20s\tEnd: %10.20s\tTimeout: %d\n", heading.Render("Parameters"), jh.JobHistStart, jh.JobHistEnd, jh.JobHistTimeout))
-
 	// If sacct timed out/errored, instruct the user to reduce fetch period from default 7 days
 	l.Printf("HistFetch: %t HistFetchFail: %t\n", jh.HistFetched, jh.HistFetchFail)
 	if jh.HistFetchFail {
@@ -108,13 +104,14 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 
 	// Check if history is here, if not, return "Waiting for sacct..."
 	if !jh.HistFetchFail && !jh.HistFetched {
-		Header.WriteString("Waiting for job history...\n")
+		Header.WriteString(fmt.Sprintf("Waiting for job history...(%d seconds timeout)\n", jh.JobHistTimeout))
 		return Header.String()
 	}
 
 	if !jh.HistFetchFail {
-		// Rest of header
-		Header.WriteString(fmt.Sprintf("%s Query: %10.20s\tItems: %d\n", heading.Render("Filter"), jh.Filter.Value(), len(jh.SacctHistFiltered.Jobs)))
+		// Show parameters to the user
+		Header.WriteString(fmt.Sprintf("%s Start: %10.20s\tEnd: %10.20s\tTimeout: %d\n", styles.TextYellowOnBlue.Render("Parameters"), jh.JobHistStart, jh.JobHistEnd, jh.JobHistTimeout))
+		Header.WriteString(fmt.Sprintf("    %s Query: %10.20s\tItems: %d\n", styles.TextYellowOnBlue.Render("Filter"), jh.Filter.Value(), len(jh.SacctHistFiltered.Jobs)))
 		Header.WriteString("\n")
 
 		// Top Main

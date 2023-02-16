@@ -101,9 +101,9 @@ func NewUserInputs(t uint, starttime string, endtime string) generic.UserInputs 
 func (t *JobHistTab) AdjTableHeight(h int, l *log.Logger) {
 	l.Printf("FixTableHeight(%d) from %d\n", h, t.SacctTable.Height())
 	if t.CountsOn || t.FilterOn || t.UserInputsOn {
-		t.SacctTable.SetHeight(h - 30)
+		t.SacctTable.SetHeight(h - 31)
 	} else {
-		t.SacctTable.SetHeight(h - 15)
+		t.SacctTable.SetHeight(h - 16)
 	}
 	l.Printf("FixTableHeight to %d\n", t.SacctTable.Height())
 }
