@@ -25,9 +25,31 @@ func ParseGRES(line string) *int {
 
 		matches := gpuGresPattern.FindStringSubmatch(g)
 		if len(matches) == 3 {
-			value, _ = strconv.Atoi(matches[2])
+			v, _ := strconv.Atoi(matches[2])
+			value += v
 		}
 	}
 
 	return &value
+}
+
+type GresMap map[string]int
+
+func ParseGRESAll(line string) *GresMap {
+	var gmap GresMap = make(GresMap)
+
+	gres := strings.Split(line, ",")
+	for _, g := range gres {
+		if !strings.HasPrefix(g, "gpu:") {
+			continue
+		}
+
+		matches := gpuGresPattern.FindStringSubmatch(g)
+		if len(matches) == 3 {
+			v, _ := strconv.Atoi(matches[2])
+			gmap[strings.Trim(matches[1], ":")] += v
+		}
+	}
+
+	return &gmap
 }

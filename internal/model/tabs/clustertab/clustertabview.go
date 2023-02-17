@@ -3,6 +3,7 @@ package clustertab
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 
 	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
@@ -29,9 +30,12 @@ func (ct *ClusterTab) tabClusterBars(l *log.Logger) string {
 		memPerc  float64 = 0
 		memUsed  int64   = 0
 		memAvail int     = 0
-		gpuPerc  float64 = 0
-		gpuUsed  int     = 0
-		gpuAvail int     = 0
+		//gpuPerc  float64 = 0
+		gpuUsed  slurm.GresMap      = make(slurm.GresMap)
+		gpuAvail slurm.GresMap      = make(slurm.GresMap)
+		gpuPerc  map[string]float64 = make(map[string]float64)
+		gpuList  string
+		gpuSlice []string = make([]string, 0)
 	)
 
 	sel := ct.SinfoTable.Cursor()
@@ -47,18 +51,31 @@ func (ct *ClusterTab) tabClusterBars(l *log.Logger) string {
 		memUsed = *ct.SinfoFiltered.Nodes[sel].AllocMemory
 		memAvail = *ct.SinfoFiltered.Nodes[sel].RealMemory
 		memPerc = float64(memUsed) / float64(memAvail)
-		gpuAvail = *slurm.ParseGRES(*ct.SinfoFiltered.Nodes[sel].Gres)
-		gpuUsed = *slurm.ParseGRES(*ct.SinfoFiltered.Nodes[sel].GresUsed)
-		if gpuAvail > 0 {
-			gpuPerc = float64(gpuUsed) / float64(gpuAvail)
+
+		gpuAvail = *slurm.ParseGRESAll(*ct.SinfoFiltered.Nodes[sel].Gres)
+		gpuUsed = *slurm.ParseGRESAll(*ct.SinfoFiltered.Nodes[sel].GresUsed)
+		if len(gpuAvail) > 0 {
+			for k, _ := range gpuAvail {
+				gpuPerc[k] = float64(gpuUsed[k]) / float64(gpuAvail[k])
+			}
 		}
 	}
 	cpur := lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("CPU used/total: %d/%d", cpuUsed, cpuAvail), ct.CpuBar.ViewAs(cpuPerc))
 	memr := lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("MEM used/total: %d/%d", memUsed, memAvail), ct.MemBar.ViewAs(memPerc))
 	scr += lipgloss.JoinVertical(lipgloss.Top, cpur, memr)
-	if gpuAvail > 0 {
-		gpur := lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("GPU used/total: %d/%d", gpuUsed, gpuAvail), ct.GpuBar.ViewAs(gpuPerc))
-		scr = lipgloss.JoinHorizontal(lipgloss.Top, scr, fmt.Sprintf("%4s", ""), gpur)
+
+	for k := range gpuAvail {
+		gpuSlice = append(gpuSlice, k)
+	}
+	sort.Strings(gpuSlice)
+
+	if len(gpuAvail) > 0 {
+		for _, k := range gpuSlice {
+			// TODO: this adds one additional newline at the top bringing gpus down... find the fix
+			//gpuList = lipgloss.JoinVertical(lipgloss.Left, gpuList, fmt.Sprintf("GPU %s used/total: %d/%d", k, gpuUsed[k], gpuAvail[k]), ct.GpuBar.ViewAs(gpuPerc[k]))
+			gpuList += fmt.Sprintf("GPU %q used/total: %d/%d\n", k, gpuUsed[k], gpuAvail[k]) + ct.GpuBar.ViewAs(gpuPerc[k]) + "\n"
+		}
+		scr = lipgloss.JoinHorizontal(lipgloss.Top, scr, fmt.Sprintf("%4s", ""), gpuList[:len(gpuList)-1])
 	}
 	scr += "\n\n"
 	return scr
