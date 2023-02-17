@@ -3,6 +3,7 @@ package jobhisttab
 import (
 	"log"
 	"time"
+	"strconv"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
@@ -14,14 +15,17 @@ type JobHistTab struct {
 	StatsOn           bool
 	CountsOn          bool
 	FilterOn          bool
+	UserInputsOn      bool // allow user to add/modify parameters for slurm commands
 	HistFetched       bool // signals View() if sacct call is finished, to print "waiting for..." message
 	HistFetchFail     bool // if sacct call times out/errors, this is set to true
-	JobHistStart      uint
+	JobHistStart      string
+	JobHistEnd        string
 	JobHistTimeout    uint
 	SacctTable        table.Model
 	SacctHist         SacctJSON
 	SacctHistFiltered SacctJSON
 	Filter            textinput.Model
+	UserInputs        generic.UserInputs
 	Stats
 	Breakdowns
 }
@@ -46,12 +50,60 @@ type Breakdowns struct {
 	JobPerPart generic.CountItemSlice
 }
 
+func NewUserInputs(t uint, starttime string, endtime string) generic.UserInputs {
+	var tmp_s string
+	var tmp_t textinput.Model
+
+	// User Input (for modifying the table/view)
+	userinput := generic.UserInputs {
+		FocusIndex: 0,
+		ParamTexts: make([]string, 3),
+		Params: make([]textinput.Model, 3),
+	}
+
+	// TODO: we should probably think of encapsulating this
+	for i := range userinput.Params {
+		tmp_t = textinput.New()
+
+		// FIXME we need to generalise this
+		switch i {
+		case 0:
+		tmp_t.Placeholder = "Timeout (s)"
+		tmp_t.SetValue(strconv.FormatInt(int64(t), 10))
+		tmp_t.Focus()
+		tmp_t.CharLimit = 30
+		tmp_t.Width = 30
+		tmp_s = "Timeout"
+
+		case 1:
+		tmp_t.Placeholder = "Starttime"
+		tmp_t.SetValue(starttime)
+		tmp_t.CharLimit = 50
+		tmp_t.Width = 50
+		tmp_s = "Starttime"
+
+		case 2:
+		tmp_t.Placeholder = "Endtime"
+		tmp_t.SetValue(endtime)
+		tmp_t.CharLimit = 50
+		tmp_t.Width = 50
+		tmp_s = "Endtime"
+
+		}
+
+		userinput.Params[i] = tmp_t
+		userinput.ParamTexts[i] = tmp_s
+	}
+
+	return userinput
+}
+
 func (t *JobHistTab) AdjTableHeight(h int, l *log.Logger) {
 	l.Printf("FixTableHeight(%d) from %d\n", h, t.SacctTable.Height())
-	if t.CountsOn || t.FilterOn {
-		t.SacctTable.SetHeight(h - 30)
+	if t.CountsOn || t.FilterOn || t.UserInputsOn {
+		t.SacctTable.SetHeight(h - 31)
 	} else {
-		t.SacctTable.SetHeight(h - 15)
+		t.SacctTable.SetHeight(h - 16)
 	}
 	l.Printf("FixTableHeight to %d\n", t.SacctTable.Height())
 }

@@ -34,6 +34,7 @@ var tabs = []string{
 
 type ActiveTabKeys interface {
 	SetupKeys()
+	DisableKeys()
 }
 
 var tabKeys = []ActiveTabKeys{

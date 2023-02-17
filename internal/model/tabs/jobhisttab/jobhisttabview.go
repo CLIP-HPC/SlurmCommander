@@ -98,33 +98,44 @@ func (jh *JobHistTab) View(l *log.Logger) string {
 	// If sacct timed out/errored, instruct the user to reduce fetch period from default 7 days
 	l.Printf("HistFetch: %t HistFetchFail: %t\n", jh.HistFetched, jh.HistFetchFail)
 	if jh.HistFetchFail {
-		msg := fmt.Sprintf("Fetching jobs history timed out (-t %d seconds), probably too many jobs in the last -d %d days.\n", jh.JobHistTimeout, jh.JobHistStart)
-		Header.WriteString(msg)
-		Header.WriteString("You can reduce the history period with -d N (days) switch, or increase the history fetch timeout with -t N (seconds) switch.\n")
-		return Header.String()
+		Header.WriteString(fmt.Sprintf("Fetching jobs history failed! Maybe the timed out was too short(%d seconds)? See the returned error message:\n", jh.JobHistTimeout))
+		Header.WriteString("You can you can modify the time ranges or timeout using the 'time-ranges' menu\n")
 	}
 
 	// Check if history is here, if not, return "Waiting for sacct..."
-	if !jh.HistFetched {
-		Header.WriteString("Waiting for job history...\n")
+	if !jh.HistFetchFail && !jh.HistFetched {
+		Header.WriteString(fmt.Sprintf("Waiting for job history...(%d seconds timeout)\n", jh.JobHistTimeout))
 		return Header.String()
 	}
 
-	// Top Main
-	Header.WriteString(fmt.Sprintf("Filter: %10.20s\tItems: %d\n", jh.Filter.Value(), len(jh.SacctHistFiltered.Jobs)))
-	Header.WriteString("\n")
+	if !jh.HistFetchFail {
+		// Show parameters to the user
+		Header.WriteString(fmt.Sprintf("%s Start: %10.20s\tEnd: %10.20s\tTimeout: %d\n", styles.TextYellowOnBlue.Render("Parameters"), jh.JobHistStart, jh.JobHistEnd, jh.JobHistTimeout))
+		Header.WriteString(fmt.Sprintf("    %s Query: %10.20s\tItems: %d\n", styles.TextYellowOnBlue.Render("Filter"), jh.Filter.Value(), len(jh.SacctHistFiltered.Jobs)))
+		Header.WriteString("\n")
 
-	// Table is always here
-	MainWindow.WriteString(jh.tabJobHist())
+		// Top Main
+		MainWindow.WriteString(jh.tabJobHist())
+	} else {
+		MainWindow.WriteString("\n")
+	}
 
-	// Next we join table Vertically with: nil || filter || counts
+	// Next we join table Vertically with: nil || filter || params || counts
 	switch {
 	case jh.FilterOn:
-		// filter
 		MainWindow.WriteString("\n")
 		MainWindow.WriteString("Filter value (search in joined: JobID + JobName + QoS + AccountName + UserName + JobState):\n")
 		MainWindow.WriteString(fmt.Sprintf("%s\n", jh.Filter.View()))
 		MainWindow.WriteString("(Enter to apply, Esc to clear filter and abort, Regular expressions supported, syntax details: https://golang.org/s/re2syntax)\n")
+
+	case jh.UserInputsOn:
+		MainWindow.WriteString("\n")
+		MainWindow.WriteString(fmt.Sprintf("Command Parameters:\n"))
+		for i := range jh.UserInputs.Params {
+			MainWindow.WriteString(fmt.Sprintf("%s: %s\n", jh.UserInputs.ParamTexts[i], jh.UserInputs.Params[i].View()))
+		}
+		MainWindow.WriteString("(Enter to apply, or Esc to clear params and abort)\n")
+
 	case jh.CountsOn:
 		// Counts on
 		MainWindow.WriteString("\n")

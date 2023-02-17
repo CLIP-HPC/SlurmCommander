@@ -65,7 +65,7 @@ func (m *Model) genTabHelp() string {
 	case tabJobs:
 		th = "List of jobs in the queue"
 	case tabJobHist:
-		th = fmt.Sprintf("List of jobs in the last %d days from all user associated accounts. (timeout: %d seconds)", m.JobHistTab.JobHistStart, m.JobHistTab.JobHistTimeout)
+		th = "List of jobs from all user associated accounts"
 	case tabJobDetails:
 		th = "Job details, select a job from Job History tab"
 	case tabJobFromTemplate:
@@ -98,8 +98,7 @@ func (m Model) View() string {
 		m.Log.Println("Got error")
 		header.WriteString(styles.ErrorHelp.Render(fmt.Sprintf("ERROR: %s", m.Globals.ErrorHelp)))
 	} else {
-		m.Log.Println("Got NO error, insert newline")
-		//header.WriteString("\n")
+		m.Log.Println("Got NO error")
 	}
 
 	// PICK and RENDER ACTIVE TAB

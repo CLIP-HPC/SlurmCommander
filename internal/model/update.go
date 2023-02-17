@@ -5,7 +5,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/CLIP-HPC/SlurmCommander/internal/command"
 	"github.com/CLIP-HPC/SlurmCommander/internal/keybindings"
@@ -14,11 +13,12 @@ import (
 	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobhisttab"
 	"github.com/CLIP-HPC/SlurmCommander/internal/model/tabs/jobtab"
 	"github.com/CLIP-HPC/SlurmCommander/internal/slurm"
+	"github.com/CLIP-HPC/SlurmCommander/internal/generic"
 	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
 	"github.com/CLIP-HPC/SlurmCommander/internal/table"
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -31,12 +31,14 @@ type activeTabType interface {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var (
-		brk              bool = false
-		activeTab        activeTabType
-		activeTable      *table.Model
-		activeFilter     *textinput.Model
-		activeFilterOn   *bool
-		activeJDViewport bool
+		brk                 bool = false
+		activeTab           activeTabType
+		activeTable         *table.Model
+		activeFilter        *textinput.Model
+		activeFilterOn      *bool
+		activeUserInputs    *generic.UserInputs
+		activeUserInputsOn  *bool
+		activeJDViewport    bool
 	)
 
 	// This shortens the testing for table movement keys
@@ -51,6 +53,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		activeTable = &m.JobHistTab.SacctTable
 		activeFilter = &m.JobHistTab.Filter
 		activeFilterOn = &m.JobHistTab.FilterOn
+		activeUserInputs = &m.JobHistTab.UserInputs
+		activeUserInputsOn = &m.JobHistTab.UserInputsOn
 	case tabJobDetails:
 		// here we're in the special situation, we need to pass on keys to viewport
 		activeJDViewport = true
@@ -93,12 +97,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// finish & apply entering filter
 				*activeFilterOn = false
 				brk = true
+
 			case tea.KeyEsc:
 				// abort entering filter
 				*activeFilterOn = false
 				activeFilter.SetValue("")
 				brk = true
 			}
+
 			if brk {
 				// TODO: this is a "fix" for crashing-after-filter when Cursor() goes beyond list end
 				// TODO: don't feel good about this... what if list is empty? no good. revisit
@@ -134,9 +140,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						m.JobHistTab.GetStatsFiltered(m.Log)
 					}
 					return m, nil
+
 				case tabCluster:
 					m.ClusterTab.GetStatsFiltered(m.Log)
 					return m, clustertab.QuickGetSinfo(m.Log)
+
 				default:
 					return m, nil
 				}
@@ -145,6 +153,92 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		tmp, cmd := activeFilter.Update(msg)
 		*activeFilter = tmp
+		return m, cmd
+
+	case activeUserInputsOn != nil && *activeUserInputsOn:
+		m.Log.Printf("UserInputs is ON")
+		switch msg := msg.(type) {
+
+		case tea.KeyMsg:
+			switch msg.Type {
+			// TODO: when filter is set/cleared, trigger refresh with new filtered data
+			case tea.KeyEnter:
+				// finish & apply entering filter
+				*activeUserInputsOn = false
+				brk = true
+
+			case tea.KeyEsc:
+				// abort entering filter
+				*activeUserInputsOn = false
+				brk = true
+
+			case tea.KeyUp, tea.KeyDown, tea.KeyTab:
+				s := msg.String()
+				m.JobHistTab.UserInputs.Params[m.JobHistTab.UserInputs.FocusIndex].Blur()
+
+				if s == "up" {
+					m.JobHistTab.UserInputs.FocusIndex--
+				} else {
+					m.JobHistTab.UserInputs.FocusIndex++
+				}
+
+				if m.JobHistTab.UserInputs.FocusIndex >= len(m.JobHistTab.UserInputs.Params) {
+					m.JobHistTab.UserInputs.FocusIndex = 0
+				} else if m.JobHistTab.UserInputs.FocusIndex < 0 {
+					m.JobHistTab.UserInputs.FocusIndex = len(m.JobHistTab.UserInputs.Params)-1
+				}
+
+				m.JobHistTab.UserInputs.Params[m.JobHistTab.UserInputs.FocusIndex].Focus()
+			}
+
+			if brk {
+				// TODO: this is a "fix" for crashing-after-filter when Cursor() goes beyond list end
+				// TODO: don't feel good about this... what if list is empty? no good. revisit
+				// NOTE: This doesn't do what i image it should, cursor remains -1 when table is empty situation?
+				// Explanation in clamp function: https://github.com/charmbracelet/bubbles/blob/13f52d678d315676568a656b5211b8a24a54a885/table/table.go#L296
+				activeTable.SetCursor(0)
+				activeTab.AdjTableHeight(m.winH, m.Log)
+				m.Log.Printf("Update: Param set, setcursor(0), activetable.Cursor==%d\n", activeTable.Cursor())
+				switch m.ActiveTab {
+				case tabJobHist:
+					chngd := false
+					t, _ := strconv.ParseUint(m.JobHistTab.UserInputs.Params[0].Value(), 10, 32)
+
+					if m.JobHistTab.UserInputs.Params[1].Value() != m.JobHistTab.JobHistStart {
+						m.JobHistTab.JobHistStart = m.JobHistTab.UserInputs.Params[1].Value()
+						chngd = true
+					}
+					if m.JobHistTab.UserInputs.Params[2].Value() != m.JobHistTab.JobHistEnd {
+						m.JobHistTab.JobHistEnd = m.JobHistTab.UserInputs.Params[2].Value()
+						chngd = true
+					}
+					if uint(t) != m.JobHistTab.JobHistTimeout {
+						m.JobHistTab.JobHistTimeout = uint(t)
+						chngd = true
+					}
+
+					if chngd {
+						m.Log.Println ("Refreshing JobHist View")
+						m.JobHistTab.HistFetched = false
+						return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","),
+										m.JobHistTab.JobHistStart,
+										m.JobHistTab.JobHistEnd,
+										m.JobHistTab.JobHistTimeout,
+										m.Log)
+					}
+
+				default:
+					return m, nil
+				}
+			}
+		}
+
+		var tmp textinput.Model
+		var cmd tea.Cmd
+		for i := range m.JobHistTab.UserInputs.Params {
+			tmp, cmd = activeUserInputs.Params[i].Update(msg)
+			*&activeUserInputs.Params[i] = tmp
+		}
 		return m, cmd
 
 	case m.JobTab.MenuOn:
@@ -207,6 +301,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch msg.Type {
 			case tea.KeyEsc:
 				m.EditTemplate = false
+				jobfromtemplate.EditorKeyMap.DisableKeys()
 				tabKeys[m.ActiveTab].SetupKeys()
 				//if m.TemplateEditor.Focused() {
 				//	m.TemplateEditor.Blur()
@@ -222,6 +317,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// 4. Submit job
 				m.Log.Printf("EditTemplate: Ctrl+s pressed\n")
 				m.EditTemplate = false
+				jobfromtemplate.EditorKeyMap.DisableKeys()
 				tabKeys[m.ActiveTab].SetupKeys()
 				name, err := jobfromtemplate.SaveToFile(m.JobFromTemplateTab.TemplatesTable.SelectedRow()[0], m.JobFromTemplateTab.TemplateEditor.Value(), m.Log)
 				if err != nil {
@@ -232,6 +328,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case tea.KeyCtrlC:
 				return m, tea.Quit
+
 			default:
 				if !m.TemplateEditor.Focused() {
 					cmd = m.TemplateEditor.Focus()
@@ -282,9 +379,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Globals.UAccounts = append(m.Globals.UAccounts, msg...)
 		m.Log.Printf("Appended UserAssoc msg go Globals, value now: %#v\n", m.Globals.UAccounts)
 		// Now we trigger a sacctHist
-		//return m, nil
-		m.Log.Printf("Appended UserAssoc msg go Globals, calling GetSacctHist()\n")
-		return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","), m.JobHistTab.JobHistStart, m.JobHistTab.JobHistTimeout, m.Log)
+		return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","),
+							m.JobHistTab.JobHistStart,
+							m.JobHistTab.JobHistEnd,
+							m.JobHistTab.JobHistTimeout,
+							m.Log)
 
 	// UserName fetched
 	case command.UserName:
@@ -327,6 +426,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case jobfromtemplate.TemplateText:
 		m.Log.Printf("Update: Got TemplateText msg: %#v\n", msg)
 		// HERE: we initialize the new textarea editor and flip the EditTemplate switch to ON
+		tabKeys[m.ActiveTab].DisableKeys()
 		jobfromtemplate.EditorKeyMap.SetupKeys()
 		m.EditTemplate = true
 		m.TemplateEditor = textarea.New()
@@ -352,7 +452,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// TODO: set also maxheight/width here on change?
 		styles.MainWindow = styles.MainWindow.Height(m.winH - 10)
 		styles.MainWindow = styles.MainWindow.Width(m.winW - 15)
-		styles.HelpWindow = styles.HelpWindow.Width(m.winW - 15)
+		styles.HelpWindow = styles.HelpWindow.Width(m.winW)
 		styles.JobStepBoxStyle = styles.JobStepBoxStyle.Width(m.winW - 20)
 		// InfoBox
 		w := ((m.Globals.winW - 25) / 3) * 3
@@ -449,7 +549,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if !m.JobHistTab.HistFetchFail {
 			m.JobHistTab.HistFetched = true
 		}
-		// TODO: Here we don't tick refresh, because of potentially long sacct calls, make it manually triggered
+
 		return m, nil
 
 	// Keys pressed
@@ -480,10 +580,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// DOWN
 		case key.Matches(msg, keybindings.DefaultKeyMap.Down):
-			t := time.Now()
-			m.Log.Printf("Update: Move down\n")
 			activeTable.MoveDown(1)
-			m.Log.Printf("Update: Move down finished in: %.3f sec\n", time.Since(t).Seconds())
 			m.lastKey = "down"
 
 		// PAGE DOWN
@@ -499,6 +596,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// 1..6 Tab Selection keys
 		case key.Matches(msg, keybindings.DefaultKeyMap.TtabSel):
 			k, _ := strconv.Atoi(msg.String())
+			tabKeys[m.ActiveTab].DisableKeys()
 			m.ActiveTab = uint(k) - 1
 			tabKeys[m.ActiveTab].SetupKeys()
 			m.lastKey = msg.String()
@@ -518,6 +616,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// TAB
 		case key.Matches(msg, keybindings.DefaultKeyMap.Tab):
+			tabKeys[m.ActiveTab].DisableKeys()
 			// switch tab
 			m.ActiveTab = (m.ActiveTab + 1) % uint(len(tabs))
 			// setup keys
@@ -539,6 +638,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Shift+TAB
 		case key.Matches(msg, keybindings.DefaultKeyMap.ShiftTab):
+			tabKeys[m.ActiveTab].DisableKeys()
 			// switch tab
 			if m.ActiveTab == 0 {
 				m.ActiveTab = uint(len(tabs) - 1)
@@ -564,13 +664,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// SLASH
 		case key.Matches(msg, keybindings.DefaultKeyMap.Slash):
-			switch {
-			case m.ActiveTab == tabJobs:
+			m.Log.Printf("Filter key pressed\n")
+			switch m.ActiveTab {
+			case tabJobs:
 				m.JobTab.FilterOn = true
-			case m.ActiveTab == tabJobHist:
+			case tabJobHist:
 				m.JobHistTab.FilterOn = true
-			case m.ActiveTab == tabCluster:
+			case tabCluster:
 				m.ClusterTab.FilterOn = true
+			}
+			activeTab.AdjTableHeight(m.winH, m.Log)
+			return m, nil
+
+		// t
+		case key.Matches(msg, keybindings.DefaultKeyMap.TimeRange):
+			m.Log.Printf("time-range key pressed\n")
+			switch m.ActiveTab {
+			case tabJobHist:
+				m.JobHistTab.UserInputsOn = true
 			}
 			activeTab.AdjTableHeight(m.winH, m.Log)
 			return m, nil
@@ -609,6 +720,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.Log.Printf("Update ENTER key @ jobhist table, no jobs selected/empty table\n")
 					return m, nil
 				}
+				tabKeys[m.ActiveTab].DisableKeys()
 				m.ActiveTab = tabJobDetails
 				tabKeys[m.ActiveTab].SetupKeys()
 				m.JobDetailsTab.SelJobIDNew = n
@@ -630,6 +742,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				}
 			}
+
+		// Refresh the View
+		case key.Matches(msg, keybindings.DefaultKeyMap.Refresh):
+			switch m.ActiveTab {
+			case tabJobHist:
+				m.Log.Println ("Refreshing JobHist View")
+				m.JobHistTab.HistFetched = false
+				return m, jobhisttab.GetSacctHist(strings.Join(m.Globals.UAccounts, ","),
+				                                  m.JobHistTab.JobHistStart,
+								  m.JobHistTab.JobHistEnd,
+								  m.JobHistTab.JobHistTimeout,
+								  m.Log)
+			}
+			return m, nil
 
 		// Info - toggle on/off
 		case key.Matches(msg, keybindings.DefaultKeyMap.Info):
@@ -673,7 +799,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// QUIT
 		case key.Matches(msg, keybindings.DefaultKeyMap.Quit):
-			fmt.Println("Quit key pressed")
+			m.Log.Printf("Quit key pressed\n")
 			return m, tea.Quit
 		}
 	}

@@ -5,7 +5,15 @@ import (
 	"log"
 	"sort"
 	"time"
+
+	"github.com/charmbracelet/bubbles/textinput"
 )
+
+type UserInputs struct {
+	FocusIndex   int
+	ParamTexts   []string
+	Params       []textinput.Model
+}
 
 type CountItemSlice []CountItem
 

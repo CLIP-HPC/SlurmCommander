@@ -8,8 +8,9 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/CLIP-HPC/SlurmCommander/internal/cmdline"
 	"github.com/CLIP-HPC/SlurmCommander/internal/command"
 	"github.com/CLIP-HPC/SlurmCommander/internal/config"
@@ -40,7 +41,7 @@ func main() {
 		log.Printf("ERROR: parsing config files: %s\n", err)
 	}
 
-	args, err = cmdline.NewCmdArgs(cc.HistDays, cc.HistTimeout)
+	args, err = cmdline.NewCmdArgs()
 	if err != nil {
 		log.Fatalf("ERROR: parsing cmdline args: %s\n", err)
 	}
@@ -102,15 +103,17 @@ func main() {
 		},
 		JobTab: jobtab.JobTab{
 			SqueueTable: table.New(table.WithColumns(jobtab.SqueueTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
-			Filter:      ti,
+			Filter: ti,
 		},
 		JobHistTab: jobhisttab.JobHistTab{
 			SacctTable:     table.New(table.WithColumns(jobhisttab.SacctTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
-			Filter:         ti,
+			Filter: ti,
+			UserInputs:     jobhisttab.NewUserInputs(cc.JobHist.Timeout, cc.JobHist.Starttime, cc.JobHist.Endtime),
 			HistFetched:    false,
 			HistFetchFail:  false,
-			JobHistStart:   *args.HistDays,
-			JobHistTimeout: *args.HistTimeout,
+			JobHistStart:   cc.JobHist.Starttime,
+			JobHistEnd:     cc.JobHist.Endtime,
+			JobHistTimeout: cc.JobHist.Timeout,
 		},
 		JobDetailsTab: jobdetailstab.JobDetailsTab{
 			SelJobIDNew: -1,
@@ -127,7 +130,7 @@ func main() {
 		},
 		ClusterTab: clustertab.ClusterTab{
 			SinfoTable: table.New(table.WithColumns(clustertab.SinfoTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
-			Filter:     ti,
+			Filter: ti,
 		},
 	}
 

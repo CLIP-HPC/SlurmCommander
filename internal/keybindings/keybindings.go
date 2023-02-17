@@ -8,12 +8,14 @@ type KeyMap struct {
 	TtabSel       key.Binding
 	Up            key.Binding
 	Down          key.Binding
+	Refresh       key.Binding
 	Quit          key.Binding
 	PageUp        key.Binding
 	PageDown      key.Binding
 	Tab           key.Binding
 	ShiftTab      key.Binding
 	Slash         key.Binding
+	TimeRange     key.Binding
 	Info          key.Binding
 	Enter         key.Binding
 	SaveSubmitJob key.Binding
@@ -61,6 +63,16 @@ var DefaultKeyMap = KeyMap{
 		key.WithKeys("shift+tab"),
 		key.WithHelp("shift+tab", "Cycle tabs backwards"),
 	),
+	Refresh: key.NewBinding(
+		key.WithKeys("r"),
+		key.WithHelp("r", "Refresh View"),
+		key.WithDisabled(),
+	),
+	TimeRange: key.NewBinding(
+		key.WithKeys("t"),
+		key.WithHelp("t", "Modify Time Range"),
+		key.WithDisabled(),
+	),
 	Quit: key.NewBinding(
 		key.WithKeys("q", "ctrl+c"),
 		key.WithHelp("q", "Quit scom"),
@@ -102,6 +114,8 @@ func (km KeyMap) ShortHelp() []key.Binding {
 		km.Info,
 		km.Stats,
 		km.Count,
+		km.Refresh,
+		km.TimeRange,
 		km.Enter,
 		km.Quit,
 		km.SaveSubmitJob,

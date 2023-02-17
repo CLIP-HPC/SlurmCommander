@@ -2,8 +2,8 @@ package jobhisttab
 
 import (
 	"context"
+	"strings"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os/exec"
 	"time"
@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	cc                   config.ConfigContainer
+	cc config.ConfigContainer
 	SacctHistCmdSwitches = []string{"-n", "--json"}
 )
 
@@ -27,25 +27,27 @@ type JobHistTabMsg struct {
 	SacctJSON
 }
 
-func GetSacctHist(uaccs string, d uint, t uint, l *log.Logger) tea.Cmd {
+func GetSacctHist(uaccs string, start string, end string, t uint, l *log.Logger) tea.Cmd {
 	return func() tea.Msg {
 		var (
 			jht JobHistTabMsg
 		)
 
-		// TODO: Setup command line switch to pick how many days of sacct to fetch in case of massive runs.
+		l.Printf("GetSacctHist(%q) start: %s, end: %s, timeout: %d\n", uaccs, start, end, t)
 
-		l.Printf("GetSacctHist(%q) start: days %d, timeout: %d\n", uaccs, d, t)
-
-		// setup context with 5 second timeout
+		// setup context with user set timeout in seconds
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(t)*time.Second)
 		defer cancel()
 
 		// prepare command
 		cmd := cc.Binpaths["sacct"]
-		start := fmt.Sprintf("now-%ddays", d)
-		switches := append(SacctHistCmdSwitches, "-S", start)
-		switches = append(switches, "-A", uaccs)
+		switches := append(SacctHistCmdSwitches, "-A", uaccs)
+		if strings.TrimSpace(start) != "" {
+			switches = append(switches, "-S", start)
+		}
+		if strings.TrimSpace(end) != "" {
+			switches = append(switches, "-E", end)
+		}
 
 		l.Printf("EXEC: %q %q\n", cmd, switches)
 		out, err := exec.CommandContext(ctx, cmd, switches...).Output()
@@ -60,14 +62,12 @@ func GetSacctHist(uaccs string, d uint, t uint, l *log.Logger) tea.Cmd {
 
 		err = json.Unmarshal(out, &jht.SacctJSON)
 		if err != nil {
-			//jht.HistFetchFail = true
 			l.Printf("Error unmarshall: %q\n", err)
 			return command.ErrorMsg{
 				From:    "GetSacctHist",
 				ErrHelp: "sacct JSON failed to parse, note your slurm version and open an issue with us here: https://github.com/CLIP-HPC/SlurmCommander/issues/new/choose",
 				OrigErr: err,
 			}
-			//return jht
 		}
 
 		jht.HistFetchFail = false
