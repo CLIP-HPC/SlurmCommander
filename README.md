@@ -1,6 +1,12 @@
 
 # SlurmCommander
 
+> ## News:
+>
+> [Discussions](https://github.com/CLIP-HPC/SlurmCommander/discussions) are open!
+>
+> Wishlist discussion thread: [here](https://github.com/CLIP-HPC/SlurmCommander/discussions/20)
+
 ## Description
 
 SlurmCommander is a simple, lightweight, no-dependencies text-based user interface (TUI) to your cluster.
