@@ -5,18 +5,22 @@ import (
 )
 
 var (
-	Blue   = lipgloss.Color("#0057b7")
-	Yellow = lipgloss.Color("#ffd700")
-	Red    = lipgloss.Color("#cc0000")
-	Green  = lipgloss.Color("#00b300")
-	Orange = lipgloss.Color("#FFA500")
+	Blue      = lipgloss.Color("#0057b7")
+	Yellow    = lipgloss.Color("#ffd700")
+	Red       = lipgloss.Color("#cc0000")
+	DarkRed   = lipgloss.Color("#990000")
+	Green     = lipgloss.Color("#00b300")
+	GreenIdle = lipgloss.Color("#00cc66")
+	Orange    = lipgloss.Color("#FF8000")
 
 	Bluegrey = lipgloss.Color("#c2d1f0")
 
 	// Generic text color styles
 	TextRed          = lipgloss.NewStyle().Foreground(Red)
+	TextDarkRed      = lipgloss.NewStyle().Foreground(DarkRed)
 	TextYellow       = lipgloss.NewStyle().Foreground(Yellow)
 	TextGreen        = lipgloss.NewStyle().Foreground(Green)
+	TextGreenIdle    = lipgloss.NewStyle().Foreground(GreenIdle)
 	TextBlue         = lipgloss.NewStyle().Foreground(Blue)
 	TextOrange       = lipgloss.NewStyle().Foreground(Orange)
 	TextBlueGrey     = lipgloss.NewStyle().Foreground(Bluegrey)

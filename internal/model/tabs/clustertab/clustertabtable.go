@@ -71,11 +71,19 @@ type RowStyle struct{}
 type SelectedStyle struct{}
 
 func (h CellStyle) Style(i int, r table.Row) lipgloss.Style {
-	switch r[i] {
-	case "down":
+	switch {
+	case r[2] == "down":
+		return styles.TextDarkRed
+	case strings.Contains(r[9], "NOT_RESPONDING"):
+		return styles.TextDarkRed
+	case i == 2 && r[i] == "allocated":
 		return styles.TextRed
-	case "mixed":
+	case i == 2 && r[i] == "idle":
+		return styles.TextGreenIdle
+	case i == 2 && r[i] == "mixed":
 		return styles.TextOrange
+	case i == 9 && strings.Contains(r[i], "POWERED_DOWN"):
+		return styles.TextDarkRed
 	default:
 		return lipgloss.NewStyle()
 	}

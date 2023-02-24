@@ -441,7 +441,7 @@ func (m *Model) renderRow(rowID int) string {
 	for i, value := range m.rows[rowID] {
 		style := lipgloss.NewStyle().Width(m.cols[i].Width).MaxWidth(m.cols[i].Width).Inline(true)
 		overlayedStyle := cellStyles[i].Inherit(rowStyle)
-		overlayedStyle = overlayedStyle.Copy().Inherit(selStyle)
+		overlayedStyle = overlayedStyle.Copy().Inherit(selStyle).Padding(0, 1)
 		//renderedCell := cellStyles[i].Inherit(rowStyle).Render(style.Render(runewidth.Truncate(value, m.cols[i].Width, "…")))
 		renderedCell := overlayedStyle.Render(style.Render(runewidth.Truncate(value, m.cols[i].Width, "…")))
 
