@@ -8,8 +8,8 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
-	"github.com/charmbracelet/lipgloss"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/CLIP-HPC/SlurmCommander/internal/cmdline"
 	"github.com/CLIP-HPC/SlurmCommander/internal/command"
@@ -30,7 +30,7 @@ func main() {
 
 	var (
 		debugSet bool = false
-		args *cmdline.CmdArgs
+		args     *cmdline.CmdArgs
 	)
 
 	fmt.Printf("Welcome to Slurm Commander!\n\n")
@@ -103,11 +103,11 @@ func main() {
 		},
 		JobTab: jobtab.JobTab{
 			SqueueTable: table.New(table.WithColumns(jobtab.SqueueTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
-			Filter: ti,
+			Filter:      ti,
 		},
 		JobHistTab: jobhisttab.JobHistTab{
 			SacctTable:     table.New(table.WithColumns(jobhisttab.SacctTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
-			Filter: ti,
+			Filter:         ti,
 			UserInputs:     jobhisttab.NewUserInputs(cc.JobHist.Timeout, cc.JobHist.Starttime, cc.JobHist.Endtime),
 			HistFetched:    false,
 			HistFetchFail:  false,
@@ -130,9 +130,13 @@ func main() {
 		},
 		ClusterTab: clustertab.ClusterTab{
 			SinfoTable: table.New(table.WithColumns(clustertab.SinfoTabCols), table.WithRows(jobtab.TableRows{}), table.WithStyles(s)),
-			Filter: ti,
+			Filter:     ti,
 		},
 	}
+
+	m.ClusterTab.SinfoTable.CustomCellStyle = new(clustertab.CellStyle)
+	m.ClusterTab.SinfoTable.CustomRowStyle = new(clustertab.RowStyle)
+	m.ClusterTab.SinfoTable.CustomSelectedStyle = new(clustertab.SelectedStyle)
 
 	// OLD: bubbletea@v0.22.1
 	//p := tea.NewProgram(tea.Model(m), tea.WithAltScreen())

@@ -5,15 +5,11 @@ import (
 )
 
 var (
-	// Blue
-	Blue = lipgloss.Color("#0057b7")
-	// Yellow
+	Blue   = lipgloss.Color("#0057b7")
 	Yellow = lipgloss.Color("#ffd700")
-	// Red
-	Red = lipgloss.Color("#cc0000")
-	//red = lipgloss.Color("#b30000")
-	//Green = lipgloss.Color("#009900")
-	Green = lipgloss.Color("#00b300")
+	Red    = lipgloss.Color("#cc0000")
+	Green  = lipgloss.Color("#00b300")
+	Orange = lipgloss.Color("#FFA500")
 
 	Bluegrey = lipgloss.Color("#c2d1f0")
 
@@ -22,8 +18,13 @@ var (
 	TextYellow       = lipgloss.NewStyle().Foreground(Yellow)
 	TextGreen        = lipgloss.NewStyle().Foreground(Green)
 	TextBlue         = lipgloss.NewStyle().Foreground(Blue)
+	TextOrange       = lipgloss.NewStyle().Foreground(Orange)
 	TextBlueGrey     = lipgloss.NewStyle().Foreground(Bluegrey)
 	TextYellowOnBlue = lipgloss.NewStyle().Foreground(Yellow).Background(Blue).Underline(true)
+
+	// Table styles
+	//SelectedRow = lipgloss.NewStyle().Background(Blue).Foreground(Yellow).Bold(false)
+	SelectedRow = lipgloss.NewStyle().Background(Blue).Foreground(Yellow)
 
 	// ErrorHelp Box
 	//ErrorHelp = lipgloss.NewStyle().Foreground(red).Border(lipgloss.RoundedBorder()).BorderForeground(red)

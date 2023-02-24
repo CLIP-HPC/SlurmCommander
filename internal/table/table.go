@@ -19,9 +19,20 @@ type Model struct {
 	cursor int
 	focus  bool
 	styles Styles
+	CustomStyles
 
 	viewport viewport.Model
 	renderedLines
+}
+
+type CustomStyles struct {
+	CustomCellStyle     CustomStyle
+	CustomRowStyle      CustomStyle
+	CustomSelectedStyle CustomStyle
+}
+
+type CustomStyle interface {
+	Style(int, Row) lipgloss.Style
 }
 
 type renderedLines struct {
@@ -393,18 +404,51 @@ func (m Model) headersView() string {
 }
 
 func (m *Model) renderRow(rowID int) string {
-	var s = make([]string, 0, len(m.cols))
+	var (
+		selStyle   lipgloss.Style
+		rowStyle   lipgloss.Style
+		cellStyles = make([]lipgloss.Style, len(m.cols))
+		s          = make([]string, 0, len(m.cols))
+	)
+
+	// Prepare RowStyle
+	if m.CustomRowStyle != nil {
+		rowStyle = m.CustomRowStyle.Style(rowID, m.rows[rowID])
+	} else {
+		// We don't have rowstyle separately, what now?
+		// do an empty one? or m.Styles.Cell ???
+		rowStyle = lipgloss.NewStyle()
+	}
+	// If row is selected, prepare selStyle
+	if rowID == m.cursor {
+		if m.CustomSelectedStyle != nil {
+			selStyle = m.CustomSelectedStyle.Style(rowID, m.rows[rowID])
+		} else {
+			selStyle = m.styles.Selected
+		}
+	} else {
+		selStyle = lipgloss.NewStyle()
+	}
+	// For each cell in a row get its style and save it
+	for i := range m.rows[rowID] {
+		if m.CustomCellStyle != nil {
+			cellStyles[i] = m.CustomCellStyle.Style(i, m.rows[rowID])
+		} else {
+			cellStyles[i] = m.styles.Cell
+		}
+	}
+	// Loop through the cells again Render() with overlayed styles
 	for i, value := range m.rows[rowID] {
 		style := lipgloss.NewStyle().Width(m.cols[i].Width).MaxWidth(m.cols[i].Width).Inline(true)
-		renderedCell := m.styles.Cell.Render(style.Render(runewidth.Truncate(value, m.cols[i].Width, "…")))
+		overlayedStyle := cellStyles[i].Inherit(rowStyle)
+		overlayedStyle = overlayedStyle.Copy().Inherit(selStyle)
+		//renderedCell := cellStyles[i].Inherit(rowStyle).Render(style.Render(runewidth.Truncate(value, m.cols[i].Width, "…")))
+		renderedCell := overlayedStyle.Render(style.Render(runewidth.Truncate(value, m.cols[i].Width, "…")))
+
 		s = append(s, renderedCell)
 	}
 
 	row := lipgloss.JoinHorizontal(lipgloss.Left, s...)
-
-	if rowID == m.cursor {
-		return m.styles.Selected.Render(row)
-	}
 
 	return row
 }
