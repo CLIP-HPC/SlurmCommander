@@ -8,7 +8,9 @@ import (
 
 	"github.com/CLIP-HPC/SlurmCommander/internal/command"
 	"github.com/CLIP-HPC/SlurmCommander/internal/slurm"
+	"github.com/CLIP-HPC/SlurmCommander/internal/styles"
 	"github.com/CLIP-HPC/SlurmCommander/internal/table"
+	"github.com/charmbracelet/lipgloss"
 )
 
 const (
@@ -63,6 +65,37 @@ var SinfoTabCols = []table.Column{
 
 type SinfoJSON slurm.SinfoJSON
 type TableRows []table.Row
+
+type CellStyle struct{}
+type RowStyle struct{}
+type SelectedStyle struct{}
+
+func (h CellStyle) Style(i int, r table.Row) lipgloss.Style {
+	switch {
+	case r[2] == "down":
+		return styles.TextDarkRed
+	case strings.Contains(r[9], "NOT_RESPONDING"):
+		return styles.TextDarkRed
+	case i == 2 && r[i] == "allocated":
+		return styles.TextRed
+	case i == 2 && r[i] == "idle":
+		return styles.TextGreenIdle
+	case i == 2 && r[i] == "mixed":
+		return styles.TextOrange
+	case i == 9 && strings.Contains(r[i], "POWERED_DOWN"):
+		return styles.TextDarkRed
+	default:
+		return lipgloss.NewStyle()
+	}
+}
+
+func (h RowStyle) Style(i int, r table.Row) lipgloss.Style {
+	return lipgloss.NewStyle()
+}
+
+func (h SelectedStyle) Style(i int, r table.Row) lipgloss.Style {
+	return styles.SelectedRow
+}
 
 func (siJson *SinfoJSON) FilterSinfoTable(f string, l *log.Logger) (*TableRows, *SinfoJSON, *command.ErrorMsg) {
 	var (
