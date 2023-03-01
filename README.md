@@ -3,6 +3,13 @@
 
 > ## News:
 >
+> ### Slurm 23.02.0
+> Slurm 23 has been released, and as already reported [here](https://github.com/CLIP-HPC/SlurmCommander/issues/22) scom does not work with it.
+>
+> The [issue](https://github.com/CLIP-HPC/SlurmCommander/issues/22) contains details and will track any potential progress on the support for slurm 23.
+>
+> ---
+>
 > [Discussions](https://github.com/CLIP-HPC/SlurmCommander/discussions) are open!
 >
 > Wishlist discussion thread: [here](https://github.com/CLIP-HPC/SlurmCommander/discussions/20)
