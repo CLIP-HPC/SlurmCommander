@@ -94,7 +94,7 @@ __NOTE__: Users can still override global configuration options by changing conf
 
 SlurmCommander is developed for 256 color terminals (black background) and requires at least 185x43 (columns x rows) to work.
 
-* If you experience _funky_ colors on startup, try setting your `TERM` environment variable to something like `xterm-256color`.
+* If you experience _funky_ colors on startup, try setting your `TERM` environment variable to something like `xterm-256color`. If you are using TMUX or Screen try setting `TERM` to `screen-256color` instead.
 * If you get a message like this:
 `FATAL: Window too small to run without breaking view. Have 80x24. Need at least 185x43.`, check your terminal resolution with `stty -a` and try resizing the window or reduce the font.
 
